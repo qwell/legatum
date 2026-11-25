@@ -219,7 +219,7 @@ export function advisorSuggestion(ctx: AdvisorContext, seen: readonly string[], 
       const unit = ownUnits(v).find((u) => u.id === d.id);
       if (!unit) continue;
       const choice = plan?.find((o) => 'unit' in o && o.unit === unit.id);
-      if (learned(practice, practiceKind(choice, v))) continue;
+      if (learned(practice, choice ? practiceKind(choice, v) : unit.kind === 'Settler' ? null : 'move')) continue;
       const suggestion = unitSuggestion(ctx, unit, choice) ?? unitSuggestion(ctx, unit);
       if (suggestion) return suggestion;
     }

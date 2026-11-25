@@ -246,9 +246,12 @@ export function Advisor() {
 export function AdvisorSettings() {
   const { enabled, setEnabled, practice, resetPractice } = useAdvisor();
   const practised = Object.values(practice).some((n) => (n ?? 0) > 0);
+  const [reset, setReset] = useState(false);
+  useEffect(() => { if (!reset) return; const t = window.setTimeout(() => setReset(false), 2500); return () => window.clearTimeout(t); }, [reset]);
   return <div className="hint-settings" onKeyDown={(e) => { if (e.key !== 'Escape') e.stopPropagation(); }}>
     <label><input type="checkbox" checked={enabled} onChange={(e) => setEnabled(e.target.checked)} />Show the advisor</label>
     <div className="hint-settings-foot"><span>On by default. Steps you already know, like moving a unit, stop showing after a few turns.</span>
-      {practised && <button onClick={resetPractice}>Show every step again</button>}</div>
+      {practised ? <button onClick={() => { resetPractice(); setReset(true); }}>Show every step again</button>
+        : reset && <span role="status">Every step will show again.</span>}</div>
   </div>;
 }

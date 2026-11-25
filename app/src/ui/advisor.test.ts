@@ -209,3 +209,12 @@ describe('practice counting', () => {
     vi.unstubAllGlobals();
   });
 });
+
+it('a Settler with no planned order still gets a card when moving is learned', async () => {
+  const { view, plan, ctx } = await opening();
+  const own = view.units.find((u) => u.owner === view.me)!;
+  const settler = { ...own, id: 9101, kind: 'Settler' as const, military: false };
+  view.units = [...view.units.filter((u) => u.owner !== view.me), settler];
+  const s = advisorSuggestion({ ...ctx([plan[0], plan[2]]), plan: [] }, ['welcome'], [], { move: PRACTICE_TURNS });
+  expect(s?.id).toBe(`unit:${settler.id}`);
+});
