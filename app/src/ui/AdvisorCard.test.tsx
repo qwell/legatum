@@ -77,3 +77,14 @@ it('turns off, moves on, and pauses for busy, ready and blocking overlays', asyn
   fireEvent.click(screen.getByRole('button', { name: 'Turn off' }));
   expect(screen.queryByTestId('advisor')).toBeNull();
 });
+
+it('counts routine steps the player does, once per turn', () => {
+  useAdvisor.setState({ practice: {}, practised: [], practisedTurn: -1 });
+  render(<Advisor />);
+  const unit = view.units.find((u) => u.owner === view.me)!;
+  act(() => useGame.setState({ orders: [[{ type: 'SkipUnit', unit: unit.id }]] }));
+  act(() => useGame.setState({ orders: [[{ type: 'SkipUnit', unit: unit.id }, { type: 'SleepUnit', unit: unit.id }]] }));
+  expect(useAdvisor.getState().practice).toEqual({ skip: 1, fortify: 1 });
+  act(() => useGame.setState({ views: [{ ...view, turn: view.turn + 1 }], orders: [[]] }));
+  expect(useAdvisor.getState().practice.endTurn).toBe(1);
+});
