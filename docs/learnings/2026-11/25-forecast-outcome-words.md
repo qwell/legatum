@@ -1,6 +1,6 @@
 # The attack forecast leads with the outcome in words (2026-11-25)
 
-A new player (Sam's wife) read the old card as noise: a red "Risky" verdict over "0% destroy it / 0% lose your unit", big strength numbers with no label, and "Rolls 80–120%". "Risky" meant "nobody dies and you take more damage", which no first-time player can decode, and the 0% row read as contradicting it.
+A first-time player read the old card as noise: a red "Risky" verdict over "0% destroy it / 0% lose your unit", big strength numbers with no label, and "Rolls 80–120%". "Risky" meant "nobody dies and you take more damage", which no first-time player can decode, and the 0% row read as contradicting it.
 
 The card now opens with `forecastHeadline` (app/src/ui/ForecastCard.tsx): a title ("Both units survive", "You will likely destroy the Archer", "Your Horseman could be destroyed", "Lugano holds this turn") and one line saying who takes more damage, with both HP numbers taken from the same before/after values the HP bars show. The odds row is hidden when both chances are 0, the strength numbers carry a "Strength" label, and the "Risky:" prefix is gone from the loss warning, which is also dropped when the headline already names the loss. `verdict` stays in the model (data-verdict) for tests.
 

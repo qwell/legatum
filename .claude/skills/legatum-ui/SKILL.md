@@ -56,7 +56,7 @@ This file holds the current rules, one line each. The user's words, dates, as-bu
 - Every number has a breakdown on hover or click; hover is for reading, click opens breakdowns; a hoverable bubble never covers its trigger.
 - A number shown is the number in force, and a limit that applies is named in the same line (user, 2026-10-17). Label gross versus net; each number once per card; one source per number.
 - Forecast headlines include every consequence (walled-city fire, Siege); a line that changes a number shows both numbers.
-- A forecast opens with the outcome in words a first-time player understands ("Both units survive", "You will likely destroy the Archer", "Your Horseman could be destroyed") and who takes more damage, with both numbers; the odds, strength tables and notes come after. No bare verdict word ("Risky") and no row of 0% / 0% (user, 2026-11-25: his wife, a new player, could not read the old card).
+- A forecast opens with the outcome in words a first-time player understands ("Both units survive", "You will likely destroy the Archer", "Your Horseman could be destroyed") and who takes more damage, with both numbers; the odds, strength tables and notes come after. No bare verdict word ("Risky") and no row of 0% / 0% (user, 2026-11-25: a first-time player could not read the old card).
 - Costs are loud (red), including ongoing upkeep on every build card; neutral "nothing yet" lines are muted ink, never green; colour is from the viewer's side.
 - Anything that ticks over time has a progress bar with turns left; a goal's progress is a meter with its number.
 - Every way to score is visible, with ownership unmistakable (user, 2026-10-06); a scoring option that becomes available is announced every time (user, 2026-11-11).
