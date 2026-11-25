@@ -9,7 +9,7 @@ import { itemName } from '../data';
 import { useGame } from '../store';
 import { formatBreakdown } from '../format';
 import { forecastEraHeadline, outclasses } from '../map/unitEra';
-import { AftermathLine, FortifyLine, forecastModel, winAction } from './ForecastCard';
+import { AftermathLine, FortifyLine, forecastModel, tradeMark, winAction } from './ForecastCard';
 import { cityEntryWarning, forecastWinLabel, garrisonHeadline } from './forecastWarnings';
 import { usePlacedCard, type CardAnchor } from './usePlacedCard';
 import { Icon } from './bits';
@@ -39,15 +39,15 @@ function Option({ kind, f, m, view, unit }: { kind: 'shot' | 'charge'; f: Battle
         <span className="dual-what"><Icon name={shot ? 'unit-archer' : 'unit-horseman'} size={15} /> {shot ? 'Shoot' : 'Charge'}</span>
         <span className="dual-key">{shot ? 'R, then click' : 'Right-click'}</span>
       </header>
-      <p className={`dual-outcome ${m.tone}`} data-testid={`forecast-${kind}-headline`}><b>{m.headline.title}.</b> {m.headline.detail}</p>
+      <p className={`dual-outcome ${m.tone}`} data-testid={`forecast-${kind}-headline`}><b>{m.headline.title}.</b> <span className={`forecast-outcome ${m.headline.tradeTone}`}>{tradeMark(m.headline.tradeTone)}{m.headline.detail}</span></p>
       {!shot && m.aftermath?.severe && <AftermathLine m={m} />}
       <p className="dual-line" data-testid={`forecast-${kind}-numbers`}>
         You <RankMark level={unit.level ?? 0} faction={view.players.find((p) => p.id === unit.owner)?.faction} compact /> <b>{f.attacker_strength.total}</b> vs {m.defName} <RankMark level={m.defUnit?.level ?? 0} faction={view.players.find((p) => p.id === m.defOwner)?.faction} compact /> <b>{f.defender_strength.total}</b> strength · you <b>{f.attacker_hp} → {m.hpAfter}</b> HP · {m.defName} <b>{f.defender_hp} → {defHpAfter}</b>
       </p>
-      <p className="dual-odds">
+      {(m.win > 0 || m.loss > 0) && <p className="dual-odds">
         <b className="good">{m.win}%</b> chance to {winAction(forecastWinLabel(f, !!m.city, shot, false), m.defName, m.city?.name ?? null)}
-        {shot && m.loss === 0 ? <span className="dual-quiet"> · no return fire</span> : <> · <b className={m.loss > 0 ? 'bad' : ''}>{m.loss}%</b> chance to lose your {m.unitLabel}</>}
-      </p>
+        {' · '}<b className={m.loss > 0 ? 'bad' : ''}>{m.loss}%</b> chance to lose your {m.unitLabel}
+      </p>}
       <p className="dual-class" data-testid={`forecast-${kind}-class`}>
         {classes.length ? classes.join('; ') : 'No class bonus for either side.'}
       </p>

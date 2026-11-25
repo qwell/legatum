@@ -44,10 +44,12 @@ export function forecastTargetName(view: PlayerView, target: Hex): string | null
 export type ForecastHeadline = {
   /** What happens, in a few words: "Both units survive", "You will likely destroy the Spearman". */
   title: string;
-  /** Who takes more damage, with both numbers: "You take more damage: you lose 37 HP, they lose 23." */
+  /** Who takes more damage, with both numbers: "You take more damage: about 37 HP to you, 23 to the Spearman." */
   detail: string;
-  /** good: you come out ahead; bad: you come out behind or may lose the unit; even: a level trade. */
+  /** The title's own claim: good when the target dies or the city falls, bad when your unit may die, even otherwise (UI review, PR 157). */
   tone: 'good' | 'bad' | 'even';
+  /** The HP trade, which colours the detail line with a ▲/▼ sign: good when you deal more, bad when you take more. */
+  tradeTone: 'good' | 'bad' | 'even';
   kind: 'win' | 'loss' | 'survive';
 };
 
@@ -69,25 +71,35 @@ export function forecastHeadline(p: {
 }): ForecastHeadline {
   const action = winAction(p.winLabel, p.defName, p.cityName);
   const target = p.cityName && /capture|0 HP/.test(p.winLabel) ? p.cityName : `the ${p.defName}`;
+  const tradeTone: ForecastHeadline['tone'] = p.youLose > p.theyLose ? 'bad' : p.theyLose > p.youLose ? 'good' : 'even';
   const detail = p.youLose <= 0
-    ? `You deal about ${p.theyLose} HP of damage and take none.`
+    ? `${target[0].toUpperCase()}${target.slice(1)} loses about ${p.theyLose} HP; you lose none.`
     : p.youLose > p.theyLose
       ? `You take more damage: about ${p.youLose} HP to you, ${p.theyLose} to ${target}.`
       : p.theyLose > p.youLose
         ? `You deal more damage: about ${p.theyLose} HP to ${target}, ${p.youLose} to you.`
         : `An even trade: about ${p.youLose} HP each.`;
-  const trade: ForecastHeadline['tone'] = p.youLose > p.theyLose ? 'bad' : p.theyLose > p.youLose ? 'good' : 'even';
+  // Outcome words follow fixed thresholds, the same for a win and a loss: 100% "will", 60%+ "will likely".
   if (p.loss >= 40 && p.loss >= p.win) {
-    return { kind: 'loss', tone: 'bad', detail, title: p.loss >= 80 ? `Your ${p.unitLabel} will likely be destroyed` : `Your ${p.unitLabel} could be destroyed` };
+    // An average HP left would read as surviving beside a likely loss: the loss line gives only what the target takes.
+    const lossDetail = p.youLose > p.theyLose ? `You take far more damage: only about ${p.theyLose} HP to ${target}.` : detail;
+    const title = p.loss >= 100 ? `Your ${p.unitLabel} will be destroyed` : p.loss >= 60 ? `Your ${p.unitLabel} will likely be destroyed` : `Your ${p.unitLabel} could be destroyed`;
+    return { kind: 'loss', tone: 'bad', tradeTone, detail: lossDetail, title };
   }
-  if (p.win >= 100) return { kind: 'win', tone: 'good', detail, title: `You will ${action}` };
-  if (p.win >= 80) return { kind: 'win', tone: 'good', detail, title: `You will likely ${action}` };
-  if (p.win >= 40) return { kind: 'win', tone: 'good', detail, title: `Good chance to ${action}` };
-  if (p.win > 0) return { kind: 'win', tone: trade, detail, title: `Small chance to ${action}` };
+  if (p.win >= 100) return { kind: 'win', tone: 'good', tradeTone, detail, title: `You will ${action}` };
+  if (p.win >= 60) return { kind: 'win', tone: 'good', tradeTone, detail, title: `You will likely ${action}` };
+  if (p.win >= 40) return { kind: 'win', tone: 'good', tradeTone, detail, title: `Good chance to ${action}` };
+  if (p.win >= 20) return { kind: 'win', tone: 'even', tradeTone, detail, title: `Some chance to ${action}` };
+  if (p.win > 0) return { kind: 'win', tone: 'even', tradeTone, detail, title: `Small chance to ${action}` };
   const title = p.cityName && /capture|0 HP/.test(p.winLabel)
     ? `${p.cityName} holds this turn`
     : p.loss > 0 ? 'Both units will likely survive' : 'Both units survive';
-  return { kind: 'survive', tone: trade, detail, title };
+  return { kind: 'survive', tone: 'even', tradeTone, detail, title };
+}
+
+/** The detail line's sign: ▲ when you come out ahead on HP, ▼ when behind, so the colour is never alone. */
+export function tradeMark(t: ForecastHeadline['tradeTone']): string {
+  return t === 'good' ? '▲ ' : t === 'bad' ? '▼ ' : '';
 }
 
 /**
@@ -285,7 +297,7 @@ export function ForecastCard({
       <div className={`forecast-head ${m.tone}`}>
         <span className="forecast-kind">{ranged ? 'Ranged strike' : 'Attack'}</span>
         <div className="forecast-verdict" data-testid="forecast-headline">{m.headline.title}</div>
-        <div className="forecast-outcome" data-testid="forecast-outcome">{m.headline.detail}</div>
+        <div className={`forecast-outcome ${m.headline.tradeTone}`} data-testid="forecast-outcome">{tradeMark(m.headline.tradeTone)}{m.headline.detail}</div>
       </div>
       {city && capturePointFor(view, city, unit.owner) && !ranged &&
         // The point a capture scores leads the card, in gilt under the header: it can decide the attack (8.9.23 review: it sat in the grey footnotes).
@@ -388,7 +400,7 @@ export function ForecastSummary({ forecast: f, ranged, view, unit, target, assau
         <span>You <RankMark level={unit.level ?? 0} faction={view.players.find((p) => p.id === unit.owner)?.faction} compact /> <b>{f.attacker_hp} → {m.hpAfter}</b> HP</span>
         <span>{m.defName} <RankMark level={m.defUnit?.level ?? 0} faction={view.players.find((p) => p.id === m.defOwner)?.faction} compact /> <b>{f.defender_hp} → {m.defAfter}</b></span>
       </div>
-      <div className="forecast-summary-line muted">{m.headline.detail}</div>
+      <div className={`forecast-summary-line forecast-outcome ${m.headline.tradeTone}`}>{tradeMark(m.headline.tradeTone)}{m.headline.detail}</div>
       {(m.win > 0 || m.loss > 0) && <div className="forecast-summary-line muted">
         <span><b className="good">{m.win}%</b> chance to {winAction(m.winLabel, m.defName, m.city?.name ?? null)}</span>
         <span><b className={m.loss > 0 ? 'bad' : ''}>{m.loss}%</b> chance to lose your {m.unitLabel}</span>

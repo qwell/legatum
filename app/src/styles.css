@@ -3010,6 +3010,9 @@ dialog.settings-modal {
   font: 500 13px/1.3 var(--sans);
   color: var(--ink-2);
 }
+/* The HP trade carries its own colour and a ▲/▼ sign; the title's colour follows the title's claim (UI review, PR 157). */
+.forecast-outcome.good { color: var(--good); }
+.forecast-outcome.bad { color: var(--bad); }
 .forecast-head.good .forecast-verdict {
   color: var(--good);
 }
@@ -3262,6 +3265,7 @@ dialog.settings-modal {
   font-family: var(--num-font);
 }
 .forecast-summary-verdict {
+  flex-basis: 100%;
   font: var(--display-weight) 18px/1 var(--display) !important;
 }
 .forecast-summary-verdict.good { color: var(--good); }
