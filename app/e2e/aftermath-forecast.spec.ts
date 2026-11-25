@@ -72,7 +72,7 @@ for (const [width, height] of [[1440, 900], [1000, 600]] as const) {
     await expect(after).toContainText("Nara's walls (about −");
     await expect(after).toContainText('Units you cannot see in Nara are not counted.');
     await expect(after).toHaveAttribute('data-risk', 'Exposed');
-    await expect(page.getByTestId('forecast-fortify')).toContainText('Counts the Archer’s +6 for staying fortified. Firing loses it: chance above.');
+    await expect(page.getByTestId('forecast-fortify')).toContainText('The odds assume the Archer stays fortified (+6 strength). Firing loses it: chance above.');
     // The forecast still says 0% to kill, as the user saw, and now says why and what changes.
     await expect(card).toContainText('0%');
     const box = (await card.boundingBox())!;

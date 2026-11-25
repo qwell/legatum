@@ -7,9 +7,9 @@ describe('forecastHeadline: the outcome in words (user, 2026-11-25)', () => {
   it('says both units survive and who takes more damage, never a bare verdict over 0% / 0%', () => {
     const h = forecastHeadline(base);
     expect(h).toMatchObject({ kind: 'survive', tone: 'bad', title: 'Both units survive' });
-    expect(h.detail).toBe('You take more damage: you lose 37 HP, the Spearman loses 23.');
-    expect(forecastHeadline({ ...base, youLose: 10, theyLose: 30 })).toMatchObject({ tone: 'good', detail: 'You deal more damage: the Spearman loses 30 HP, you lose 10.' });
-    expect(forecastHeadline({ ...base, youLose: 20, theyLose: 20 }).detail).toBe('An even trade: you each lose 20 HP.');
+    expect(h.detail).toBe('You take more damage: about 37 HP to you, 23 to the Spearman.');
+    expect(forecastHeadline({ ...base, youLose: 10, theyLose: 30 })).toMatchObject({ tone: 'good', detail: 'You deal more damage: about 30 HP to the Spearman, 10 to you.' });
+    expect(forecastHeadline({ ...base, youLose: 20, theyLose: 20 }).detail).toBe('An even trade: about 20 HP each.');
   });
 
   it('leads with the kill when it is likely, and with the loss when that is the bigger risk', () => {
@@ -26,7 +26,7 @@ describe('forecastHeadline: the outcome in words (user, 2026-11-25)', () => {
     const city = { ...base, cityName: 'Lugano', defName: 'Lugano', winLabel: 'capture the city' };
     expect(forecastHeadline({ ...city, win: 90 }).title).toBe('You will likely capture Lugano');
     expect(forecastHeadline(city).title).toBe('Lugano holds this turn');
-    expect(forecastHeadline({ ...city, youLose: 50, theyLose: 20 }).detail).toBe('You take more damage: you lose 50 HP, Lugano loses 20.');
-    expect(forecastHeadline({ ...base, ranged: true, youLose: 0, theyLose: 31 }).detail).toBe('You deal 31 damage and take none.');
+    expect(forecastHeadline({ ...city, youLose: 50, theyLose: 20 }).detail).toBe('You take more damage: about 50 HP to you, 20 to Lugano.');
+    expect(forecastHeadline({ ...base, ranged: true, youLose: 0, theyLose: 31 }).detail).toBe('You deal about 31 HP of damage and take none.');
   });
 });

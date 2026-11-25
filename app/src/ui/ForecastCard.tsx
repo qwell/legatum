@@ -70,12 +70,12 @@ export function forecastHeadline(p: {
   const action = winAction(p.winLabel, p.defName, p.cityName);
   const target = p.cityName && /capture|0 HP/.test(p.winLabel) ? p.cityName : `the ${p.defName}`;
   const detail = p.youLose <= 0
-    ? `You deal ${p.theyLose} damage and take none.`
+    ? `You deal about ${p.theyLose} HP of damage and take none.`
     : p.youLose > p.theyLose
-      ? `You take more damage: you lose ${p.youLose} HP, ${target} loses ${p.theyLose}.`
+      ? `You take more damage: about ${p.youLose} HP to you, ${p.theyLose} to ${target}.`
       : p.theyLose > p.youLose
-        ? `You deal more damage: ${target} loses ${p.theyLose} HP, you lose ${p.youLose}.`
-        : `An even trade: you each lose ${p.youLose} HP.`;
+        ? `You deal more damage: about ${p.theyLose} HP to ${target}, ${p.youLose} to you.`
+        : `An even trade: about ${p.youLose} HP each.`;
   const trade: ForecastHeadline['tone'] = p.youLose > p.theyLose ? 'bad' : p.theyLose > p.youLose ? 'good' : 'even';
   if (p.loss >= 40 && p.loss >= p.win) {
     return { kind: 'loss', tone: 'bad', detail, title: p.loss >= 80 ? `Your ${p.unitLabel} will likely be destroyed` : `Your ${p.unitLabel} could be destroyed` };
@@ -216,10 +216,10 @@ export function FortifyLine({ m }: { m: ReturnType<typeof forecastModel> }) {
   const pointer = m.win === 0 && !!m.aftermath;
   return (
     <div className="forecast-shield forecast-fortify" data-testid="forecast-fortify">
-      Counts the {m.defName}’s +{fortify.bonus} for staying fortified.
+      The odds assume the {m.defName} stays fortified (+{fortify.bonus} strength).
       {fires && (pointer
         ? ` Firing loses it: chance above.`
-        : ` If it fires first, it loses the +${fortify.bonus}: ${fortify.win}% chance to destroy it.`)}
+        : ` If it fires first, it loses that bonus: then you have a ${fortify.win}% chance to destroy it.`)}
     </div>
   );
 }
@@ -351,7 +351,7 @@ export function ForecastCard({
         <BreakdownTable b={f.attacker_strength} title="Your strength" />
         <BreakdownTable b={f.defender_strength} title="Their strength" />
       </div>
-      <div className="forecast-foot forecast-dealt">Damage is the average: each hit can be a fifth more or less.</div>
+      <div className="forecast-foot forecast-dealt">Damage shown is the average. Each hit can be a fifth more or less.</div>
       {city && f.sack_gold !== undefined && <div className="forecast-foot" data-testid="forecast-sack">Sack: +{f.sack_gold} Gold ({RULES.celtsSackGoldPerPopulation} per population)</div>}
       {fire && strike && <details className="forecast-foot forecast-strike"><summary>How city fire works</summary><span className="forecast-strike-math">It fires at the weakest unit in range. {strike.details}{ranged ? '' : ' Your attack then fights at the reduced HP.'}</span></details>}
       {strike && !fire && <div className="forecast-foot forecast-strike" data-testid="forecast-city-fire-elsewhere">
@@ -394,7 +394,7 @@ export function ForecastSummary({ forecast: f, ranged, view, unit, target, assau
         <span><b className={m.loss > 0 ? 'bad' : ''}>{m.loss}%</b> chance to lose your {m.unitLabel}</span>
       </div>}
       {m.aftermath && <div className={`forecast-summary-shield forecast-aftermath${m.aftermath.severe ? ' severe' : ''}`} data-testid="forecast-aftermath" data-risk={m.aftermath.risk}>{m.aftermath.line}</div>}
-      {m.fortify && <div className="forecast-summary-shield forecast-fortify" data-testid="forecast-fortify">Counts the {m.defName}’s +{m.fortify.bonus} for staying fortified.</div>}
+      {m.fortify && <div className="forecast-summary-shield forecast-fortify" data-testid="forecast-fortify">The odds assume the {m.defName} stays fortified (+{m.fortify.bonus} strength).</div>}
       {m.city && m.assault && <div className={`forecast-summary-shield forecast-assault-capture ${assaultText(m, view)!.captureTone}`} data-testid="forecast-assault">{assaultText(m, view)!.capture}</div>}
       {m.lockWarning && <div className="forecast-summary-shield" data-testid="forecast-occupation-lock">{m.lockWarning}</div>}
       {m.city && !m.assault && f.garrison && <div className="forecast-summary-shield">{garrisonHeadline(f, view, m.city.name, ranged)}</div>}

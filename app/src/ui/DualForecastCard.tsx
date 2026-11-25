@@ -57,7 +57,7 @@ function Option({ kind, f, m, view, unit }: { kind: 'shot' | 'charge'; f: Battle
       {m.city && <p className={shot ? 'dual-line' : 'dual-line forecast-note'}>{cityEntryWarning(unit, shot)}</p>}
       {!shot && m.aftermath && !m.aftermath.severe && <AftermathLine m={m} />}
       {!shot && m.fortify && <FortifyLine m={m} />}
-      <p className="dual-parts forecast-note">You {formatBreakdown(f.attacker_strength)}; them {formatBreakdown(f.defender_strength)}. Each hit can be a fifth more or less.</p>
+      <p className="dual-parts forecast-note">You {formatBreakdown(f.attacker_strength)}; them {formatBreakdown(f.defender_strength)}. Damage varies: each hit can be a fifth more or less.</p>
     </section>
   );
 }
