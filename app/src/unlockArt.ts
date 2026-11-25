@@ -40,6 +40,7 @@ const REPLACEMENTS: Partial<Record<Faction, Partial<Record<BuildingKind, true>>>
 };
 
 export function buildingArtSlug(building: BuildingKind, faction?: Faction): string {
+  if (building === 'UpgradeWalls') return buildingArtSlug('Walls', faction);
   const base = `building-${building.toLowerCase()}`;
   return faction && REPLACEMENTS[faction]?.[building] ? `${base}-${faction.toLowerCase()}` : base;
 }

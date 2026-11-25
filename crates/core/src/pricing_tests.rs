@@ -78,6 +78,11 @@ fn every_buildable_buys_at_its_faction_percent_of_the_production_cost() {
         }) {
             let c = s.cities.get_mut(&city).unwrap();
             c.buildings.clear();
+            c.walls_level = 0;
+            if item == (ProductionItem::Building { building: BuildingKind::UpgradeWalls }) {
+                c.buildings.insert(BuildingKind::Walls);
+                c.walls_level = 1;
+            }
             if let ProductionItem::Building { building } = item
                 && let Some(previous) = data::building_predecessor(building)
             {

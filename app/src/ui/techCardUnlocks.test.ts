@@ -56,9 +56,9 @@ describe('tech card effect icons', () => {
     expect(icons('Chivalry')).toEqual(['unit-cataphract']);
     expect(techCardUnlocks(research, 'Rifling', 'India').map((u) => u.label)).toEqual(['Musketmen can upgrade to Riflemen']);
     // The Mongols buy Siege from the Medieval era, so their cards carry the Siege lines too.
-    expect(techCardUnlocks(research, 'Metallurgy', 'Mongols').map((u) => u.label)).toEqual(['Siege units now ignore Star Forts', 'Knights can upgrade to Cuirassiers']);
-    expect(techCardUnlocks(research, 'Metallurgy', 'India').map((u) => u.label)).toEqual(['Siege units now ignore Star Forts', 'Knights can upgrade to Cuirassiers']);
-    expect(techCardUnlocks(research, 'Machinery', 'India').map((u) => u.label)).toEqual(['Siege units now ignore Castles', '+1 Production for each Workshop, Forge and Factory', 'Composite Archers can upgrade to Crossbowmen']);
+    expect(techCardUnlocks(research, 'Metallurgy', 'Mongols').map((u) => u.label)).toEqual(['Siege covers Walls up to level III', 'Knights can upgrade to Cuirassiers']);
+    expect(techCardUnlocks(research, 'Metallurgy', 'India').map((u) => u.label)).toEqual(['Siege covers Walls up to level III', 'Knights can upgrade to Cuirassiers']);
+    expect(techCardUnlocks(research, 'Machinery', 'India').map((u) => u.label)).toEqual(['Siege covers Walls up to level II', '+1 Production for each Workshop, Forge and Factory', 'Composite Archers can upgrade to Crossbowmen']);
     expect(icons('Machinery')).toEqual(['ui-siege', 'building-workshop', 'unit-compositearcher']);
   });
 });
@@ -95,7 +95,8 @@ describe('faction-accurate tech cards', () => {
     // The Mongols never raise Walls (rules 57), but Masonry's Quarry bonus still helps them.
     expect(techHasBenefit('Mongols', 'Masonry')).toBe(true);
     // The Nile: Egypt has no Production, so Bronze Working's Workshop does nothing for it: Egypt skips it.
-    const noBenefit = new Set<string>(['Egypt BronzeWorking']);
+    // Chivalry lost the Castle to Walls levels (rules 58); the Aztecs cannot ride, so they skip it until it gets an Aztec benefit (asked Sam, 2026-11-25).
+    const noBenefit = new Set<string>(['Egypt BronzeWorking', 'Aztecs Chivalry']);
     // Egypt's cards drop the lines that only add Production.
     expect(techCardUnlocks(research, 'Masonry', 'Egypt')).toEqual([]);
     // ...and its building and wonder tiles drop their Production yield (the Pyramids' +1 Production).

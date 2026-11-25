@@ -12,7 +12,7 @@ import { techCardUnlocks, techUnlockSummary } from './ui/techCardUnlocks';
 import { eraName } from './ui/eraResearch';
 import { cardName, cardNameAndAsk } from './ageCards';
 import { CITY_HEAL, CITY_HP, cityCanFire } from './combat';
-import { ageName, BUILDING_NAME, unitIconName, FACTION_ADJECTIVE, FACTION_GOAL, factionGoalVp, RULES, TECH_NAME, CAPTURE_RESISTANCE_TURNS, eraScaled, factionGoalRule, UNIT_NAME, itemName, pluralUnit } from './data';
+import { ageName, BUILDING_NAME, unitIconName, FACTION_ADJECTIVE, FACTION_GOAL, factionGoalVp, RULES, TECH_NAME, CAPTURE_RESISTANCE_TURNS, eraScaled, factionGoalRule, UNIT_NAME, itemName, pluralUnit, wallLevelLabel, wallsUpgradeName } from './data';
 import { closeObjectives } from './eraObjectives';
 import { bearing, empireNameOf, empireOfPlayer, empireTitle, PEOPLE_NAME, placeName } from './empires';
 import { CAMP_CLEAR_GOLD, isBarbarian } from './barbarians';
@@ -145,6 +145,8 @@ export interface ReportContext {
   cityPos(id: number): Hex | null;
   /** A city's HP at the start of the turn that resolved, when the view before it is known. */
   cityHpBefore?(id: number): number | null;
+  /** A city's Walls level before and after the turn that resolved, when the views are known. */
+  cityWallsLevel?(id: number, when: 'before' | 'after'): number | null;
   /** A known city's tile by its name, for core reasons that name the city ("Hymnal can no longer…"). */
   cityNamed?(name: string): Hex | null;
   /** Where one of your idle buildings or units short of this resource is (the first in the supply's list), for "Show on map". */
@@ -203,6 +205,10 @@ export function contextFromViews(before: PlayerView | null, after: PlayerView): 
     cityName: (id) => cities.get(id)?.name ?? `a city`,
     cityPos: (id) => cities.get(id)?.pos ?? null,
     cityHpBefore: (id) => before?.cities.find((c) => c.id === id)?.hp ?? null,
+    cityWallsLevel: (id, when) => {
+      const c = (when === 'before' ? before : after)?.cities.find((x) => x.id === id);
+      return c ? c.walls_level ?? Number(c.walls) : null;
+    },
     cityNamed: (name) => [...cities.values()].find((c) => c.name === name)?.pos ?? null,
     idleSupplyAt: (resource) => {
       const supply = after.supply?.find((x) => x.resource === resource);
@@ -364,9 +370,9 @@ export const CITY_STRIKE_RULE = 'Walled cities fire back: each city with Walls a
 
 /** How a city's HP comes back, for its health tooltip, the Guide and the attack forecast. */
 /** The rule behind a city's strength number, with the walls it has (one wording for the city panel and the Cities overview). */
-export function cityStrengthRule(city: Pick<CityView, 'walls' | 'citadel' | 'star_fort'>, faction?: Faction, era = 0): string {
+export function cityStrengthRule(city: Pick<CityView, 'walls' | 'walls_level'>, faction?: Faction, era = 0): string {
   const at = (design: number) => eraScaled(design, era);
-  return `City strength: ${at(10)} + ${at(2)} × population${city.walls ? (faction === 'Switzerland' ? ` + ${at(15)} Alpine Redoubt` : ` + ${at(10)} Walls`) : ''}${city.citadel ? ` + ${at(5)} Castle upgrade` : ''}${city.star_fort ? ` + ${at(5)} Star Fort upgrade` : ''}, less damage. Every part grows with its owner's era. Hits land one at a time. The hit that empties the city's HP carries on to the garrison with the part of its damage the city did not absorb. Later hits strike the garrison in full.`;
+  return `City strength: ${at(10)} + ${at(2)} × population${city.walls ? (faction === 'Switzerland' ? ` + ${at(15)} Alpine Redoubt` : ` + ${at(10)} Walls`) : ''}${(city.walls_level ?? Number(city.walls)) > 1 ? ` + ${at(5)} × ${(city.walls_level ?? 1) - 1} Walls ${(city.walls_level ?? 1) - 1 > 1 ? 'upgrades' : 'upgrade'}` : ''}, less damage. Every part grows with its owner's era. Hits land one at a time. The hit that empties the city's HP carries on to the garrison with the part of its damage the city did not absorb. Later hits strike the garrison in full.`;
 }
 
 export const CITY_HEAL_RULE = `A city regains ${CITY_HEAL} HP at the end of each turn, unless it took damage that turn or an enemy military unit is adjacent. Empty to full takes ${CITY_HP / CITY_HEAL} turns.`;
@@ -1182,7 +1188,7 @@ function formatEventLine(e: Event, ctx: ReportContext): ReportLine {
         players: [e.owner],
       });
     case 'ProductionCompleted':
-      return line('cities', `${ctx.cityName(e.city)} completed ${builtName(e.item, ctx, e.city, ctx.playerFaction?.(e.owner))}`, {
+      return line('cities', completedText(e.item, ctx, e.city, ctx.playerFaction?.(e.owner)), {
         at: ctx.cityPos(e.city),
         players: [e.owner],
         // An aircraft never stands on the map: the report says what it does (the Air wing in the city holds it).
@@ -1818,8 +1824,21 @@ export function lineSegments(l: ReportLine): { text: string; tone?: Tone }[] {
   return out;
 }
 
-/** An item in a report line: an improvement names its tile ("Farm, 1 tile W"), anything else its own name. */
-function builtName(item: ProductionItem, ctx: { cityPos(city: number): Hex | null | undefined }, city: number, faction?: Faction): string {
+/** An item in a report line: an improvement names its tile ("Farm, 1 tile W"), a Walls upgrade its level, anything else its own name. */
+function builtName(item: ProductionItem, ctx: Pick<ReportContext, 'cityPos' | 'cityWallsLevel'>, city: number, faction?: Faction): string {
+  if (isWallsUpgrade(item)) {
+    const level = ctx.cityWallsLevel?.(city, 'before');
+    return wallsUpgradeName(level ?? 0, itemName({ kind: 'Building', building: 'Walls' }, faction));
+  }
   const pos = item.kind === 'Improvement' ? ctx.cityPos(city) : null;
   return item.kind === 'Improvement' && pos ? improvementTitle(item, pos, null) : itemName(item, faction);
+}
+
+const isWallsUpgrade = (item: ProductionItem): boolean => item.kind === 'Building' && item.building === 'UpgradeWalls';
+
+/** "Agra completed a Granary"-style line; a Walls upgrade names the level reached ("Agra raised its Walls to III"). */
+function completedText(item: ProductionItem, ctx: ReportContext, city: number, faction?: Faction): string {
+  const level = isWallsUpgrade(item) ? ctx.cityWallsLevel?.(city, 'after') : null;
+  if (level && level > 1) return `${ctx.cityName(city)} raised its ${itemName({ kind: 'Building', building: 'Walls' }, faction)} to ${wallLevelLabel(level)}`;
+  return `${ctx.cityName(city)} completed ${builtName(item, ctx, city, faction)}`;
 }

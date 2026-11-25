@@ -419,6 +419,7 @@ fn arena(c: &Cell, seed: u64) -> (GameState, legatum_core::CityId) {
             last_purchase_turn: None,
             bought: None,
             buildings,
+            walls_level: c.wall_tier(),
             hp: c.city_hp,
             tiles_claimed: 0,
             grown_tiles: Vec::new(),

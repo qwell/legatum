@@ -50,7 +50,7 @@ describe('faction sheets', () => {
     expect(FACTION_SHEETS.India.pairs[0].priceDetail).toContain('Production never falls below 3');
     expect(FACTION_SHEETS.India.pairs[1].priceDetail).toContain('half the Gold they make');
     expect(FACTION_SHEETS.India.pairs[2].strength).toContain('Imperial Diwan');
-    expect(FACTION_SHEETS.Mongols.pairs[0].price).toContain('You never build Walls and buy no Siege before the Medieval era.');
+    expect(FACTION_SHEETS.Mongols.pairs[0].price).toContain('You never build or upgrade Walls and buy no Siege before the Medieval era.');
     expect(FACTION_SHEETS.Mongols.pairs[0].price).toContain('buy no Siege before the Medieval era');
     expect(FACTION_SHEETS.Athens.lore).toBe('Classical Athens was known for civic debate and learning. In play, Athenian scholarship brings quick discoveries at a cost to its treasury.');
     expect(FACTION_SHEETS.Athens.lore).not.toContain('excluded many residents');

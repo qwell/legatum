@@ -189,7 +189,7 @@ export const FACTION_SHEETS: Record<Faction, FactionSheet> = {
     lore: 'Mongol horse archers shot at full gallop; the yam relay network linked an empire.',
     ratings: { aggression: 4, economy: 2, complexity: 2 },
     pairs: [
-      { strength: 'Your military units, Scouts too, get +1 move.', price: 'Your units get no terrain defence. You never build Walls and buy no Siege before the Medieval era.', strengthIcon: 'mark-move', priceIcon: 'fortify' },
+      { strength: 'Your military units, Scouts too, get +1 move.', price: 'Your units get no terrain defence. You never build or upgrade Walls and buy no Siege before the Medieval era.', strengthIcon: 'mark-move', priceIcon: 'fortify' },
       { strength: `Iron Working unlocks it. A Cataphract that can shoot, ${keshig.ranged} ranged strength, ${keshig.range} tiles.`, price: `A Keshig costs ${keshig.cost} Production, ${keshig.cost - cataphractCost} more than a Cataphract.`, strengthIcon: 'unit-keshig', priceIcon: 'yield-production', onCard: true },
       { strength: 'A city with a Market at least 8 tiles from your capital earns +2 Gold more.', strengthIcon: 'building-market' },
     ],
@@ -202,7 +202,7 @@ export const FACTION_SHEETS: Record<Faction, FactionSheet> = {
     pairs: [
       { strength: 'Your military units start at level 1, level up faster and can reach level 6.', strengthDetail: `Your military units start at level 1, gain XP 50% faster and can reach level 6, Spartan Veteran. Each level adds ${RULES.promotion.strengthPercent}% to a unit’s strength.`, strengthIcon: 'unit-spartanhoplite' },
       { strength: 'Kills heal your units, and capturing a city fully heals your military units nearby.', strengthDetail: 'Destroying an enemy unit restores up to 100 HP, shared among your units that hit it. Capturing a city fully heals your military units within 2 tiles.', strengthIcon: 'mark-heal' },
-      { price: 'Settlers and non-military buildings cost 50% more Production.', priceDetail: 'Settlers and non-military buildings cost 50% more Production. Walls, Castles, Star Forts and the Agoge cost the normal price.', priceIcon: 'unit-settler' },
+      { price: 'Settlers and non-military buildings cost 50% more Production.', priceDetail: 'Settlers and non-military buildings cost 50% more Production. Walls, Walls upgrades and the Agoge cost the normal price.', priceIcon: 'unit-settler' },
     ],
     counteredBy: 'Hold behind Walls and deny them kills, so their wounded units stay wounded.',
   },

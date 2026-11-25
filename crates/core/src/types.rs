@@ -333,6 +333,8 @@ pub enum BuildingKind {
     #[serde(alias = "Laboratory")]
     Library,
     Walls,
+    /// Repeatable production choice; completed levels live on the city, not in `buildings`.
+    UpgradeWalls,
     #[serde(alias = "RelayUplink")]
     GreatLibrary,
     Pyramids,
@@ -387,13 +389,14 @@ pub enum BuildingKind {
 }
 
 impl BuildingKind {
-    pub const ALL: [BuildingKind; 28] = [
+    pub const ALL: [BuildingKind; 27] = [
         BuildingKind::RiceStorehouse,
         BuildingKind::Granary,
         BuildingKind::Workshop,
         BuildingKind::Market,
         BuildingKind::Library,
         BuildingKind::Walls,
+        BuildingKind::UpgradeWalls,
         BuildingKind::GreatLibrary,
         BuildingKind::Pyramids,
         BuildingKind::HagiaSophia,
@@ -405,8 +408,6 @@ impl BuildingKind {
         BuildingKind::University,
         BuildingKind::Bank,
         BuildingKind::Factory,
-        BuildingKind::Castle,
-        BuildingKind::StarFort,
         BuildingKind::RoyalArsenal,
         BuildingKind::GrandBazaar,
         BuildingKind::ResearchLab,

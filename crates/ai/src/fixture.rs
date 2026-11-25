@@ -497,6 +497,7 @@ impl ViewBuilder {
         }
         let is_capital = !self.view.cities.iter().any(|c| c.owner == owner);
         self.view.cities.push(CityView {
+            walls_level: 0,
             citadel: false,
             star_fort: false,
             has_workshop: false,

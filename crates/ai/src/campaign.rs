@@ -281,12 +281,12 @@ impl Planner<'_> {
         }
         aged.population = city.population + (self.city_age(city) / 16).min(5);
         aged.hp = aged.max_hp;
-        aged.strength = legatum_core::combat::city_defense_for_rules(
+        aged.strength = legatum_core::combat::city_defense_vs(
             v.rule_experiments,
             v.faction_of(city.owner),
             aged.population,
-            aged.walls,
-            aged.fort_tier(),
+            u8::from(aged.walls) + aged.fort_tier(),
+            crate::analysis::viewer_siege_cover(v),
             aged.hp,
             v.era_of(city.owner),
         )
@@ -746,7 +746,8 @@ impl Planner<'_> {
             .filter(|u| u.military && u.pos == city.pos && u.owner == city.owner)
             .map(|u| threat_power(self.view(), u))
             .sum();
-        let need = city.strength + garrison + if city.walls { city.strength / 2 } else { 0 };
+        let strength = crate::analysis::city_strength_vs_viewer(self.view(), city);
+        let need = strength + garrison + if city.walls { strength / 2 } else { 0 };
         mine * 100 >= need.max(1) * self.attack_threshold()
     }
 
@@ -1011,7 +1012,8 @@ impl Planner<'_> {
             .filter(|u| u.military && u.owner == city.owner && u.pos == city.pos)
             .map(|u| threat_power(v, u))
             .sum();
-        let defenders = city.strength + garrison + if city.walls { city.strength / 2 } else { 0 };
+        let strength = crate::analysis::city_strength_vs_viewer(v, city);
+        let defenders = strength + garrison + if city.walls { strength / 2 } else { 0 };
         ours * 2 >= defenders.max(1)
     }
 

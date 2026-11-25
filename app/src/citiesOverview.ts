@@ -50,7 +50,7 @@ export interface CityRow {
   strength: number;
   hp: number;
   maxHp: number;
-  /** The wall tier the city has, named for the faction ("Walls", "Castle", "Alpine Redoubt"), or null. */
+  /** The wall tier the city has, named for the faction ("Walls", "Alpine Redoubt"), or null. */
   fort: string | null;
   /** How the strength is made up (the city panel's own tooltip). */
   strengthRule: string;
@@ -74,8 +74,8 @@ function growthText(g: GrowthProgress | null): string {
 }
 
 function fortName(city: CityView, faction: Faction | undefined): string | null {
-  const building = city.star_fort ? 'StarFort' : city.citadel ? 'Castle' : city.walls ? 'Walls' : null;
-  return building ? itemName({ kind: 'Building', building }, faction) : null;
+  const level = city.walls_level ?? Number(city.walls);
+  return level ? `${itemName({ kind: 'Building', building: 'Walls' }, faction)}${level > 1 ? ` ${['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX'][level]}` : ''}` : null;
 }
 
 

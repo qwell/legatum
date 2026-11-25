@@ -34,13 +34,12 @@ fn cases() -> Vec<Case> {
         &include_bytes!("fixtures/settler-cleared-goto.json.gz")[..],
     ))
     .unwrap();
-    // Pin the decoded current-state hashes for these three recorded starts. Moved at rules 52
-    // (2026-11-22) by the identifier rename alone: the hash is taken over the JSON text, which
-    // names every unit and building.
+    // Pin the decoded current-state hashes for these three recorded starts. Rules 53
+    // adds a saved Walls level, which changes the JSON text behind the state hash.
     let repinned = [
-        "17734549094857122416",
-        "5373536465314247322",
-        "14395295407278243096",
+        "6099617646510314758",
+        "4299266802670235796",
+        "14918727558907771340",
     ];
     let hashes: Vec<String> = fixture
         .cases

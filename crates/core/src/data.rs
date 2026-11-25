@@ -840,6 +840,7 @@ pub fn building_stats(kind: BuildingKind) -> BuildingStats {
         // answer (rules 50; was Military Engineering, one era later, when Industrial units with
         // built-in Siege followed one era after it and left the Star Fort little time to matter).
         StarFort => (320, Yields::new(0, 0, 0, 0), 5, Some(TechId::Machinery)),
+        UpgradeWalls => (240, Yields::ZERO, 5, None),
         // World wonders: each is worth the same 2 held VP, so prices follow one era curve (rules 50,
         // a first pass the owner may veto: Pyramids 240 -> 360 and Great Library 600 -> 400 were
         // the two outliers more than 25% off it; the rest are within it).
@@ -867,7 +868,7 @@ pub fn building_stats(kind: BuildingKind) -> BuildingStats {
         yields,
         city_strength,
         requires,
-        war_building: matches!(kind, Walls | Castle | StarFort | Agoge),
+        war_building: matches!(kind, Walls | Castle | StarFort | UpgradeWalls | Agoge),
     }
 }
 
@@ -908,7 +909,7 @@ pub fn tech_card_effect_list(tech: TechId) -> &'static [(&'static str, CardEffec
         CodeOfLaws => &[("Every city claims its best available ring-2 tile", Other)],
         Mathematics => &[
             ("Spearmen can upgrade to Phalangites", Other),
-            ("Units can buy Siege: they ignore enemy Walls", Siege),
+            ("Units can buy Siege: it covers Walls level I", Siege),
         ],
         Engineering => &[("Archers can upgrade to Composite Archers", Other)],
         IronWorking => &[
@@ -921,7 +922,7 @@ pub fn tech_card_effect_list(tech: TechId) -> &'static [(&'static str, CardEffec
         Feudalism => &[("Phalangites can upgrade to Pikemen", Other)],
         Machinery => &[
             ("Composite Archers can upgrade to Crossbowmen", Other),
-            ("Siege units now ignore Castles", Siege),
+            ("Siege covers Walls up to level II", Siege),
             ("+1 Production per Workshop family", Production),
         ],
         CropRotation => &[
@@ -937,7 +938,7 @@ pub fn tech_card_effect_list(tech: TechId) -> &'static [(&'static str, CardEffec
         ],
         Metallurgy => &[
             ("Knights can upgrade to Cuirassiers", HorseUpgrade),
-            ("Siege units now ignore Star Forts", Siege),
+            ("Siege covers Walls up to level III", Siege),
         ],
         MilitaryEngineering => &[("Upgrade Gold costs -50%", Other)],
         PrintingPress => &[
@@ -1122,10 +1123,9 @@ pub fn tech_has_player_benefit(
 /// 2026-10-19 and 2026-10-31). Before it, Siege is not available to them.
 pub const MONGOL_SIEGE_ERA: u8 = 2;
 
-/// Whether `building` is in the Walls line (Walls, Castle, Star Fort, and any later wall level:
-/// every building whose family is Walls).
+/// Whether `building` is in the Walls line, including repeatable upgrades and legacy variants.
 pub fn is_walls_line(building: BuildingKind) -> bool {
-    building_family(building) == BuildingKind::Walls
+    building == BuildingKind::UpgradeWalls || building_family(building) == BuildingKind::Walls
 }
 
 /// Whether `faction` may never have the Walls line (rules 57, user 2026-11-22: "no walls ever"):
@@ -1173,15 +1173,23 @@ pub const MONGOL_SIEGE_REASON: &str = "No Siege before the Medieval era.";
 
 /// The first era (0-based, `unit_era_tier`) whose land military units have Siege built in:
 /// Industrial (designer, 2026-10-28). Rifleman, Cavalry, Field Cannon and every later land unit
-/// fight walled cities as if Siege covered every Walls tier, whatever their owner knows.
+/// cover Walls levels through their own 0-based era tier, whatever their owner knows.
 pub const BUILT_IN_SIEGE_ERA: u8 = 4;
 
-/// The highest Walls tier (`wall_tier`): a Star Fort.
-pub const MAX_WALL_TIER: u8 = 3;
+/// The highest Walls level (`wall_tier`): level IX.
+pub const MAX_WALL_TIER: u8 = 9;
+
+pub fn wall_level_label(level: u8) -> &'static str {
+    ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"]
+        .get(usize::from(level))
+        .copied()
+        .unwrap_or("IX")
+}
 
 /// What built-in Siege does, after the unit's name, in one wording for the order refusal, the
 /// rules reference and the app (`rules.generated.json` `siege.builtInNote`).
-pub const BUILT_IN_SIEGE_NOTE: &str = "ignores Walls, Castles and Star Forts (Industrial-era guns)";
+pub const BUILT_IN_SIEGE_NOTE: &str =
+    "covers Walls through level IV in the Industrial era, one more level in each later era";
 
 /// Land military units: not Scouts, not aircraft.
 fn land_military(kind: UnitKind) -> bool {
@@ -1196,7 +1204,7 @@ pub fn can_auto_explore(kind: UnitKind) -> bool {
 }
 
 /// Whether a unit of this kind has Siege built in: a land military unit of the Industrial era
-/// or later (`BUILT_IN_SIEGE_ERA`). It is never bought, uses no Iron, and covers every tier.
+/// or later (`BUILT_IN_SIEGE_ERA`). It is never bought, uses no Iron, and covers the unit’s own era tier.
 pub fn built_in_siege(kind: UnitKind) -> bool {
     land_military(kind) && unit_era_tier(kind) >= BUILT_IN_SIEGE_ERA
 }
@@ -1225,12 +1233,12 @@ pub fn has_siege(kind: UnitKind, bought: bool) -> bool {
 }
 
 /// The Walls tier a unit's attacks on a city ignore, the one source for the rule
-/// (`rules::battle::siege_cover`, `forecast::siege_cover`, the AI): every tier for built-in
+/// (`rules::battle::siege_cover`, `forecast::siege_cover`, the AI): the unit’s era tier for built-in
 /// Siege, else the owner's siege tier (`siege_tier`) when the unit bought Siege (`bought_with`
 /// holds the owner's technologies then, `None` when it has none), else 0. Aircraft get 0.
 pub fn siege_cover(kind: UnitKind, bought_with: Option<&std::collections::BTreeSet<TechId>>) -> u8 {
     if built_in_siege(kind) {
-        MAX_WALL_TIER
+        unit_era_tier(kind)
     } else {
         bought_with
             .filter(|_| !is_aircraft(kind))
@@ -1547,7 +1555,7 @@ pub fn unit_name(kind: UnitKind) -> &'static str {
 
 /// Display names. Each identifier is the PascalCase of its display name; names used before the
 /// 2026-11-22 rename (`Laboratory`, `RelayUplink`, ...) still load through the serde aliases in `types.rs`.
-/// Castle and StarFort are Walls tiers 2 and 3.
+/// Castle and StarFort remain only for rules-52 save decoding.
 pub fn building_name(kind: BuildingKind) -> &'static str {
     match kind {
         BuildingKind::RiceStorehouse => "Rice Storehouse",
@@ -1556,6 +1564,7 @@ pub fn building_name(kind: BuildingKind) -> &'static str {
         BuildingKind::Market => "Market",
         BuildingKind::Library => "Library",
         BuildingKind::Walls => "Walls",
+        BuildingKind::UpgradeWalls => "Upgrade Walls",
         BuildingKind::GreatLibrary => "Great Library",
         BuildingKind::Pyramids => "Pyramids",
         BuildingKind::HagiaSophia => "Hagia Sophia",
@@ -1982,7 +1991,7 @@ pub fn building_min_population(kind: BuildingKind) -> i32 {
     }
 }
 
-/// The Walls tier above plain Walls that these buildings give: 0 none, 1 a Castle, 2 a Star Fort.
+/// Legacy Walls upgrades used by old fixtures.
 pub fn fort_tier<'a>(buildings: impl IntoIterator<Item = &'a BuildingKind> + Clone) -> u8 {
     u8::from(has_building(buildings.clone(), BuildingKind::Castle))
         + u8::from(has_building(buildings, BuildingKind::StarFort))
@@ -2055,13 +2064,24 @@ pub fn tech_era(tech: TechId) -> &'static str {
     crate::eras::era_name(crate::eras::era_of_tech(tech))
 }
 
-/// A Walls tier above plain Walls counts one more: 0 no Walls, 1 Walls, 2 a Castle, 3 a Star Fort.
-pub fn wall_tier<'a>(buildings: impl IntoIterator<Item = &'a BuildingKind> + Clone) -> u8 {
+/// Completed level of a city's Walls, including the per-city upgrades.
+/// Production for the next Walls level: level n costs 80 x (n + 1). A city without Walls is
+/// quoted the first upgrade (to level II), the price it will pay once Walls are built.
+pub fn upgrade_walls_cost(level: u8) -> i32 {
+    80 * (i32::from(level.max(1)) + 2)
+}
+
+pub fn wall_tier(city: &crate::state::City) -> u8 {
+    city.walls_level.max(legacy_wall_tier(&city.buildings))
+}
+
+/// Decode the retired Castle and Star Fort building representation in old fixtures.
+pub fn legacy_wall_tier<'a>(buildings: impl IntoIterator<Item = &'a BuildingKind> + Clone) -> u8 {
     u8::from(has_building(buildings.clone(), BuildingKind::Walls)) + fort_tier(buildings)
 }
 
 /// The siege tier of an empire's Siege units: the highest siege technology it knows. Mathematics
-/// ignores Walls (the old Catapult), Machinery Castles (the Trebuchet) and Metallurgy Star Forts
+/// covers level I (the old Catapult), Machinery level II (the Trebuchet) and Metallurgy level III
 /// (the Bombard). 0: none of them, so Siege cannot be bought and covers nothing.
 pub fn siege_tier(techs: &std::collections::BTreeSet<TechId>) -> u8 {
     if techs.contains(&TechId::Metallurgy) {

@@ -877,7 +877,7 @@ impl Plan<'_> {
                             100
                         }
                     }
-                    Castle => {
+                    Castle | UpgradeWalls => {
                         if threatened {
                             480
                         } else {

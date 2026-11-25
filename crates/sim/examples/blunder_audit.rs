@@ -549,6 +549,7 @@ mod tests {
                 wonder_lost: None,
                 last_purchase_turn: None,
                 buildings: Default::default(),
+                walls_level: 0,
                 hp: data::CITY_HP / 3,
                 grown_tiles: vec![],
                 tiles_claimed: 0,

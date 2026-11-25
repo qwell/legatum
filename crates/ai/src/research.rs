@@ -10,8 +10,8 @@
 //! The order, from most to least decisive:
 //! 1. **Threat tier.** When the empire is threatened, has an aggressive rival within reach of
 //!    a city (at war, or massing units) or a neighbour an era ahead of it, the era's unit and defence technologies (Walls' Masonry,
-//!    Mathematics' siege, Feudalism's Pikeman and Castle, Machinery, Gunpowder, Military
-//!    Engineering's Star Fort and the later unit lineage) come first, whatever the strategy.
+//!    Mathematics' Siege, Feudalism's Pikeman, Machinery, Gunpowder, Military
+//!    Engineering and the later unit lineage) come first, whatever the strategy.
 //! 2. **Value per Science.** A technology's value (knobs, faction priorities, the strategy
 //!    bundle's weight, the goal and Great Work it unlocks, a war or peace plan's lean) divided
 //!    by its price *now*. The price already carries the diffusion discount (-10% per empire

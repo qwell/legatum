@@ -9,7 +9,7 @@ import type { CityView, Order, PlayerView, ProductionItem } from './types';
 
 /**
  * Buildings whose listed price is this much or more are worth comparing between
- * cities: the Factory and the Star Fort. world wonders always are. A display threshold, not a game rule.
+ * cities: the Factory and Upgrade Walls. world wonders always are. A display threshold, not a game rule.
  */
 export const COSTLY_LISTED_COST = 300;
 

@@ -104,6 +104,11 @@ describe('one decision at a time', () => {
     expect(advisorWhy(military, view, city)).toBe('You have 2 military units for 2 cities.');
     expect(advisorWhy({ type: 'SetProduction', city: city.id, item: { kind: 'Unit', unit: 'Settler' } }, view, city))
       .toBe('A Settler founds a new city, and more cities grow your empire.');
+    const upgrade: Order = { type: 'SetProduction', city: city.id, item: { kind: 'Building', building: 'UpgradeWalls' } };
+    expect(advisorWhy(upgrade, view, city)).toBe(`Upgrade Walls adds city strength in ${city.name}.`);
+    const walled = { ...city, walls: true, walls_level: 2 };
+    view.cities = view.cities.map((c) => (c.id === city.id ? walled : c));
+    expect(advisorSuggestion(ctx([], null, [upgrade]), ['welcome'], [])?.title).toBe(`Build Upgrade Walls (to III) in ${city.name}`);
     const unlockable = view.research.available.find((option) => view.research.unlocks.some((u) => u.tech === option.tech))?.tech;
     expect(advisorWhy({ type: 'SetResearch', tech: unlockable ?? tech }, view))
       .toMatch(unlockable ? /^.+ unlocks the .+\.$/ : /^Research gives your empire new choices\.$/);

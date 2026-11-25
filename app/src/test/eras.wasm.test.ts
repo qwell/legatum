@@ -123,9 +123,10 @@ describe.skipIf(!available)('eras: core behavior', () => {
     expect([0, 1]).toContain(firsts[0][1]);
   });
 
-  it('Railways, Code of Laws, Printing Press and the Castle tiers resolve the same', () => {
+  it('Railways, Code of Laws, Printing Press and Walls levels resolve the same', () => {
     const s = fixture();
-    const c = city(s, 0, 5, 5, 5, ['Library', 'Walls', 'Castle', 'StarFort', 'ResearchLab'], true);
+    const c = city(s, 0, 5, 5, 5, ['Library', 'Walls', 'ResearchLab'], true);
+    c.wallsLevel = 3;
     city(s, 1, 22, 22, 3, [], true);
     const spearman = spawnUnit(s, 0, 'Spearman', c.pos, false);
     s.road = new Array(s.terrain.length).fill(0); s.road[idxOf(s, c.pos)] = 64; s.roaded = true;
@@ -136,9 +137,9 @@ describe.skipIf(!available)('eras: core behavior', () => {
     const sources = (client: FixtureClient | WasmClient) => client.view(0).cities.find((x) => x.id === c.id)!.detail!.yields.sources;
     (expect(sources(fixtureClient)).toMatchSnapshot(), void (sources(core)));
     (expect(fixtureClient.view(0).units.find((u) => u.id === spearman.id)!.moves_left).toMatchSnapshot(), void (core.view(0).units.find((u) => u.id === spearman.id)!.moves_left));
-    const cv = (client: FixtureClient | WasmClient) => { const v = client.view(0).cities.find((x) => x.id === c.id)!; return [v.strength, v.citadel, v.star_fort, v.walls]; };
+    const cv = (client: FixtureClient | WasmClient) => { const v = client.view(0).cities.find((x) => x.id === c.id)!; return [v.strength, v.walls_level, v.walls]; };
     (expect(cv(fixtureClient)).toMatchSnapshot(), void (cv(core)));
-    expect(core.view(0).cities.find((x) => x.id === c.id)!.star_fort).toBe(true);
+    expect(core.view(0).cities.find((x) => x.id === c.id)!.walls_level).toBe(3);
     const unlocks = (client: FixtureClient | WasmClient) => client.view(0).research.unlocks.map((u) => [u.tech, u.item, u.cost, u.yields, u.city_strength]);
     (expect(unlocks(fixtureClient)).toMatchSnapshot(), void (unlocks(core)));
   });

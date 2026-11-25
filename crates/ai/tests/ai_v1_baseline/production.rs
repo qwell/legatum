@@ -268,6 +268,7 @@ impl Planner<'_> {
                     | BuildingKind::Supermarket
                     | BuildingKind::AirDefence
                     | BuildingKind::StarFort
+                    | BuildingKind::UpgradeWalls
                     | BuildingKind::Factory
                     | BuildingKind::Castle
                     | BuildingKind::YamRelayStation

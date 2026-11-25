@@ -1,7 +1,7 @@
 /** The advisor explains one decision from a Hard plan made from this seat's own view. */
 import { create } from 'zustand';
 import { advisorOrders } from '../automation';
-import { buildingStatsFor, itemKey, itemName, TECH_NAME } from '../data';
+import { buildingStatsFor, itemKey, itemName, TECH_NAME, wallsUpgradeName } from '../data';
 import { isThreat } from '../diplomacy';
 import { distance, hexEq } from '../hex';
 import { effectiveResearchQueue, pendingResearchQueue } from '../orders';
@@ -81,6 +81,7 @@ export function advisorWhy(order: Order, view: PlayerView, city?: CityView, unit
       if (!units) return `You have no military units guarding ${city.name}.`;
       return `You have ${units} military ${units === 1 ? 'unit' : 'units'} for ${cities} ${cities === 1 ? 'city' : 'cities'}.`;
     }
+    if (item.kind === 'Building' && item.building === 'UpgradeWalls') return `Upgrade Walls adds city strength in ${city.name}.`;
     if (item.kind === 'Building') {
       const yields = buildingStatsFor(factionOf(view), item.building).yields;
       const gain = (['food', 'production', 'gold', 'science'] as YieldKey[]).find((key) => (yields[key] ?? 0) > 0);
@@ -127,7 +128,7 @@ const selected = (ctx: AdvisorContext, kind: string, id: number) => ctx.selectio
 
 function citySuggestion(ctx: AdvisorContext, city: CityView, order?: Extract<Order, { type: 'SetProduction' | 'SetProductionQueue' }>): Suggestion {
   const item = order?.type === 'SetProduction' ? order.item : order?.queue[0];
-  const name = item && itemName(item, factionOf(ctx.view));
+  const name = item && (item.kind === 'Building' && item.building === 'UpgradeWalls' ? wallsUpgradeName(city.walls_level ?? Number(city.walls), itemName({ kind: 'Building', building: 'Walls' }, factionOf(ctx.view))) : itemName(item, factionOf(ctx.view)));
   return { id: `city:${city.id}`, title: name ? `Build ${name} in ${city.name}` : `Choose a build in ${city.name}`,
     why: order ? advisorWhy(order, ctx.view, city) : `${city.name} needs a build to use its Production.`,
     current: selected(ctx, 'city', city.id) ? 1 : 0,

@@ -75,8 +75,7 @@ export const BUILDING_KINDS: BuildingKind[] = [
   'University',
   'Bank',
   'Factory',
-  'Castle',
-  'StarFort',
+  'UpgradeWalls',
   'RoyalArsenal',
   'GrandBazaar',
   'ResearchLab',
@@ -157,11 +156,11 @@ export const CLASS_NOTE: Record<UnitClass, string> = {
 const WALLS_HALF_RULE = `attacks on the city's HP do ${RULES.walls.damagePercent === 50 ? 'half damage' : `${RULES.walls.damagePercent}% damage`}`;
 /** Siege's rule, in one wording for the unit card, tech card and Guide. */
 /** Indirect fire on a card or tip: the headline (the Guide prints ARTILLERY_RULE in full). */
-export const ARTILLERY_HEADLINE = 'Fires over terrain at targets your team can see, and ignores Walls, Castles and Star Forts.';
-export const ARTILLERY_RULE = 'From Steel, Howitzers, Artillery, Rocket Artillery and Combat Drones fire over terrain at targets your team can see. They have full Siege built in, so they ignore Walls, Castles and Star Forts when damaging city HP. Cities still fire and defend.';
+export const ARTILLERY_HEADLINE = 'Fires over terrain at targets your team can see, with built-in Siege.';
+export const ARTILLERY_RULE = 'From Steel, Howitzers, Artillery, Rocket Artillery and Combat Drones fire over terrain at targets your team can see. They have Siege built in. It covers Walls up to level IV in the Industrial era and one more level in each later era. Cities still fire and defend.';
 /** Siege on a card or tip: the headline (the Guide prints SIEGE_RULE in full). */
-export const SIEGE_HEADLINE = 'A unit with Siege ignores enemy Walls when it attacks a city.';
-export const SIEGE_RULE = "A unit with Siege ignores enemy Walls when it attacks a city. Mathematics covers Walls, Machinery adds Castles, and Metallurgy adds Star Forts. It is bought once with Gold, in your own territory, and the unit keeps it for good. Industrial and later units have it built in: they ignore Walls, Castles and Star Forts.";
+export const SIEGE_HEADLINE = 'Siege lets a unit ignore enemy Walls up to a set level when it attacks a city.';
+export const SIEGE_RULE = "A unit with Siege ignores enemy Walls up to a set level when it attacks a city. Mathematics covers level I, Machinery level II and Metallurgy level III. It is bought once with Gold, in your own territory, and the unit keeps it for good. Industrial and later units have it built in: their Siege covers Walls up to level IV in the Industrial era and one more level in each later era.";
 /** Core `data::siege_gold`: Gold for Siege on a unit of this kind, the base price scaled by the unit's era. */
 export const siegeGold = (kind: UnitKind): number => eraScaled(RULES.siege.baseGold, unitEraTier(kind));
 /** Core `data::SIEGE_USES_IRON`: each Siege unit uses 1 Iron supply while it exists. */
@@ -202,10 +201,10 @@ const UNIT_COPY: Record<UnitKind, { summary: string; blurb: string }> = {
   Crossbowman: { summary: 'Strikes from 2 tiles away without retaliation', blurb: 'Medieval crossbow line. Strikes from 2 tiles away, with no retaliation.' },
   Arquebusier: { summary: 'Strikes from 2 tiles away without retaliation', blurb: 'Renaissance gunpowder shooters. Strike from 2 tiles away, with no retaliation.' },
   FieldCannon: { summary: 'Strikes from 2 tiles away without retaliation', blurb: 'Industrial gun line. Strikes from 2 tiles away, with no retaliation.' },
-  Howitzer: { summary: 'Indirect fire and full Siege built in', blurb: 'Machine Age gun line. Fires over terrain from 2 tiles away and ignores Walls, Castles and Star Forts.' },
-  Artillery: { summary: 'Indirect fire and full Siege built in', blurb: 'World War gun line. Fires over terrain at visible targets and ignores every tier of Walls.' },
-  RocketArtillery: { summary: `Indirect fire from ${RULES.rocketArtilleryRange} tiles away; full Siege built in`, blurb: `Modern rocket launchers. Fire over terrain from ${RULES.rocketArtilleryRange} tiles away and ignore Walls, Castles and Star Forts.` },
-  CombatDrone: { summary: 'Quick indirect fire and full Siege built in', blurb: 'Future strike drones. Quick, fire over terrain at visible targets, and ignore every tier of Walls.' },
+  Howitzer: { summary: 'Indirect fire and built-in Siege', blurb: 'Machine Age gun line. Fires over terrain from 2 tiles away. Its built-in Siege covers Walls up to level V.' },
+  Artillery: { summary: 'Indirect fire and built-in Siege', blurb: 'World War gun line. Fires over terrain at visible targets. Its built-in Siege covers Walls up to level VI.' },
+  RocketArtillery: { summary: `Indirect fire from ${RULES.rocketArtilleryRange} tiles away; built-in Siege`, blurb: `Modern rocket launchers. Fire over terrain from ${RULES.rocketArtilleryRange} tiles away. Their built-in Siege covers Walls up to level VII.` },
+  CombatDrone: { summary: 'Quick indirect fire and built-in Siege', blurb: 'Future strike drones. Quick, and fire over terrain at visible targets. Their built-in Siege covers Walls up to level VIII.' },
   Horseman: { summary: 'Fast riders; strong against ranged units', blurb: `Fast riders. ${MOUNTED_NOTE}` },
   Cataphract: { summary: 'Armoured riders; strong against ranged units', blurb: `Armoured lancers of the Classical age. ${MOUNTED_NOTE}` },
   Knight: { summary: 'Armoured riders; strong against ranged units', blurb: `Armoured riders of the Medieval age. ${MOUNTED_NOTE}` },
@@ -269,8 +268,7 @@ export const BUILDING_STATS: Record<
   Bank: { cost: 200, yields: { gold: 4 }, cityStrength: 0, requires: 'Banking', predecessor: 'Market', minPopulation: 5, summary: '+4 Gold; upgrades your Market', blurb: '+4 Gold' },
   StockExchange: { cost: 360, yields: { gold: 6 }, cityStrength: 0, requires: 'Electricity', predecessor: 'Bank', minPopulation: 8, summary: '+6 Gold; upgrades your Bank', blurb: '+6 Gold, on top of the Market and Bank' },
   Factory: { cost: 440, yields: { production: 5 }, cityStrength: 0, requires: 'Industrialization', predecessor: 'Forge', minPopulation: 6, summary: '+5 Production; upgrades your Forge', blurb: '+5 Production' },
-  Castle: { cost: 240, yields: {  }, cityStrength: 5, requires: 'Chivalry', predecessor: 'Walls', warBuilding: true, summary: '+5 city strength; upgrades your Walls', blurb: '+5 city strength, more each era' },
-  StarFort: { cost: 320, yields: {  }, cityStrength: 5, requires: 'Machinery', predecessor: 'Castle', warBuilding: true, summary: '+5 city strength; upgrades your Castle', blurb: '+5 city strength, more each era' },
+  UpgradeWalls: { cost: 240, yields: {}, cityStrength: 5, requires: null, warBuilding: true, summary: 'More city strength for each new level', blurb: 'Each new level adds city strength. You can add one level for each era you have reached.' },
   GreatLibrary: { cost: 400, yields: {}, cityStrength: 0, requires: 'Philosophy', summary: 'World wonder: whoever holds its tile scores +2 VP', blurb: 'World wonder: whoever holds its tile scores +2 VP. Requires a Library in this city.' },
   Pyramids: { cost: 360, yields: { production: 1 }, cityStrength: 0, requires: 'Masonry', summary: 'World wonder: +1 Production and +2 held VP', blurb: 'The Pyramids can be completed once in the world. The holder gains +1 Production in its city and +2 VP.' },
   HagiaSophia: { cost: 400, yields: { science: 2 }, cityStrength: 0, requires: 'Machinery', summary: 'World wonder: +2 Science and +2 held VP', blurb: 'Hagia Sophia can be completed once in the world. The holder gains +2 Science in its city and +2 VP.' },
@@ -289,18 +287,18 @@ const TECH_BLURB: Record<TechId, string> = {
   Masonry: "Unlocks Walls and the Pyramids; Quarries +1 Production (walled cities take half damage to their HP and fire back)",
   Currency: "Unlocks Market",
   Writing: "Unlocks Library",
-  Mathematics: `Unlocks Phalangite; Spearmen can upgrade. Units can buy Siege, which ignores enemy Walls.`,
+  Mathematics: `Unlocks Phalangite; Spearmen can upgrade. Units can buy Siege, which covers Walls up to level I.`,
   Engineering: "Unlocks Roadworks and Composite Archer; Archers can upgrade",
   IronWorking: "Unlocks Forge and Cataphract. Mines improve; Horsemen can upgrade",
   CodeOfLaws: "Each city claims its best tile 2 tiles out",
   Philosophy: "Unlocks the Great Library; +1 Science in every city",
   Feudalism: "Unlocks Pikeman and Mill; Phalangites can upgrade",
-  Machinery: "Unlocks Crossbowman, Hagia Sophia and Star Fort. Workshops gain 1 Production. Siege ignores Castles",
-  Chivalry: "Unlocks Knight, Castle and Agoge for Sparta; Cataphracts can upgrade",
+  Machinery: "Unlocks Crossbowman and Hagia Sophia. Workshops gain 1 Production. Siege covers Walls up to level II",
+  Chivalry: "Unlocks Knight and Sparta's Agoge. Cataphracts can upgrade to Knights.",
   Education: "Library → University",
   CropRotation: "Farms and Pastures upgrade; Granaries +1 Food",
   Gunpowder: "Unlocks Musketman and Arquebusier; Pikemen and Crossbowmen can upgrade. Reveals Niter",
-  Metallurgy: "Unlocks Cuirassier; Knights can upgrade. Siege units now ignore Star Forts too",
+  Metallurgy: "Unlocks Cuirassier; Knights can upgrade. Siege covers Walls up to level III",
   MilitaryEngineering: "Upgrading units costs half the Gold",
   Banking: "Market → Bank; unlocks Grand Bazaar",
   PrintingPress: "+1 Science per Library; +1 Gold per Market",
@@ -311,7 +309,7 @@ const TECH_BLURB: Record<TechId, string> = {
   Railways: "Road start +2 moves. Roadworks link cities within 12 tiles. Mines gain 1 Production",
   ReplaceableParts: "Unlocks Trench Infantry; Riflemen can upgrade. Factories +2 Production",
   Combustion: "Unlocks Early Tank; Cavalry can upgrade. Oil Wells +1 Gold. Reveals Oil",
-  Steel: `Unlocks Howitzer and the Eiffel Tower; Field Cannons can upgrade. Howitzers fire over terrain and ignore Walls.`,
+  Steel: `Unlocks Howitzer and the Eiffel Tower; Field Cannons can upgrade. Howitzers fire over terrain; their built-in Siege covers Walls up to level V.`,
   Flight: `Unlocks Biplane (sees ${RULES.aircraftSight} tiles around its city, strikes ${RULES.biplaneStrikeRange} tiles out, guards ${RULES.biplaneGuardRange}); it lives in a city's hangar`,
   Electricity: "Bank → Stock Exchange",
   MassMobilisation: "Unlocks Infantry; Trench Infantry can upgrade",
@@ -714,8 +712,8 @@ export const FACTION_INFO: Record<Faction, FactionInfo> = {
   Byzantium: factionInfo("byzantium", "Byzantium", "Hold Constantinople. Hire the swords.", companyRule(), BYZANTIUM_LEGIONARY, goalLine('Byzantium'), THIN_LEVIES_DETAIL),
   Germany: factionInfo("germany", "Germany", "Coal, steel, and skilled hands.", `Your strategic deposits supply twice as much. Your Gold and Science projects pay more: ${RULES.germanyProjectGoldPercent}% and ${RULES.germanyProjectSciencePercent}% of a city’s Production. Other empires get ${RULES.projectGoldPercent}% and ${RULES.projectSciencePercent}%.`, uniquePieceText(UNIQUE_PIECE.Germany), goalLine('Germany'), 'Each Production building in a German city costs 1 Food.'),
   Celts: factionInfo("celts", "Celts", "Raid, burn and move on.", `A sack takes ${RULES.celtsSackGoldPerPopulation} Gold per population and raises a warband camp. A sacked rival capital scores 1 VP for good. Barbarians don't attack the Celts.`, '', goalLine('Celts'), "Celts can't keep cities they capture: they sack and burn them. A city you founded comes home intact when you retake it."),
-  Mongols: factionInfo("mongols", "Mongols", "Across the steppe, news travels.", "Military units, Scouts too, get +1 move. Settlers keep 2 moves. A city with a Market at least 8 tiles from your capital earns +2 Gold.", uniquePieceText(UNIQUE_PIECE.Mongols), goalLine('Mongols'), "Mongol military units get no defence bonus from terrain, though fortifying still works. The Mongols never build Walls and buy no Siege before the Medieval era."),
-  Sparta: factionInfo("sparta", "Sparta", "Train in the agoge. Hold the line.", `Spartan military units start at level 1, gain XP 50% faster, and alone can reach level 6, Spartan Veteran. Each level adds ${RULES.promotion.strengthPercent}% to a unit's strength. Hoplites gain +${HOPLITE_PHALANX_STRENGTH} strength next to another Hoplite. The melee line fights at full strength when wounded. Destroying an enemy military unit restores up to 100 HP, shared among the Spartan units that hit it that turn and survived. Capturing a city fully heals Spartan military units within 2 tiles.`, uniquePieceText(UNIQUE_PIECE.Sparta), goalLine('Sparta'), `Settlers and non-military buildings cost 50% more Production, except Walls, Castles, Star Forts and the Agoge.`),
+  Mongols: factionInfo("mongols", "Mongols", "Across the steppe, news travels.", "Military units, Scouts too, get +1 move. Settlers keep 2 moves. A city with a Market at least 8 tiles from your capital earns +2 Gold.", uniquePieceText(UNIQUE_PIECE.Mongols), goalLine('Mongols'), "Mongol military units get no defence bonus from terrain, though fortifying still works. The Mongols never build or upgrade Walls, and a city they capture loses its Walls. They buy no Siege before the Medieval era."),
+  Sparta: factionInfo("sparta", "Sparta", "Train in the agoge. Hold the line.", `Spartan military units start at level 1, gain XP 50% faster, and alone can reach level 6, Spartan Veteran. Each level adds ${RULES.promotion.strengthPercent}% to a unit's strength. Hoplites gain +${HOPLITE_PHALANX_STRENGTH} strength next to another Hoplite. The melee line fights at full strength when wounded. Destroying an enemy military unit restores up to 100 HP, shared among the Spartan units that hit it that turn and survived. Capturing a city fully heals Spartan military units within 2 tiles.`, uniquePieceText(UNIQUE_PIECE.Sparta), goalLine('Sparta'), `Settlers and non-military buildings cost 50% more Production, except Walls and its upgrades and the Agoge.`),
   Athens: factionInfo("athens", "Athens", "Debate in the agora. Study at the Lyceum.", "Every ruin also gives you 20 Science.", uniquePieceText(UNIQUE_PIECE.Athens), goalLine('Athens'), `Markets yield only +1 Gold instead of +3, at the normal ${RULES.buildingStats.Market.cost} Production cost. A rival that captures one of your cities gets one free technology (once per city for each rival).`),
   Rome: factionInfo('rome', 'Rome', 'Serve the legion. Earn the land.', 'A full-health melee veteran (level 1 or higher) can found a city; the unit is consumed.', 'Legionary replaces the Phalangite: a city it founds starts at population 2. ' + uniquePieceText(UNIQUE_PIECE.Rome), goalLine('Rome'), 'Rome cannot train or buy Settlers.'),
 
@@ -811,7 +809,7 @@ const MONGOL_WALLS_REASON: string = RULES.mongolWallsReason;
 
 /** Core `data::is_walls_line`: Walls and every later wall level (the Walls family). */
 export function isWallsLine(building: BuildingKind): boolean {
-  for (let b: BuildingKind | undefined = building; b; b = BUILDING_STATS[b].predecessor) if (b === 'Walls') return true;
+  for (let b: BuildingKind | undefined = building; b; b = BUILDING_STATS[b].predecessor) if (b === 'Walls' || b === 'UpgradeWalls') return true;
   return false;
 }
 
@@ -1009,6 +1007,7 @@ export function unitIconName(kind: UnitKind, faction?: Faction): string {
 
 /** A building's icon name: its faction replacement's own icon (Alpine Redoubt, Ruhr Foundry, Lyceum) when `faction` has one. */
 export function buildingIconName(kind: BuildingKind, faction?: Faction): string {
+  if (kind === 'UpgradeWalls') return buildingIconName('Walls', faction);
   return (faction && FACTION_BUILDING_ICON[faction]?.[kind]) || `building-${kind.toLowerCase()}`;
 }
 
@@ -1124,3 +1123,9 @@ export const SWISS_INTEREST_THRESHOLD = RULES.swissInterestThreshold;
 export const SWISS_TOLL_POPULATION = RULES.swissTollPopulation;
 /** Every empire's starting treasury (core `data::START_GOLD`). */
 export const START_GOLD = RULES.startGold;
+
+const WALL_LEVEL_NUMERALS = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX'];
+/** A Walls level as a Roman numeral ("III"). */
+export const wallLevelLabel = (level: number): string => WALL_LEVEL_NUMERALS[level] ?? String(level);
+/** The build list name of Upgrade Walls for a city at this Walls level (0: no Walls yet). */
+export const wallsUpgradeName = (level = 0, walls = 'Walls'): string => level < 1 ? `Upgrade ${walls}` : level >= 9 ? `Upgrade ${walls} (top level)` : `Upgrade ${walls} (to ${WALL_LEVEL_NUMERALS[level + 1]})`;

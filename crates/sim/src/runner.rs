@@ -1519,7 +1519,7 @@ mod tests {
         // over the finished records in index order, so a failure reads the same as before.
         let workers = std::thread::available_parallelism()
             .map_or(4, |n| n.get())
-            .clamp(2, 10);
+            .clamp(2, 6);
         let mut games: Vec<(usize, super::GameRecord)> = std::thread::scope(|scope| {
             let handles: Vec<_> = (0..workers)
                 .map(|w| {

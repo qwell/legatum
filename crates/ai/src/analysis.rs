@@ -609,12 +609,12 @@ pub fn damage_tile_defender(view: &mut PlayerView, target: Hex, damage: i32) {
         {
             let city = &view.cities[i];
             let excess = damage - city.hp.max(0);
-            let city_defense = combat::city_defense_for_rules(
+            let city_defense = combat::city_defense_vs(
                 view.rule_experiments,
                 view.faction_of(city.owner),
                 city.population,
-                city.walls,
-                city.fort_tier(),
+                u8::from(city.walls) + city.fort_tier(),
+                viewer_siege_cover(view),
                 city.hp,
                 view.era_of(city.owner),
             )
@@ -655,16 +655,61 @@ pub fn damage_tile_defender(view: &mut PlayerView, target: Hex, damage: i32) {
     }
 }
 
-/// A city's own defensive weight (walls included), scaled by its HP on the unit HP scale: a
-/// full-health city (200 HP) weighs twice its strength, since it takes twice the damage to break.
-pub fn city_power(view: &PlayerView, c: &CityView) -> i32 {
-    scaled(
-        combat::city_defense_for_rules(
+/// The Walls level the viewer's own attacks can expect to cover (`data::siege_cover`): its
+/// newest land units' built-in Siege from the Industrial era, else the Siege tier it can buy.
+/// Walls levels (rules 58) reach IX, so pricing a rival city at its full level would make every
+/// late city look unbreakable; the viewer's Siege leaves the covered levels out.
+pub fn viewer_siege_cover(view: &PlayerView) -> u8 {
+    let era = view.era_of(view.me);
+    if era >= data::BUILT_IN_SIEGE_ERA {
+        era
+    } else {
+        let known: std::collections::BTreeSet<_> = view.research.known.iter().copied().collect();
+        data::siege_tier(&known)
+    }
+}
+
+/// A rival city's strength against the viewer's attacks: its shown strength less the Walls levels
+/// the viewer's Siege covers (`viewer_siege_cover`). Own and allied cities keep their full strength.
+pub fn city_strength_vs_viewer(view: &PlayerView, c: &CityView) -> i32 {
+    if view.team_of(c.owner) == view.team {
+        return c.strength;
+    }
+    let defense = |covered| {
+        combat::city_defense_vs(
             view.rule_experiments,
             view.faction_of(c.owner),
             c.population,
-            c.walls,
-            c.fort_tier(),
+            u8::from(c.walls) + c.fort_tier(),
+            covered,
+            c.hp,
+            view.era_of(c.owner),
+        )
+        .total
+    };
+    let cover = viewer_siege_cover(view);
+    if cover == 0 {
+        return c.strength;
+    }
+    (c.strength - (defense(0) - defense(cover))).max(0)
+}
+
+/// A city's own defensive weight (walls included), scaled by its HP on the unit HP scale: a
+/// full-health city (200 HP) weighs twice its strength, since it takes twice the damage to break.
+/// A rival city's Walls levels that the viewer's Siege covers are left out (`viewer_siege_cover`).
+pub fn city_power(view: &PlayerView, c: &CityView) -> i32 {
+    let covered = if view.team_of(c.owner) == view.team {
+        0
+    } else {
+        viewer_siege_cover(view)
+    };
+    scaled(
+        combat::city_defense_vs(
+            view.rule_experiments,
+            view.faction_of(c.owner),
+            c.population,
+            u8::from(c.walls) + c.fort_tier(),
+            covered,
             c.hp,
             view.era_of(c.owner),
         )

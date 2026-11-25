@@ -90,7 +90,7 @@ describe.skipIf(!available)('Yam Relay Station and the Mongols goal: WASM behavi
     makeCore = () => new WasmClient(mod.Game);
   });
 
-  it('greys out Mongols Walls and Citadels with core-matching reasons', () => {
+  it('greys out Mongols Walls and upgrades with core-matching reasons', () => {
     const s = fixture('Mongols', 'India', 200);
     const home = city(s, 0, 4, 4); city(s, 1, 16, 16);
     s.players[0].techs.push('Masonry', 'Feudalism', 'Chivalry', 'Mathematics');
@@ -98,7 +98,7 @@ describe.skipIf(!available)('Yam Relay Station and the Mongols goal: WASM behavi
     const { fixtureClient, core } = pair(s);
     for (const item of [
       { kind: 'Building', building: 'Walls' },
-      { kind: 'Building', building: 'Castle' },
+      { kind: 'Building', building: 'UpgradeWalls' },
     ] as ProductionItem[]) {
       const listingOf = (client: FixtureClient | WasmClient) => {
         const detail = cityOf(client.view(0), home.id).detail!;

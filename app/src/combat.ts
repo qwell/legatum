@@ -107,7 +107,7 @@ export function cityTileDefender(cityHp: number, garrisoned: boolean): 'City' | 
   return projection({ op: 'cityTileDefender', hp: cityHp, garrisoned });
 }
 
-/** Core `data::wall_tier`: 0 no Walls, 1 Walls, 2 a Castle, 3 a Star Fort. `fort` is the tier above plain Walls (0 none, 1 a Castle, 2 a Star Fort). */
+/** Core `data::wall_tier`: 0 no Walls, 1 through 9 completed Walls levels. `fort` counts levels above I. */
 export const wallTier = (walls: boolean, fort = 0): number => RULES.wallTiers[Number(walls)][fort];
 
 /** Core `data::siege_tier`: the siege tier of an empire's Siege units, the highest siege technology it knows (Mathematics 1, Machinery 2, Metallurgy 3; 0 ignores nothing). */
@@ -117,13 +117,13 @@ export function siegeTier(techs: readonly TechId[]): number {
 
 /**
  * Core `data::siege_cover`: the Walls tier an attack by a unit of `kind` ignores. An Industrial or later land unit has Siege built in and
- * ignores every tier (3, a Star Fort); one that bought Siege (`siege`) reaches its owner's siege tier (`techs`); aircraft and the rest 0.
+ * covers levels through the unit's own era; one that bought Siege (`siege`) reaches its owner's siege tier (`techs`); aircraft and the rest 0.
  */
 export function siegeCover(kind: UnitKind, siege: boolean, techs: readonly TechId[]): number {
   return projection({ op: 'siegeCover', kind, siege, techs });
 }
 
-/** Core `data::MAX_WALL_TIER`: a Star Fort. */
+/** Core `data::MAX_WALL_TIER`: level IX. */
 export const MAX_WALL_TIER = RULES.maxWallTier;
 
 /**

@@ -564,7 +564,8 @@ fn numeric_unit_indices_preserve_production_and_purchases() {
 #[test]
 fn numeric_building_indices_preserve_production_and_purchases() {
     for (index, building) in BuildingKind::ALL.into_iter().enumerate() {
-        assert_eq!(building as usize, index);
+        // Retired Castle and Star Fort variants leave gaps in enum discriminants;
+        // numeric tape entries follow the active `ALL` order.
         let city = CityId(53);
         let item = ProductionItem::Building { building };
         assert_eq!(

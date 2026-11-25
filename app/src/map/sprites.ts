@@ -740,15 +740,15 @@ export interface BannerSpec {
   goal?: GoalSeal | null;
   selected: boolean;
   glyph: string | null;
-  /** Visible wall level: 0 none, 1 Walls, 2 Castle, 3 Star Fort. Drawn after the name as the Walls mark and the level. */
+  /** Visible wall level: 0 none, 1 through 9 Walls levels. Drawn after the name as the Walls mark and the level. */
   wallTier: number;
 }
 
 /**
- * The banner's level after the Walls mark: none for plain Walls, II for a Castle, III for a Star Fort. One mark plus a numeral,
- * not each building's icon: the Star Fort icon reads as a star at banner size, and a star on a banner means the capital seal.
+ * The banner's level after the Walls mark: none for level I, II through IX for upgrades. One mark plus a numeral,
+ * not a separate building icon.
  */
-export const WALL_TIER_LABEL = ['', '', 'II', 'III'] as const;
+export const WALL_TIER_LABEL = ['', '', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX'] as const;
 
 /** Draw a city banner with its bottom center at (x, y). Returns the drawn rect (CSS px). */
 export function drawBanner(ctx: CanvasRenderingContext2D, look: LookId, b: BannerSpec, x: number, y: number, fs: number, dpr: number, alpha = 1) {

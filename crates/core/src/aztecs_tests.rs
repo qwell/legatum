@@ -69,11 +69,10 @@ fn aztecs_research_does_not_promise_horse_upgrades() {
                 .iter()
                 .any(|effect| effect.contains("Cataphracts") || effect.contains("Cuirassiers"))
         );
-        assert!(data::tech_has_benefit(
-            Default::default(),
-            Faction::Aztecs,
-            tech
-        ));
+        assert_eq!(
+            data::tech_has_benefit(Default::default(), Faction::Aztecs, tech),
+            tech != TechId::Chivalry
+        );
     }
     assert!(data::tech_has_benefit(
         Default::default(),
@@ -84,4 +83,13 @@ fn aztecs_research_does_not_promise_horse_upgrades() {
         data::tech_card_effects_for(Faction::Aztecs, TechId::AutonomousSystems)
             .contains(&"Main Battle Tanks can upgrade to Autonomous Armour")
     );
+}
+
+#[test]
+fn chivalry_has_no_aztec_unlock_pending_design_decision() {
+    assert!(!data::tech_has_benefit(
+        Default::default(),
+        Faction::Aztecs,
+        crate::TechId::Chivalry
+    ));
 }

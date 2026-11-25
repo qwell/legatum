@@ -87,12 +87,12 @@ impl BattleForecast {
 /// What Walls do to one attack on a city's HP (`combat::wall_damage_percent`).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct WallsForecast {
-    /// The city's walls: 1 Walls, 2 a Castle, 3 a Star Fort.
+    /// The city's Walls level, I through IX.
     pub tier: u8,
     /// The siege tier of the attacker (`data::siege_cover`), 0 when it has no Siege.
     pub covered: u8,
     /// The attacker has Siege built in (an Industrial or later land unit, `data::built_in_siege`):
-    /// it ignores every tier, `data::BUILT_IN_SIEGE_NOTE`.
+    /// it covers levels through its own era tier.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub built_in: bool,
     /// Percent of its normal damage the attack deals to the city's HP.

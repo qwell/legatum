@@ -13105,24 +13105,6 @@ exports[`WASM purchase behavior > Great Work purchase quotes in the city option 
 ]
 `;
 
-exports[`WASM purchase behavior > India cannot buy the Walls-line building Castle and matches native 1`] = `
-[
-  null,
-  null,
-  "Walls must be built with Production; they can't be bought.",
-  "walls_need_production",
-]
-`;
-
-exports[`WASM purchase behavior > India cannot buy the Walls-line building StarFort and matches native 1`] = `
-[
-  null,
-  null,
-  "Walls must be built with Production; they can't be bought.",
-  "walls_need_production",
-]
-`;
-
 exports[`WASM purchase behavior > India cannot buy the Walls-line building Walls and matches native 1`] = `
 [
   null,

@@ -460,13 +460,17 @@ fn ruhr_foundry_replaces_the_forge_and_factory_is_ordinary() {
 
 #[test]
 fn building_prices_purchases_and_settler_sequence_apply_once() {
-    for (f, costs) in [(Faction::Germany, [50, 50, 60, 60, 80, 100, 400])] {
+    for (f, costs) in [(Faction::Germany, [50, 50, 60, 60, 80, 100, 240])] {
         let mut s = state(f);
         let c = city(&mut s, at(4, 4));
         s.player_mut(P).techs.extend(TechId::ALL);
         for (b, cost) in BuildingKind::ALL.into_iter().zip(costs) {
             assert_eq!(economy::production_cost(&s, P, building(b)), cost);
             let city = s.cities.get_mut(&c).unwrap();
+            if b == BuildingKind::UpgradeWalls {
+                city.buildings.insert(BuildingKind::Walls);
+                city.walls_level = 1;
+            }
             city.producing = Some(building(b));
             city.production_stored = 7;
             assert_eq!(
@@ -1283,8 +1287,7 @@ fn no_faction_ever_researches_a_tech_that_gives_it_nothing() {
                 skips.push((f, tech));
                 continue;
             }
-            // Researched in its own era: the state-aware test (the Mongols' Walls wait for the
-            // Medieval era) must still find something.
+            // Researched in its own era: every unskipped technology must still help.
             let era = legatum_core::eras::era_of_tech(tech);
             assert!(
                 data::tech_has_player_benefit(rules, f, era, tech),
@@ -1292,7 +1295,13 @@ fn no_faction_ever_researches_a_tech_that_gives_it_nothing() {
             );
         }
     }
-    assert_eq!(skips, vec![(Faction::Egypt, TechId::BronzeWorking)]);
+    assert_eq!(
+        skips,
+        vec![
+            (Faction::Aztecs, TechId::Chivalry),
+            (Faction::Egypt, TechId::BronzeWorking),
+        ]
+    );
     // The Nile takes all Production, so Egypt's cards drop the lines that only add Production
     // (a Deep Mine's Gold and cheaper land units still help it).
     for tech in TechId::ALL {
@@ -1367,12 +1376,12 @@ fn research_cards_show_only_what_helps_the_faction() {
     let rules = Default::default();
     for f in Faction::ALL {
         for tech in TechId::ALL {
-            // Chivalry now gives Castles and Military Science discounts land units, so even
-            // the Aztecs benefit despite having no mounted line.
+            // Chivalry lost Castle; without the proposed Gold bonus, Aztecs skip it.
             let has = data::tech_has_benefit(rules, f, tech);
             // The Nile: Egypt has no Production, so Bronze Working (Workshops) gives it nothing.
             // Industrialization still reveals Coal, which its Industrial-era units need.
-            let skipped = f == Faction::Egypt && tech == TechId::BronzeWorking;
+            let skipped = (f == Faction::Egypt && tech == TechId::BronzeWorking)
+                || (f == Faction::Aztecs && tech == TechId::Chivalry);
             assert_eq!(has, !skipped, "{f:?} {tech:?}");
         }
     }

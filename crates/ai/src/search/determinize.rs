@@ -14,7 +14,7 @@
 //!   and the rest is garrisoned at cities;
 //! - rival treasuries scale ours by their public economy value; rival technology is
 //!   approximated from our known technologies;
-//! - rival cities hold no buildings beyond the Walls and Castles we've seen.
+//! - rival cities hold no buildings beyond the Walls levels we've seen.
 
 use crate::winchance::WinFacts;
 use legatum_core::bitset::BitSet;
@@ -264,6 +264,7 @@ pub(crate) fn determinize_with(
                     last_purchase_turn: None,
                     bought: None,
                     buildings: BTreeSet::new(),
+                    walls_level: 0,
                     hp: data::CITY_HP,
                     tiles_claimed: 0,
                     grown_tiles: Vec::new(),
@@ -796,6 +797,7 @@ fn memory_of(c: &CityView, state: &GameState) -> CityMemory {
         population: live.map_or(c.population, |l| l.population),
         hp: c.hp,
         walls: c.walls,
+        walls_level: c.walls_level,
         citadel: c.citadel,
         star_fort: c.star_fort,
         has_workshop: c.has_workshop,
@@ -808,12 +810,6 @@ fn city_from_view(c: &CityView, turn: u32, me: PlayerId) -> City {
     let mut buildings: BTreeSet<BuildingKind> = BTreeSet::new();
     if c.walls {
         buildings.insert(BuildingKind::Walls);
-    }
-    if c.citadel {
-        buildings.insert(BuildingKind::Castle);
-    }
-    if c.star_fort {
-        buildings.insert(BuildingKind::StarFort);
     }
     if c.has_workshop {
         buildings.insert(BuildingKind::Workshop);
@@ -846,6 +842,7 @@ fn city_from_view(c: &CityView, turn: u32, me: PlayerId) -> City {
         last_purchase_turn: None,
         bought: None,
         buildings,
+        walls_level: c.walls_level,
         hp: c.hp,
         tiles_claimed: 0,
         grown_tiles: Vec::new(),

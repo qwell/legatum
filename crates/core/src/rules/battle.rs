@@ -283,7 +283,7 @@ fn plan_fight_inner(
                     rules,
                     state.player(c.owner).faction,
                     c.population,
-                    data::wall_tier(&c.buildings),
+                    c.wall_tier(),
                     covered,
                     c.hp,
                     state.era_of(c.owner),
@@ -310,11 +310,7 @@ fn plan_fight_inner(
     );
     let damage_to_defender = if let Target::City(c) = target {
         combat::damage_to_city_hp(
-            combat::city_damage_percent(
-                a.kind,
-                data::wall_tier(&state.cities[&c].buildings),
-                covered,
-            ),
+            combat::city_damage_percent(a.kind, state.cities[&c].wall_tier(), covered),
             normal_damage,
         )
     } else {
@@ -581,7 +577,7 @@ pub fn city_force(state: &GameState, unit: UnitId, city: CityId, ranged: bool) -
     combat::damage_to_city_hp(
         combat::city_damage_percent(
             u.kind,
-            data::wall_tier(&state.cities[&city].buildings),
+            state.cities[&city].wall_tier(),
             siege_cover(state, u),
         ),
         combat::damage(f.attacker_strength.total, f.defender_strength.total, 100),
@@ -1090,7 +1086,7 @@ pub fn ranged_target(
         state
             .cities
             .values()
-            .any(|c| c.owner == u.owner && c.pos == u.pos && data::wall_tier(&c.buildings) > 0),
+            .any(|c| c.owner == u.owner && c.pos == u.pos && c.wall_tier() > 0),
         u.pos,
         target,
         |h| state.map.get(h).map(|t| t.terrain),
@@ -1293,7 +1289,7 @@ pub fn resolve_ranged(
                 state.player(city.owner).faction,
                 city.population,
                 data::has_building(&city.buildings, BuildingKind::Walls),
-                data::fort_tier(&city.buildings),
+                city.wall_tier().saturating_sub(1),
                 city.hp,
                 state.era_of(city.owner),
             );
@@ -1555,6 +1551,7 @@ pub fn capture_city(
     }
     if slight_walls {
         c.buildings.retain(|b| !data::is_walls_line(*b));
+        c.walls_level = 0;
     }
     c.occupied_from = occupied_from;
     c.owner = captor;
@@ -1779,9 +1776,12 @@ mod tests {
     /// Damage the same fight deals with no Walls, for comparison.
     fn open_city_fight(s: &mut GameState, attacker: UnitId, city: CityId) -> Fight {
         let walls: Vec<BuildingKind> = s.cities[&city].buildings.iter().copied().collect();
+        let walls_level = s.cities[&city].walls_level;
         s.cities.get_mut(&city).unwrap().buildings.clear();
+        s.cities.get_mut(&city).unwrap().walls_level = 0;
         let fight = melee_fight(s, attacker, city);
         s.cities.get_mut(&city).unwrap().buildings.extend(walls);
+        s.cities.get_mut(&city).unwrap().walls_level = walls_level;
         fight
     }
 
@@ -1914,16 +1914,12 @@ mod tests {
     }
 
     #[test]
-    fn an_industrial_unit_takes_a_star_fort_city_at_full_damage_without_siege() {
+    fn an_industrial_unit_covers_walls_iii_at_full_damage_without_bought_siege() {
         // Designer, 2026-10-28: Siege is built in from the Industrial era, whatever the owner knows.
         let mut s = game(&[0, 1]);
         let city = walled_city(&mut s, 1, hex(5, 3), 3);
-        s.cities
-            .get_mut(&city)
-            .unwrap()
-            .buildings
-            .extend([BuildingKind::Castle, BuildingKind::StarFort]);
-        assert_eq!(data::wall_tier(&s.cities[&city].buildings), 3);
+        s.cities.get_mut(&city).unwrap().walls_level = 3;
+        assert_eq!(data::wall_tier(&s.cities[&city]), 3);
         let rifle = unit(&mut s, 0, UnitKind::Rifleman, hex(4, 3));
         assert!(!s.units[&rifle].siege, "nothing bought");
         assert_eq!(
@@ -1931,7 +1927,7 @@ mod tests {
             0,
             "no siege technology"
         );
-        assert_eq!(siege_cover(&s, &s.units[&rifle]), data::MAX_WALL_TIER);
+        assert_eq!(siege_cover(&s, &s.units[&rifle]), 4);
         let walled = melee_fight(&s, rifle, city);
         let open = open_city_fight(&mut s, rifle, city);
         assert_eq!(
@@ -1944,9 +1940,7 @@ mod tests {
                 .defender_strength
                 .parts
                 .iter()
-                .all(|(label, _)| !label.contains("Castle")
-                    && !label.contains("Star Fort")
-                    && !label.contains("Walls"))
+                .all(|(label, _)| !label.contains("Walls"))
         );
         // A Renaissance Musketman with the same (lack of) technology is halved.
         let musket = unit(&mut s, 0, UnitKind::Musketman, hex(4, 4));
@@ -1960,7 +1954,7 @@ mod tests {
         let w = f.walls.expect("a walled city");
         assert_eq!(
             (w.tier, w.covered, w.percent, w.built_in),
-            (3, 3, 100, true)
+            (3, 4, 100, true)
         );
         assert_eq!(f.defender_strength, walled.defender_strength);
     }
@@ -2033,19 +2027,21 @@ mod tests {
 
     #[test]
     fn mongols_slight_the_walls_of_a_city_they_capture_and_others_keep_them() {
-        use BuildingKind::{Castle, Market, StarFort, Walls};
+        use BuildingKind::{Castle, Market, StarFort, UpgradeWalls, Walls};
         for (captor, keeps) in [(Faction::Mongols, false), (Faction::India, true)] {
             let mut s = game(&[0, 1]);
             s.player_mut(PlayerId(0)).faction = captor;
             let city_id = city(&mut s, 1, hex(5, 3), 2);
             s.cities.get_mut(&city_id).unwrap().buildings =
-                [Walls, Castle, StarFort, Market].into();
+                [Walls, UpgradeWalls, Castle, StarFort, Market].into();
+            s.cities.get_mut(&city_id).unwrap().walls_level = 3;
             let mut events = Vec::new();
             capture_city(&mut s, city_id, PlayerId(0), &mut events);
             let b = &s.cities[&city_id].buildings;
             assert_eq!(s.cities[&city_id].owner, PlayerId(0));
             assert!(b.contains(&Market), "{captor:?}");
-            for wall in [Walls, Castle, StarFort] {
+            assert_eq!(s.cities[&city_id].walls_level, if keeps { 3 } else { 0 });
+            for wall in [Walls, UpgradeWalls, Castle, StarFort] {
                 assert_eq!(b.contains(&wall), keeps, "{captor:?} {wall:?}");
             }
         }
@@ -2058,8 +2054,10 @@ mod tests {
             .insert(crate::experiments::FactionRule::MongolsNoWalls);
         let city_id = city(&mut s, 1, hex(5, 3), 2);
         s.cities.get_mut(&city_id).unwrap().buildings.insert(Walls);
+        s.cities.get_mut(&city_id).unwrap().walls_level = 1;
         capture_city(&mut s, city_id, PlayerId(0), &mut Vec::new());
         assert!(s.cities[&city_id].buildings.contains(&Walls));
+        assert_eq!(s.cities[&city_id].walls_level, 1);
     }
 
     #[test]

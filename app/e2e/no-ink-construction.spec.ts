@@ -11,9 +11,9 @@ type MapWindow = GameWindow & { legatumMap: { camera: { x: number; y: number; zo
 
 const SITE = fromOffset(4, 5);
 const cases = [
-  { name: 'wonder-stage1', producing: { kind: 'Wonder', building: 'GreatLibrary', tile: SITE }, stored: 90, buildings: ['Walls', 'Castle'] },
-  { name: 'wonder-stage2', producing: { kind: 'Wonder', building: 'GreatLibrary', tile: SITE }, stored: 270, buildings: ['Walls', 'Castle'] },
-  { name: 'wonder-stage3', producing: { kind: 'Wonder', building: 'GreatLibrary', tile: SITE }, stored: 480, buildings: ['Walls', 'Castle'] },
+  { name: 'wonder-stage1', producing: { kind: 'Wonder', building: 'GreatLibrary', tile: SITE }, stored: 90, buildings: ['Walls'], wallsLevel: 2 },
+  { name: 'wonder-stage2', producing: { kind: 'Wonder', building: 'GreatLibrary', tile: SITE }, stored: 270, buildings: ['Walls'], wallsLevel: 2 },
+  { name: 'wonder-stage3', producing: { kind: 'Wonder', building: 'GreatLibrary', tile: SITE }, stored: 480, buildings: ['Walls'], wallsLevel: 2 },
   { name: 'walls-in-progress', producing: { kind: 'Building', building: 'Walls' }, stored: 40, buildings: [] },
   { name: 'granary-in-progress', producing: { kind: 'Building', building: 'Granary' }, stored: 15, buildings: [] },
 ];
@@ -26,6 +26,7 @@ for (const size of SIZES) test.describe(`construction without ink ${size.name}`,
     const setup = wallsFixture(), f = setup.fixture;
     const own = f.cities.find(x => x.id === setup.own)!;
     own.buildings = c.buildings as typeof own.buildings;
+    own.wallsLevel = 'wallsLevel' in c ? c.wallsLevel : undefined;
     own.producing = c.producing as typeof own.producing;
     own.prod = c.stored; own.productionQueue = [];
     await loadFixture(page, coreFixture(f), 2);

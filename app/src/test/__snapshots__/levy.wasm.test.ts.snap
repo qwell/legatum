@@ -10,6 +10,10 @@ exports[`thin levies: core behavior > caps armed units at one per city plus one,
 exports[`thin levies: core behavior > caps armed units at one per city plus one, with Scouts free, and greys armed units with the same reason 2`] = `
 [
   [
+    "{"kind":"Building","building":"UpgradeWalls"}",
+    "Build Walls first.",
+  ],
+  [
     "{"kind":"Building","building":"Mill"}",
     "Requires Granary",
   ],
@@ -33,6 +37,10 @@ exports[`thin levies: core behavior > caps armed units at one per city plus one,
   [
     "{"kind":"Unit","unit":"Horseman"}",
     "Levies full: 2 of 2",
+  ],
+  [
+    "{"kind":"Building","building":"UpgradeWalls"}",
+    "Build Walls first.",
   ],
   [
     "{"kind":"Building","building":"Mill"}",
@@ -586,6 +594,10 @@ exports[`thin levies: core behavior > losing a city never disbands units; it onl
   [
     "{"kind":"Unit","unit":"Horseman"}",
     "Levies full: 3 of 2",
+  ],
+  [
+    "{"kind":"Building","building":"UpgradeWalls"}",
+    "Build Walls first.",
   ],
 ]
 `;

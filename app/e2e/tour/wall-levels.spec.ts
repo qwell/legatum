@@ -1,4 +1,4 @@
-// City banners show each city's wall level after its name (the Walls mark, then II for a Castle or III for a Star Fort),
+// City banners show each city's wall level after its name (the Walls mark, then the level numeral from II),
 // so an attacker sees how strong a city's Walls are before attacking. A rival city building Walls shows only footings.
 // Capitals carry the star seal, so the numeral must clear it. At the user's laptop window and a desktop one.
 import { test } from '../fixtures';
@@ -26,13 +26,17 @@ async function frame(page: Page, at: { q: number; r: number }, zoom: number) {
 for (const size of SIZES) test.describe(`wall levels ${size.name}`, () => {
   test.use({ viewport: { width: size.width, height: size.height } });
 
-  test('banners show Walls, Castle (II) and Star Fort (III); a rival building Walls shows footings', async ({ page }) => {
+  test('banners show Walls levels I, II and III; a rival building Walls shows footings', async ({ page }) => {
     test.setTimeout(120_000);
     const setup = wallsFixture(), f = setup.fixture;
     const city = (id: number) => f.cities.find((c) => c.id === id)!;
-    // Own capital: Star Fort (III) beside its star seal. Rival capital Berea: Castle (II). Rival town: building Walls.
-    city(setup.own).buildings = ['Walls', 'Castle', 'StarFort'] as BuildingKind[];
-    city(setup.walled).buildings = ['Walls', 'Castle'] as BuildingKind[];
+    // Own capital: Walls III beside its star seal. Rival capital Berea: Walls II. Rival town: building Walls.
+    city(setup.own).buildings = ['Walls'] as BuildingKind[];
+    city(setup.own).wallsLevel = 3;
+    city(setup.walled).buildings = ['Walls'] as BuildingKind[];
+    city(setup.walled).wallsLevel = 2;
+    // Level VIII is the widest numeral, so its banner is the one most likely to crowd.
+    city(setup.bastion).wallsLevel = 8;
     const open = city(setup.open);
     open.buildings = [];
     open.producing = { kind: 'Building', building: 'Walls' } as typeof open.producing;
@@ -42,7 +46,7 @@ for (const size of SIZES) test.describe(`wall levels ${size.name}`, () => {
       await frame(page, fromOffset(10, 5), zoom);
       await shot(page, size, `wall-levels-${name}`);
     }
-    // Hover the Castle capital's name plate: the banner tooltip is where the wall level gets its words.
+    // Hover the Walls II capital's name plate: the banner tooltip is where the wall level gets its words.
     await frame(page, city(setup.walled).pos, 2.2);
     const plate = await page.evaluate((id) => {
       const w = window as unknown as { legatumMap: { banners: { city: number; rect: { x: number; y: number; w: number; h: number } }[] } };
@@ -58,5 +62,7 @@ for (const size of SIZES) test.describe(`wall levels ${size.name}`, () => {
     await shot(page, size, 'wall-levels-rival-building');
     await frame(page, city(setup.own).pos, 2.6);
     await shot(page, size, 'wall-levels-capital-iii');
+    await frame(page, city(setup.bastion).pos, 2.6);
+    await shot(page, size, 'wall-levels-viii');
   });
 });

@@ -28,7 +28,7 @@ it.skipIf(!available)('lists legal fogged sites with compact scores and on-deman
       u.pos = hexAt(i, v.width); u.goto = hexAt(i + 2, v.width); u.max_moves = variant;
       v.failed_city_sites = [hexAt(i + 6, v.width)];
       v.units.push({ ...u, id: 900 + variant, owner: 2, kind: 'Archer', military: true, ranged: 15, range: 2, pos: hexAt(i + 3, v.width) } as UnitView);
-      if (variant === 2) v.cities.push({ owner: v.me, id: 100, name: 'Home', population: 2, hp: 200, max_hp: 200, strength: 20, walls: false, citadel: false, great_works: [], visible: true, detail: null, pos: hexAt(i + 10, v.width), is_capital: true });
+      if (variant === 2) v.cities.push({ owner: v.me, id: 100, name: 'Home', population: 2, hp: 200, max_hp: 200, strength: 20, walls: false, walls_level: 0, great_works: [], visible: true, detail: null, pos: hexAt(i + 10, v.width), is_capital: true });
     }
     const reserved = variant === 2 ? [hexAt(100, v.width)] : [];
     // The app's site table is kept per view object, and this test edits `v` in place: ask it about a fresh copy.
@@ -62,7 +62,7 @@ it.skipIf(!available)('accepts a 3-hex city gap for India and blocks it for othe
       const u = v.units.find((u) => u.owner === v.me && u.kind === 'Spearman')!;
       u.kind = 'Settler'; u.military = false;
       const home = { ...u.pos };
-      const city = { owner: v.me, id: 100, name: 'Home', population: 2, hp: 200, max_hp: 200, strength: 20, walls: false, citadel: false, great_works: [], visible: true, detail: null, pos: home, is_capital: true };
+      const city = { owner: v.me, id: 100, name: 'Home', population: 2, hp: 200, max_hp: 200, strength: 20, walls: false, walls_level: 0, great_works: [], visible: true, detail: null, pos: home, is_capital: true };
       for (const t of v.tiles) { t.explored = true; t.visible = true; t.terrain = 'Grassland'; t.owner = null; }
       const pos = within(home, 3).find((h) => distance(h, home) === 3 && tileIndex(h, v.width, v.height) >= 0)!;
       u.pos = pos; v.units = [u]; v.cities = [city]; v.city_gap_blocked = [];
@@ -105,7 +105,7 @@ it.skipIf(!available)('scores Mongols sites like everyone else: no spaced-networ
     for (const t of v.tiles) { t.explored = true; t.visible = true; t.terrain = 'Grassland'; t.owner = null; }
     const positions = [{ q: 4, r: 4 }, { q: 8, r: 4 }, { q: 4, r: 8 }];
     v.units = [u]; u.pos = { q: 16, r: 4 };
-    v.cities = positions.map((pos, id) => ({ owner: v.me, id, name: 'Road', population: 2, hp: 200, max_hp: 200, strength: 20, walls: false, citadel: false, great_works: [], visible: true, detail: null, pos, is_capital: id === 0 }));
+    v.cities = positions.map((pos, id) => ({ owner: v.me, id, name: 'Road', population: 2, hp: 200, max_hp: 200, strength: 20, walls: false, walls_level: 0, great_works: [], visible: true, detail: null, pos, is_capital: id === 0 }));
     const inspect = (pos: typeof u.pos, reserved: typeof positions = []) => {
       const expected = settlementSites(v, u, reserved, pos)[0];
       expect(JSON.parse(Game.settlement_site(JSON.stringify(v), u.id, pos.q, pos.r, JSON.stringify(reserved)))).toEqual(expected);

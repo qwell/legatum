@@ -7,7 +7,7 @@ import { UNSUPPLIED_STRENGTH_PERCENT } from '../resources';
 import { tileIndex } from '../hex';
 import { roadBonusText } from '../path';
 import { siegeCityBonus, siegeTier } from '../combat';
-import { ARTILLERY_HEADLINE, BUILT_IN_SIEGE_NOTE, builtInSiege, canAutoExplore, firesIndirect, CLASS_NAME, CLASS_NOTE, attacksInMelee, eraName, minCityGap, RULES, SIEGE_USES_IRON, UNIT_STATS, ignoresWounds, itemName, unitClass, unitEraTier } from '../data';
+import { ARTILLERY_HEADLINE, builtInSiege, canAutoExplore, firesIndirect, CLASS_NAME, CLASS_NOTE, attacksInMelee, eraName, minCityGap, RULES, SIEGE_USES_IRON, UNIT_STATS, ignoresWounds, itemName, unitClass, unitEraTier, wallLevelLabel } from '../data';
 import { occupationLead, occupationNote } from './forecastWarnings';
 import { describeOrder, errorsWhere, orderUnit, pendingUnitOrder, sleepOrderText } from '../orders';
 import {
@@ -373,11 +373,11 @@ function ClassTip({ kind, bow = false }: { kind: UnitKind; bow?: boolean }) {
   </>;
 }
 
-const SIEGE_REACH = ['', 'Walls', 'Walls and Castles', 'Walls, Castles and Star Forts'];
+const SIEGE_REACH = ['', 'I', 'II', 'III'];
 
 /** What Siege does for this unit today: its owner's technology sets how high it reaches (core `data::siege_tier`); a rival's is private. The rule itself is `SIEGE_RULE`. An Industrial or later unit has it built in (core `data::built_in_siege`). */
 function siegeNote(view: PlayerView, unit: UnitView): string {
-  if (builtInSiege(unit.kind as UnitKind)) return `Siege built in: ${BUILT_IN_SIEGE_NOTE}.`;
+  if (builtInSiege(unit.kind as UnitKind)) return `Siege built in: covers Walls up to level ${wallLevelLabel(unitEraTier(unit.kind as UnitKind))} when it attacks a city.`;
   const tier = unit.owner === view.me ? siegeTier(view.research.known) : 0;
-  return tier > 1 ? `Siege: ignores enemy ${SIEGE_REACH[tier]} when it attacks a city.` : 'Siege: ignores enemy Walls when it attacks a city.';
+  return tier > 1 ? `Siege: covers Walls up to level ${SIEGE_REACH[tier]} when it attacks a city.` : 'Siege: covers Walls up to level I when it attacks a city.';
 }

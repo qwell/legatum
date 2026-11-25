@@ -14,7 +14,7 @@ const NAMED_ICONS: [string, string][] = [
  * shows what changes (a Library, Scouts, cheaper tiles) rather than a generic mark. */
 function effectIcon(label: string) {
   if (label.startsWith('Stealth aircraft use Silicon')) return 'resource-silicon';
-  // Siege lines name Walls, Castles and Star Forts: the glyph is Siege's own.
+  // Siege lines name Walls levels: the glyph is Siege's own.
   if (/\bSiege\b/.test(label)) return 'ui-siege';
   const named = NAMED_ICONS.map(([name, icon]) => ({ at: label.search(new RegExp(`\\b${name}`)), name, icon }))
     .filter((m) => m.at >= 0)

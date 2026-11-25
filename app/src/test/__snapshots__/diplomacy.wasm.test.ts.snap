@@ -5433,6 +5433,16 @@ exports[`WASM diplomacy behavior > population is territory: growth claims a tile
       "production_banked": 0,
       "reason": "Settler needs population 2 (currently 1)",
     },
+    {
+      "cost": 240,
+      "item": {
+        "building": "UpgradeWalls",
+        "kind": "Building",
+      },
+      "prerequisite_building": "Walls",
+      "production_banked": 0,
+      "reason": "Build Walls first.",
+    },
   ],
   "yields": {
     "focus": "Balanced",
@@ -7547,7 +7557,18 @@ exports[`WASM diplomacy behavior > population is territory: growth claims a tile
   "tile_base_price": 80,
   "turns_to_complete": null,
   "turns_to_grow": 4,
-  "unavailable": [],
+  "unavailable": [
+    {
+      "cost": 240,
+      "item": {
+        "building": "UpgradeWalls",
+        "kind": "Building",
+      },
+      "prerequisite_building": "Walls",
+      "production_banked": 0,
+      "reason": "Build Walls first.",
+    },
+  ],
   "yields": {
     "focus": "Balanced",
     "focus_reason": "no active build",

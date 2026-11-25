@@ -34,7 +34,7 @@ From `app/src/rules.generated.json` and core `research::tech_unlocks`.
 
 | Kind | Items | New paintings |
 | --- | --- | --- |
-| Buildings unlocked by a tech | Workshop, Walls, Market, Library, Roadworks, Forge, Castle, Agoge, University, Mill, Star Fort, Bank, Factory, Research Lab (upgrade tiers are their own buildings: Forge and Factory after Workshop, Castle and Star Fort after Walls, University and Research Lab after Library, Bank after Market, Mill after Granary) | 16 |
+| Buildings unlocked by a tech | Workshop, Walls, Market, Library, Roadworks, Forge, Agoge, University, Mill, Bank, Factory, Research Lab (upgrade tiers are their own buildings: Forge and Factory after Workshop, University and Research Lab after Library, Bank after Market, Mill after Granary) | 16 |
 | Wonders (Great Works) | Great Library, Grand Bazaar, Royal Arsenal. They have no art today beyond the shared `moment-greatwork` painting and engraved icons | 3 |
 | Buildings with no tech, shown in production and the city panel | Granary, Rice Storehouse (Japan), Yam Relay Station (Mongols' goal), Machine Works (Germany's goal) | 4 |
 | Faction replacements, own name | Alpine Redoubt (Swiss Walls), Ruhr Foundry (German Factory), Lyceum (Athens' Library), Imperial Scriptorium (Byzantine Library) | 4 |

@@ -1,5 +1,5 @@
 //! The era overhaul's rules (`crate::eras`): the tech table, the strict gate, era entry,
-//! diffusion, legacy saves, Railways, the Castle and Star Fort tiers and the research forecast.
+//! diffusion, legacy saves, Railways, Walls levels and the research forecast.
 use crate::eras;
 use crate::events::Event;
 use crate::rules::cities::{
@@ -840,7 +840,7 @@ fn identifiers_renamed_in_rules_52_load_from_their_old_names() {
     assert_eq!(UnitKind::ALL[2], UnitKind::Spearman);
     assert_eq!(UnitKind::ALL[30], UnitKind::EarlyTank);
     assert_eq!(BuildingKind::ALL[0], BuildingKind::RiceStorehouse);
-    assert_eq!(BuildingKind::ALL[22], BuildingKind::YamRelayStation);
+    assert_eq!(BuildingKind::ALL[21], BuildingKind::YamRelayStation);
     assert!(UnitKind::ALL.windows(2).all(|pair| pair[0] < pair[1]));
     assert!(BuildingKind::ALL.windows(2).all(|pair| pair[0] < pair[1]));
 }
@@ -858,8 +858,7 @@ fn buildings_have_historical_display_names() {
         (BuildingKind::GreatLibrary, "Great Library"),
         (BuildingKind::RoyalArsenal, "Royal Arsenal"),
         (BuildingKind::GrandBazaar, "Grand Bazaar"),
-        (BuildingKind::Castle, "Castle"),
-        (BuildingKind::StarFort, "Star Fort"),
+        (BuildingKind::UpgradeWalls, "Upgrade Walls"),
     ] {
         assert_eq!(data::building_name(kind), name);
     }
@@ -888,11 +887,9 @@ fn the_buildings_and_their_unlock_techs_follow_the_new_tree() {
         (B::Forge, TechId::IronWorking),
         (B::GreatLibrary, TechId::Philosophy),
         (B::HagiaSophia, TechId::Machinery),
-        (B::Castle, TechId::Chivalry),
         (B::Agoge, TechId::Chivalry),
         (B::University, TechId::Education),
         (B::Mill, TechId::Feudalism),
-        (B::StarFort, TechId::Machinery),
         (B::Bank, TechId::Banking),
         (B::GrandBazaar, TechId::Banking),
         (B::Factory, TechId::Industrialization),
@@ -907,6 +904,7 @@ fn the_buildings_and_their_unlock_techs_follow_the_new_tree() {
         );
     }
     assert_eq!(data::building_stats(B::Granary).requires, None);
+    assert_eq!(data::building_stats(B::UpgradeWalls).requires, None);
     for (unit, tech) in [
         (UnitKind::Pikeman, TechId::Feudalism),
         (UnitKind::Crossbowman, TechId::Machinery),
@@ -1272,179 +1270,89 @@ fn walled_garrison_shoots_through_forest_but_unwalled_garrison_and_field_unit_do
 }
 
 #[test]
-fn artillery_and_drones_keep_full_builtin_siege() {
+fn artillery_and_drones_cover_their_own_era_with_builtin_siege() {
     let mut s = game(&[0, 1]);
     let target = hex(5, 3);
     let c = city(&mut s, 1, target, 4);
-    s.cities.get_mut(&c).unwrap().buildings.extend([
-        BuildingKind::Walls,
-        BuildingKind::Castle,
-        BuildingKind::StarFort,
-    ]);
+    s.cities
+        .get_mut(&c)
+        .unwrap()
+        .buildings
+        .insert(BuildingKind::Walls);
+    s.cities.get_mut(&c).unwrap().walls_level = 3;
     s.player_mut(P0).techs.insert(TechId::Steel);
     for kind in [UnitKind::Artillery, UnitKind::CombatDrone] {
         let id = unit(&mut s, 0, kind, hex(3, 3));
         let f = crate::forecast_attack_mode(&player_view(&s, P0), id, target, AttackMode::Ranged)
             .unwrap();
         let walls = f.walls.as_ref().unwrap();
-        assert_eq!((walls.covered, walls.percent), (3, 100));
-        assert_eq!(rules::battle::siege_cover(&s, &s.units[&id]), 3);
+        assert_eq!(
+            (walls.covered, walls.percent),
+            (data::unit_era_tier(kind), 100)
+        );
+        assert_eq!(
+            rules::battle::siege_cover(&s, &s.units[&id]),
+            data::unit_era_tier(kind)
+        );
         assert!(f.city_strike.is_some());
         s.units.remove(&id);
     }
 }
 
 #[test]
-fn castles_and_star_forts_add_their_strength_cumulatively() {
+fn walls_levels_add_era_scaled_strength_and_siege_removes_covered_levels() {
     let faction = Faction::Switzerland;
-    let castle = data::building_stats(BuildingKind::Castle).city_strength;
-    let star = data::building_stats(BuildingKind::StarFort).city_strength;
-    assert!(castle > 0 && star > 0);
-    let at = |walls: bool, fort: u8| {
-        combat::city_defense_with_fort(faction, 3, walls, fort, data::CITY_HP, 0).total
-    };
-    let none = at(false, 0);
-    let walls = at(true, 0);
-    assert!(walls > none);
-    assert_eq!(at(true, 1), walls + castle, "a Castle adds to Walls");
-    assert_eq!(
-        at(true, 2),
-        walls + castle + star,
-        "a Star Fort adds to both"
-    );
-    // The breakdown names each step.
-    let b = combat::city_defense_with_fort(faction, 3, true, 2, data::CITY_HP, 0);
-    let labels: Vec<&str> = b.parts.iter().map(|p| p.0.as_str()).collect();
-    assert!(labels.contains(&"Castle upgrade") && labels.contains(&"Star Fort upgrade"));
-    assert_eq!(b.parts.iter().map(|p| p.1).sum::<i32>(), b.total);
-    // The rules wrapper agrees with the default rules.
-    assert_eq!(
-        combat::city_defense_for_rules(Default::default(), faction, 3, true, 2, data::CITY_HP, 0),
-        b
-    );
-    // Wounded cities scale all of it down.
-    assert!(
-        combat::city_defense_with_fort(faction, 3, true, 2, data::CITY_HP / 2, 0).total < b.total
-    );
-}
-
-#[test]
-fn city_defense_in_a_real_city_uses_its_fort_tier() {
-    let mut s = game(&[0, 1]);
-    let id = city(&mut s, 1, hex(5, 3), 4);
-    let strength = |s: &GameState| {
-        let v = player_view(s, P0);
-        v.cities
-            .iter()
-            .find(|c| c.id == id)
-            .map(|c| (c.strength, c.fort_tier(), c.citadel, c.star_fort))
-    };
-    unit(&mut s, 0, UnitKind::Spearman, hex(4, 3));
-    crate::visibility::update_explored(&mut s);
-    let (plain, tier, castle_flag, star_flag) = strength(&s).unwrap();
-    assert_eq!((tier, castle_flag, star_flag), (0, false, false));
-    s.cities.get_mut(&id).unwrap().buildings = [BuildingKind::Walls].into();
-    let (walls, ..) = strength(&s).unwrap();
-    assert!(walls > plain);
-    s.cities.get_mut(&id).unwrap().buildings = [BuildingKind::Castle].into();
-    let (castle, tier, castle_flag, star_flag) = strength(&s).unwrap();
-    assert_eq!((tier, castle_flag, star_flag), (1, true, false));
-    assert_eq!(
-        castle,
-        walls + data::building_stats(BuildingKind::Castle).city_strength
-    );
-    s.cities.get_mut(&id).unwrap().buildings = [BuildingKind::StarFort].into();
-    let (star, tier, castle_flag, star_flag) = strength(&s).unwrap();
-    assert_eq!((tier, castle_flag, star_flag), (2, true, true));
-    assert_eq!(
-        star,
-        castle + data::building_stats(BuildingKind::StarFort).city_strength
-    );
-    // The memory of a seen city keeps the tier too.
-    let memory = crate::state::CityMemory::from(&s.cities[&id]);
-    assert_eq!(memory.fort_tier(), 2);
-    assert!(memory.walls && memory.citadel && memory.star_fort);
-}
-
-#[test]
-fn a_star_fort_needs_a_castle_which_needs_walls() {
-    use BuildingKind::{Castle, StarFort, Walls};
-    assert_eq!(data::building_predecessor(Castle), Some(Walls));
-    assert_eq!(data::building_predecessor(StarFort), Some(Castle));
-    assert_eq!(data::building_predecessor(Walls), None);
-    for kind in [Walls, Castle, StarFort] {
-        assert_eq!(data::building_family(kind), Walls);
-    }
-    // A higher tier satisfies the lower ones' requirements, not the other way round.
-    assert!(data::building_satisfies(StarFort, Castle));
-    assert!(data::building_satisfies(StarFort, Walls));
-    assert!(data::building_satisfies(Castle, Walls));
-    assert!(!data::building_satisfies(Walls, Castle));
-    assert!(!data::building_satisfies(Castle, StarFort));
-    assert_eq!(data::fort_tier(&BTreeSet::from([Walls])), 0);
-    assert_eq!(data::fort_tier(&BTreeSet::from([Castle])), 1);
-    assert_eq!(data::fort_tier(&BTreeSet::from([StarFort])), 2);
-    assert_eq!(data::fort_tier(&BTreeSet::new()), 0);
-
-    let mut s = game(&[0, 1]);
-    let id = city(&mut s, 0, hex(3, 3), 3);
-    s.player_mut(P0)
-        .techs
-        .extend([TechId::Masonry, TechId::Chivalry, TechId::Machinery]);
-    let can = |s: &GameState, b| {
-        economy::can_produce(s, &s.cities[&id], ProductionItem::Building { building: b })
-    };
-    let blocker = |s: &GameState, b| {
-        economy::production_blocker(
-            s,
-            &s.cities[&id],
-            ProductionItem::Building { building: b },
-            true,
+    let at = |level, covered, era| {
+        combat::city_defense_covered_rules(
+            Default::default(),
+            faction,
+            3,
+            level,
+            covered,
+            data::CITY_HP,
+            era,
         )
-        .unwrap_or_default()
     };
-    assert!(can(&s, Walls));
-    assert!(!can(&s, Castle));
-    assert!(!can(&s, StarFort));
-    let walls_name = data::building_name_for(Faction::Switzerland, Walls);
-    assert_eq!(blocker(&s, Castle), format!("Requires {walls_name}"));
-    assert_eq!(blocker(&s, StarFort), "Requires Castle");
-    economy::install_building(s.cities.get_mut(&id).unwrap(), Walls);
-    assert!(!can(&s, Walls), "already built");
-    assert!(can(&s, Castle));
-    assert!(
-        !can(&s, StarFort),
-        "a Star Fort needs the Castle, not just Walls"
-    );
-    economy::install_building(s.cities.get_mut(&id).unwrap(), Castle);
+    for era in [0, 4, 8] {
+        let base = at(1, 0, era);
+        let three = at(3, 0, era);
+        assert_eq!(three.total, base.total + 2 * data::era_scaled(5, era));
+        assert_eq!(
+            at(3, 2, era).total,
+            at(0, 0, era).total + data::era_scaled(5, era)
+        );
+        assert_eq!(at(3, 3, era).total, at(0, 0, era).total);
+        assert!(
+            three
+                .parts
+                .iter()
+                .any(|(label, _)| label == "Alpine Redoubt II–III")
+        );
+        assert!(
+            at(3, 2, era)
+                .parts
+                .iter()
+                .any(|(label, _)| label == "Alpine Redoubt III")
+        );
+    }
+    assert_eq!(data::siege_cover(UnitKind::CombatDrone, None), 8);
     assert_eq!(
-        s.cities[&id].buildings.iter().copied().collect::<Vec<_>>(),
-        [Castle],
-        "each tier replaces the one below"
+        at(9, 8, 8).total,
+        at(0, 0, 8).total + data::era_scaled(5, 8)
     );
-    assert!(!can(&s, Walls) && !can(&s, Castle));
-    assert!(can(&s, StarFort));
-    // Techs gate the tiers.
-    s.player_mut(P0).techs.remove(&TechId::Machinery);
-    assert!(!can(&s, StarFort));
-    assert_eq!(blocker(&s, StarFort), "Requires Machinery");
-    s.player_mut(P0).techs.remove(&TechId::Chivalry);
-    s.cities.get_mut(&id).unwrap().buildings = [Walls].into();
-    assert!(!can(&s, Castle));
-    assert_eq!(blocker(&s, Castle), "Requires Chivalry");
+    assert_eq!(combat::wall_damage_percent(9, 8, false), 75);
 }
 
 #[test]
 fn mongols_raise_no_walls_tier_in_any_era() {
     // The Mongols never raise Walls (rules 57).
-    use BuildingKind::{Castle, StarFort, Walls};
+    use BuildingKind::{Castle, StarFort, UpgradeWalls, Walls};
     let mut s = game(&[0, 1]);
     s.player_mut(P0).faction = Faction::Mongols;
-    s.player_mut(P1).faction = Faction::India;
     let id = city(&mut s, 0, hex(3, 3), 3);
     let other = city(&mut s, 1, hex(8, 6), 3);
     s.player_mut(P1).techs.extend(TechId::ALL);
-    for building in [Walls, Castle, StarFort] {
+    for building in [Walls, UpgradeWalls, Castle, StarFort] {
         let item = ProductionItem::Building { building };
         assert!(
             !data::available_to_faction(Faction::Mongols, item),
@@ -1471,7 +1379,7 @@ fn mongols_raise_no_walls_tier_in_any_era() {
     // In a game: shut before the Medieval era and after it, with every technology known.
     s.player_mut(P0).techs.extend(TechId::ALL);
     assert!(s.era_of(P0) >= 2);
-    for building in [Walls, Castle, StarFort] {
+    for building in [Walls, UpgradeWalls, Castle, StarFort] {
         let item = ProductionItem::Building { building };
         assert!(
             !economy::can_produce(&s, &s.cities[&id], item),

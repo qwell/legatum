@@ -21,6 +21,7 @@ Current principles and decisions, one line each with date and who. The user's fu
 - **Every tech a faction researches gives it something** (user, 2026-11-22). Researching is never a trade-off against yourself (user, 2026-11-01).
 - **Rock-paper-scissors:** rush beats greedy expansion, Walls and archers beat rush, greedy expansion out-scales turtles. Early rushes may be final; the counter is scouting, then Walls and archers (user, 2026-10-17).
 - **Walls are strong but beatable** and cost 100 Production (user, 2026-10-07, 2026-11-06). Bombers are meant to be very strong; Fighters and air superiority are the counter; never nerf Bombers or move Flight as a pacing fix (user, 2026-11-10, 2026-11-13).
+- **Walls may be upgraded through the owner's era number** (Sam, 2026-11-22): each new level costs Production or Gold and adds era-scaled city strength; Siege covers only the levels its tier reaches. This is the explicit Walls exception to the general preference against arbitrary caps.
 - **The unit triangle ends at the Modern era** (user, 2026-10-20). One unit per class per era with small jumps (user, 2026-10-10); power jumps grow in later eras (user, 2026-10-18).
 - **Each era is defined by its resource,** revealed by a tech of the era it is used in; deposits are deliberately not placed fairly; resources are a reason for war (user, 2026-10-22, 2026-11-07).
 - **Conquest is the fastest economy and winning is zero-sum** (user, 2026-10-07/08). A leader may run away if the others can respond; rubber bands keep it close (pillar 11).
@@ -59,7 +60,7 @@ Current principles and decisions, one line each with date and who. The user's fu
 - Every city can run a Gold or Science project when nothing is worth building, at a much lower rate than Germany's (25% / 10% against 50% / 25%; Egypt converts its Food-funded progress), and since rules 55 a Food project (25% of Production as Food, the same for Germany; Nile Egypt uses Grow instead).
 - City automation focuses (Sam, 2026-11-22, rules 55): Military (the newest units the empire's strategic resources allow, never outdated ones), Economy (buildings and improvements, never units) and three streams where the player picks the Gold, Science or Food project and the city runs it. Balanced is gone; Settlers and Scouts are never automated. Automation and the AI never fill a queue with Scouts or outdated units (Sam, 2026-11-22: a finished Gold city built Scouts at turn 100; he left rates, Food and Egypt to the lead's judgment, "the game needs to feel premium").
 - Resolution order when a defender slips into a besieged city: slip in, then ranged, then melee (user, 2026-11-21).
-- Saves from other rules versions are refused; no migrations (user, 2026-10-31).
+- Saves from other rules versions are refused; no migrations (user, 2026-10-31). The hosted site opens an old game in the build that made it.
 - Going back a turn is allowed in local games (Sam, 2026-11-22): save-scumming is acceptable, because training should learn only from moves the player meant. Menu → Load an earlier turn opens any of the last 10 autosaved turns; the uploaded record keeps only the line played on and lists each rewind (`rewinds`). Online games cannot go back (the host would rewind everyone).
 - Rules freeze: lifted 2026-11-11 (user). Talk before building tech-tree changes (user, 2026-11-01).
 

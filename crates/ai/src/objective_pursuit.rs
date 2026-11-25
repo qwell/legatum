@@ -470,7 +470,7 @@ impl Planner<'_> {
 
     /// Production value of the next step toward a chosen one-VP building card. A prerequisite
     /// gets the same share of the point, discounted by its extra build step. Count existing
-    /// queues and orders so two needed Castles produce two orders, not twelve.
+    /// queues and orders so two needed Markets produce two orders, not twelve.
     pub(crate) fn objective_build_value(&self, c: &CityView, item: ProductionItem) -> i32 {
         if self.difficulty != legatum_core::AiDifficulty::Hard
             || self.decisions.cheapest_objective == 0
@@ -761,7 +761,7 @@ mod tests {
             .city(4, ENEMY, off(19, 8), 5)
             .build();
         let objective = Objective::Buildings {
-            building: BuildingKind::Castle,
+            building: BuildingKind::Mill,
             cities: 2,
         };
         v.eras = vec![legatum_core::view::EraView {
@@ -817,18 +817,18 @@ mod tests {
             p.chosen_objective().unwrap().0.objective,
             Objective::Buildings { .. }
         ));
-        let walls = ProductionItem::Building {
-            building: BuildingKind::Walls,
+        let granary = ProductionItem::Building {
+            building: BuildingKind::Granary,
         };
-        assert!(p.objective_build_value(&v.cities[0], walls) > 0);
+        assert!(p.objective_build_value(&v.cities[0], granary) > 0);
         // Other cities' already assigned prerequisite work consumes the two slots.
         let mut v = v;
-        v.cities[1].detail.as_mut().unwrap().producing = Some(walls);
-        v.cities[2].detail.as_mut().unwrap().producing = Some(walls);
+        v.cities[1].detail.as_mut().unwrap().producing = Some(granary);
+        v.cities[2].detail.as_mut().unwrap().producing = Some(granary);
         let mut p = Planner::new(&v, crate::Knobs::for_faction(faction), faction, 7);
         p.decisions.cheapest_objective = 1;
         p.difficulty = legatum_core::AiDifficulty::Hard;
-        assert_eq!(p.objective_build_value(&v.cities[0], walls), 0);
+        assert_eq!(p.objective_build_value(&v.cities[0], granary), 0);
     }
 
     #[test]

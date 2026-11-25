@@ -806,7 +806,7 @@ pub fn city_defense_with_fort(
     )
 }
 
-/// `fort` is the Walls tier above plain Walls: 0 none, 1 a Castle, 2 a Star Fort. Each adds its
+/// `fort` is the Walls tier above plain Walls: 0 none, then one for each Walls level above I. Each adds its
 /// own strength on top of the tier below. `era` is the owner's era (0 Ancient): every line
 /// except the wounds rides the era curve (`data::era_scaled`), so a city keeps pace with the
 /// units of its day (user, 2026-10-18: city strength and Walls tiers follow the same curve).
@@ -852,7 +852,7 @@ pub fn city_defense_covered(
 
 /// A city's defence against an attacker a Siege of tier `covered` covers
 /// (`wall_damage_percent`): the strength of the Walls tiers up to `covered` is left out, and
-/// the higher tiers (a Castle, a Star Fort) still count. `wall_tier` as in `data::wall_tier`.
+/// the higher Walls levels still count. `wall_tier` as in `data::wall_tier`.
 pub fn city_defense_covered_rules(
     off: FactionRuleSet,
     faction: Faction,
@@ -877,30 +877,30 @@ pub fn city_defense_covered_rules(
             ),
         );
     }
-    if wall_tier >= 2 && covered < 2 {
+    // Upgrade levels past Siege cover share one row ("Walls III–VI"), each adding the same
+    // era-scaled amount.
+    let first = covered.saturating_add(1).max(2);
+    if wall_tier >= first {
+        let walls = data::building_name_for(faction, BuildingKind::Walls);
+        let label = if first == wall_tier {
+            format!("{walls} {}", data::wall_level_label(first))
+        } else {
+            format!(
+                "{walls} {}–{}",
+                data::wall_level_label(first),
+                data::wall_level_label(wall_tier)
+            )
+        };
         b.add(
-            "Castle upgrade",
-            data::era_scaled(
-                data::building_stats(BuildingKind::Castle).city_strength,
-                era,
-            ),
-        );
-    }
-    if wall_tier >= 3 && covered < 3 {
-        b.add(
-            "Star Fort upgrade",
-            data::era_scaled(
-                data::building_stats(BuildingKind::StarFort).city_strength,
-                era,
-            ),
+            label,
+            i32::from(wall_tier - first + 1) * data::era_scaled(5, era),
         );
     }
     wounded(&mut b, hp, CITY_HP, 20);
     b
 }
 
-/// City strike, as in Civ 6: only a walled city fires. Any Walls tier counts (a Castle upgrades
-/// Walls, and the Switzerland' Alpine Redoubt is their Walls), and a city at 0 HP stops firing.
+/// City strike, as in Civ 6: only a walled city fires. Any Walls level counts (including Switzerland's Alpine Redoubt), and a city at 0 HP stops firing.
 /// Unwalled cities rely on their garrison and HP alone. Resolution, forecasts and the AI all ask
 /// this one function.
 pub fn city_can_fire(walls: bool, hp: i32) -> bool {

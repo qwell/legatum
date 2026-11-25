@@ -218,13 +218,13 @@ describe.skipIf(!available)('WASM purchase behavior', () => {
   });
 
   it.each([
-    ['India', 'Walls'], ['India', 'Castle'], ['India', 'StarFort'], ['Switzerland', 'Walls'],
+    ['India', 'Walls'], ['Switzerland', 'Walls'],
   ] as const)('%s cannot buy the Walls-line building %s and matches native', (faction, building) => {
     const { s, a } = fixture();
     s.players[0].faction = s.setup.players[0].faction = faction;
     s.players[0].techs = ['Masonry', 'Feudalism', 'Chivalry', 'Machinery'];
     a.producing = null;
-    a.buildings = building === 'Castle' ? ['Walls'] : building === 'StarFort' ? ['Walls', 'Castle'] : [];
+    a.buildings = [];
     const item = { kind: 'Building' as const, building };
     const fixtureClient = new FixtureClient(); fixtureClient.load(JSON.stringify(s));
     const core = makeCore(); core.load(coreFixture(s));
@@ -238,6 +238,20 @@ describe.skipIf(!available)('WASM purchase behavior', () => {
     ]));
     const { reports } = play(s, [{ 0: [{ type: 'BuyItem', city: a.id, item }] }]);
     expect(failures(reports[0])[0].reason).toBe("Walls must be built with Production; they can't be bought.");
+  });
+
+  it('buys the next Walls level at its dynamic price', () => {
+    const { s, a } = fixture();
+    a.buildings = ['Walls'];
+    a.wallsLevel = 1;
+    a.producing = null;
+    const item = { kind: 'Building' as const, building: 'UpgradeWalls' as const };
+    const core = makeCore(); core.load(coreFixture(s));
+    const option = core.view(0).cities.find((c) => c.id === a.id)!.detail!.options.find((o) => o.item.kind === 'Building' && o.item.building === 'UpgradeWalls')!;
+    expect([option.cost, option.buy_cost]).toEqual([240, 480]);
+    expect(core.validate(0, [{ type: 'BuyItem', city: a.id, item }])).toHaveLength(0);
+    core.endTurn({ 0: [{ type: 'BuyItem', city: a.id, item }] });
+    expect(core.view(0).cities.find((c) => c.id === a.id)!.walls_level).toBe(2);
   });
 
   it.each(['Switzerland', 'India', 'Mongols'] as const)('Great Work purchase quotes in the city option list match native for %s', (faction) => {

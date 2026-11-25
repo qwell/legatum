@@ -1164,11 +1164,11 @@ mod tests {
             .unwrap()["detail"]["unavailable"]
             .as_array()
             .unwrap();
-        let castle = unavailable
+        let upgrade = unavailable
             .iter()
-            .find(|entry| entry["item"]["building"] == "Castle")
+            .find(|entry| entry["item"]["building"] == "UpgradeWalls")
             .unwrap();
-        assert_eq!(castle["prerequisite_building"], "Walls");
+        assert_eq!(upgrade["prerequisite_building"], "Walls");
     }
 
     #[test]
@@ -1666,7 +1666,7 @@ mod tests {
         let g = Game::from_setup_json(&setup).unwrap();
         let view: Value = serde_json::from_str(&g.view_json(0).unwrap()).unwrap();
         assert_eq!(view["research"]["catalog"].as_array().unwrap().len(), 45);
-        assert_eq!(view["research"]["unlocks"].as_array().unwrap().len(), 55);
+        assert_eq!(view["research"]["unlocks"].as_array().unwrap().len(), 53);
         let unlocks = view["research"]["unlocks"].as_array().unwrap();
         let core = unlocks
             .iter()

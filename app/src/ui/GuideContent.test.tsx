@@ -138,7 +138,7 @@ it('explains map resources, reveals, supply and idle buildings and units (G11)',
 it('explains that the Mongols never have Walls and buy Siege from the Medieval era', () => {
   const combat = renderToStaticMarkup(<GuideContent section="combat" />);
   expect(combat).not.toContain('unless they capture');
-  expect(combat).toContain('The Mongols never build Walls, in any era');
+  expect(combat).toContain('The Mongols never build or upgrade Walls, in any era');
   expect(combat).toContain('a walled city they capture loses its Walls');
   expect(combat).toContain('They buy no Siege before the Medieval era.');
 });

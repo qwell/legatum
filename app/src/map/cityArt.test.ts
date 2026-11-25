@@ -75,11 +75,11 @@ describe('city art', () => {
   });
 });
 
-it('gives the banner the visible wall level: Walls 1, Castle 2, Star Fort 3, nothing out of sight', () => {
+it('gives the banner the visible Walls level, and nothing out of sight', () => {
   const c = (o: object) => ({ visible: true, walls: true, ...o });
   expect(wallTierOf(c({ walls: false }))).toBe(0);
   expect(wallTierOf(c({}))).toBe(1);
-  expect(wallTierOf(c({ citadel: true }))).toBe(2);
-  expect(wallTierOf(c({ citadel: true, star_fort: true }))).toBe(3);
-  expect(wallTierOf(c({ visible: false, citadel: true }))).toBe(0);
+  expect(wallTierOf(c({ walls_level: 2 }))).toBe(2);
+  expect(wallTierOf(c({ walls_level: 9 }))).toBe(9);
+  expect(wallTierOf(c({ visible: false, walls_level: 3 }))).toBe(0);
 });

@@ -236,7 +236,7 @@ impl Planner<'_> {
                     0
                 };
             let celtic = self.faction == Faction::Celts && self.decisions.celt_sack_target > 0;
-            let cost = c.strength * 3
+            let cost = crate::analysis::city_strength_vs_viewer(v, c) * 3
                 + defenders * if celtic { 6 } else { 3 }
                 + reinforcement
                 + c.hp / 4

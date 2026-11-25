@@ -27,7 +27,8 @@ describe('icon set', () => {
   });
 
   it('gives every unit and building tier its own drawing', () => {
-    const urls = [...UNITS.map((u) => unitIconName(u)), ...BUILDINGS.map((b) => buildingIconName(b))].map((n) => iconUrl(n));
+    // Upgrade Walls repeats the Walls action and intentionally shares its painting.
+    const urls = [...UNITS.map((u) => unitIconName(u)), ...BUILDINGS.filter((b) => b !== 'UpgradeWalls').map((b) => buildingIconName(b))].map((n) => iconUrl(n));
     expect(new Set(urls).size).toBe(urls.length);
     for (const faction of FACTIONS) for (const unit of UNITS) {
       if (unitIconName(unit, faction) !== unitIconName(unit)) expect(iconUrl(unitIconName(unit, faction))).not.toBe(iconUrl(unitIconName(unit)));

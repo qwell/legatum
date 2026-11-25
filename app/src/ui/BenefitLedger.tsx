@@ -26,8 +26,8 @@ function line(entry: TechCardUnlock): string {
     .replace(/^Mines upgrade: .*\(\+1 Production\)$/, 'Mines +1 Production')
     .replace(/^Mines upgrade: Deep Mine \(\+1 Gold on Copper, \+1 Production on Iron and Coal\)$/, 'Mines +1 Production, Copper +1 Gold')
     .replace(/^Quarries upgrade: .*\(\+1 Production\)$/, 'Quarries +1 Production')
-    .replace(/^Siege units now ignore (.+)$/, 'Ignore $1')
-    .replace(/^Units can buy Siege: they ignore enemy Walls$/, 'Buy Siege: ignore Walls')
+    .replace(/^Siege covers Walls up to level (\w+)$/, 'Siege: Walls $1')
+    .replace(/^Units can buy Siege: it covers Walls level I$/, 'Buy Siege: Walls I')
     .replace(/^Units that start a turn on a road get \+2 moves$/, 'Road start: +2 moves')
     // The full line stays in the hover; the card keeps each rule to two lines.
     .replace(/^(\+1 \w+) for each Workshop, .+$/, 'Workshops and upgrades $1')

@@ -114,6 +114,9 @@ pub fn check_state(state: &GameState) -> Result<(), String> {
         }
     }
     for c in state.cities.values() {
+        if c.walls_level > crate::data::MAX_WALL_TIER {
+            return Err(format!("City {} Walls level is out of range", c.id.0));
+        }
         if !(1..=MAX_POPULATION).contains(&c.population) {
             return Err(format!("City {} population is out of range", c.id.0));
         }

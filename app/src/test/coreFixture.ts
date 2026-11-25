@@ -32,7 +32,7 @@ export function coreFixture(s: MState): string {
           owner: owner < 0 ? null : owner, ruin: s.knownRuins?.[p.team]?.[i] === 1,
           ...(s.knownImproved?.[p.team]?.[i] === 1 ? { improved: true } : {}),
           city: c ? { id: c.id, owner: c.owner, name: c.name, population: c.population, hp: c.hp,
-            walls: hasBuilding(c.buildings, 'Walls'), citadel: hasBuilding(c.buildings, 'Castle'), star_fort: hasBuilding(c.buildings, 'StarFort'), is_capital: c.isCapital } : null,
+            walls: hasBuilding(c.buildings, 'Walls'), walls_level: c.wallsLevel ?? (hasBuilding(c.buildings, 'Walls') ? 1 : 0), is_capital: c.isCapital } : null,
         };
       });
       return {
@@ -71,7 +71,7 @@ export function coreFixture(s: MState): string {
       production_queue: c.productionQueue ?? [], production_queue_notified: c.productionQueueNotified ?? [],
       last_purchase_turn: c.lastPurchaseTurn ?? null,
       ...(c.lastAttackedTurn !== undefined ? { last_attacked_turn: c.lastAttackedTurn } : {}),
-      buildings: c.buildings, hp: c.hp, grown_tiles: c.grownTiles, tiles_claimed: c.tilesClaimed,
+      buildings: c.buildings, walls_level: c.wallsLevel ?? (hasBuilding(c.buildings, 'Walls') ? 1 : 0), hp: c.hp, grown_tiles: c.grownTiles, tiles_claimed: c.tilesClaimed,
       is_capital: c.isCapital, ...(c.originalCapital ? { original_capital: true } : {}), founded_turn: c.foundedTurn, resistance: c.resistance,
     }])),
     units: Object.fromEntries(s.units.map((u) => [u.id, {

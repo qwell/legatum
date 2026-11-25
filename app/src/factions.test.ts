@@ -108,7 +108,7 @@ describe('faction content and setup', () => {
     expect(itemDescription(FACTION_PIECES.Sparta.item, 'Sparta')).not.toContain('starts promoted');
     expect(FACTION_INFO.Mongols.ability).toContain('Settlers keep 2 moves');
     expect(FACTION_INFO.Mongols.weakness).toContain('buy no Siege before the Medieval era');
-    expect(FACTION_INFO.Mongols.weakness).toContain('The Mongols never build Walls');
+    expect(FACTION_INFO.Mongols.weakness).toContain('The Mongols never build or upgrade Walls');
     expect(FACTION_INFO.Switzerland.ability).toContain('You buy buildings and units at 175% of their Production cost in Gold (others pay 200%).');
     expect(FACTION_INFO.Switzerland.weakness).toContain('Lose a city and its captor takes that city’s share of your treasury, by population (twice that for your capital).');
   });
@@ -122,7 +122,7 @@ describe('faction-accurate items', () => {
     expect(siegeAvailable('Mongols', 2)).toBe(true);
     expect(siegeAvailable('Switzerland', 0)).toBe(true);
     expect(availableToPlayer('Mongols', walls)).toBe(false);
-    expect(availableToPlayer('Mongols', { kind: 'Building', building: 'StarFort' })).toBe(false);
+    expect(availableToPlayer('Mongols', { kind: 'Building', building: 'UpgradeWalls' })).toBe(false);
     expect(factionUnavailableReason(walls, 'Mongols')).toBe('The Mongols never build Walls');
     expect((['Workshop', 'Forge', 'Factory'] as const).every(isWorkshopLineBuilding)).toBe(true);
   });

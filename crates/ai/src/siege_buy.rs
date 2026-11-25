@@ -7,8 +7,8 @@
 //!   `siege_for_walls`);
 //! - before the army leaves, `plan_siege_buys` buys Siege for the force near a walled war
 //!   target, the units that stand at home first, as far as the treasury keeps its reserve;
-//! - Industrial and later land units have Siege built in (`data::has_siege`, designer
-//!   2026-10-28): they count as covered everywhere above and are never offered a purchase.
+//! - Industrial and later land units have Siege built in through their own era tier
+//!   (`data::siege_cover`): they are never offered a purchase.
 
 use crate::scripted::Planner;
 use legatum_core::data;
@@ -137,7 +137,7 @@ impl<'a> Planner<'a> {
         allow_planned: bool,
     ) -> CoverUse {
         let mut used = CoverUse::default();
-        if !city.walls || force.is_empty() || !self.siege_useful() {
+        if city.walls_level == 0 && !city.walls || force.is_empty() || !self.siege_useful() {
             return used;
         }
         let mut units: Vec<(UnitId, bool)> = force
@@ -219,7 +219,7 @@ impl<'a> Planner<'a> {
                     .copied()
                     .find(|e| e.id == c.target)
             })
-            .filter(|c| c.walls)
+            .filter(|c| c.walls_level > 0 || c.walls)
             .or_else(|| {
                 let team = self.routed_plan().and_then(|p| p.kind.war_target())?;
                 if !v.teams_at_war(v.team, team) {
@@ -229,7 +229,7 @@ impl<'a> Planner<'a> {
                     .enemy_cities
                     .iter()
                     .copied()
-                    .filter(|c| c.walls && v.team_of(c.owner) == team)
+                    .filter(|c| (c.walls_level > 0 || c.walls) && v.team_of(c.owner) == team)
                     .min_by_key(|c| {
                         (
                             self.ctx
@@ -239,6 +239,7 @@ impl<'a> Planner<'a> {
                                 .map(|u| u.pos.distance(c.pos))
                                 .min()
                                 .unwrap_or(99),
+                            std::cmp::Reverse(c.walls_level),
                             c.id,
                         )
                     })

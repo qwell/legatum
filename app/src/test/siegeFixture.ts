@@ -22,9 +22,10 @@ export function siegeFixture({ fresh = false, approach = false } = {}) {
   own.name = 'Waypost Seven';
   own.population = 3;
   own.buildings = fresh ? [] : ['Walls'];
+  own.wallsLevel = fresh ? 0 : 1;
   own.hp = fresh ? 200 : 120;
   if (!fresh) own.lastAttackedTurn = f.turn - 1;
-  if (approach) { own.hp = 200; own.buildings = []; own.lastAttackedTurn = undefined; }
+  if (approach) { own.hp = 200; own.buildings = []; own.wallsLevel = 0; own.lastAttackedTurn = undefined; }
   const free = (approach ? ring(own.pos, 3) : neighbors(own.pos)).filter((h) => f.terrain[tileIndex(h, f.width, f.height)] === 'Plains'
     && !f.units.some((u) => hexEq(u.pos, h)) && !f.cities.some((c) => hexEq(c.pos, h)));
   const attackers = free.slice(0, approach ? 2 : 3).map((h) => spawnUnit(f, 1, 'Spearman', h, false));

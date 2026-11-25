@@ -1,8 +1,8 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`eras: core behavior > Railways, Code of Laws, Printing Press and the Castle tiers resolve the same 1`] = `[]`;
+exports[`eras: core behavior > Railways, Code of Laws, Printing Press and Walls levels resolve the same 1`] = `[]`;
 
-exports[`eras: core behavior > Railways, Code of Laws, Printing Press and the Castle tiers resolve the same 2`] = `
+exports[`eras: core behavior > Railways, Code of Laws, Printing Press and Walls levels resolve the same 2`] = `
 [
   {
     "label": "City center",
@@ -142,18 +142,17 @@ exports[`eras: core behavior > Railways, Code of Laws, Printing Press and the Ca
 ]
 `;
 
-exports[`eras: core behavior > Railways, Code of Laws, Printing Press and the Castle tiers resolve the same 3`] = `4`;
+exports[`eras: core behavior > Railways, Code of Laws, Printing Press and Walls levels resolve the same 3`] = `4`;
 
-exports[`eras: core behavior > Railways, Code of Laws, Printing Press and the Castle tiers resolve the same 4`] = `
+exports[`eras: core behavior > Railways, Code of Laws, Printing Press and Walls levels resolve the same 4`] = `
 [
   40,
-  true,
-  true,
+  3,
   true,
 ]
 `;
 
-exports[`eras: core behavior > Railways, Code of Laws, Printing Press and the Castle tiers resolve the same 5`] = `
+exports[`eras: core behavior > Railways, Code of Laws, Printing Press and Walls levels resolve the same 5`] = `
 [
   [
     "BronzeWorking",
@@ -364,36 +363,6 @@ exports[`eras: core behavior > Railways, Code of Laws, Printing Press and the Ca
       "science": 0,
     },
     0,
-  ],
-  [
-    "Chivalry",
-    {
-      "building": "Castle",
-      "kind": "Building",
-    },
-    240,
-    {
-      "food": 0,
-      "gold": 0,
-      "production": 0,
-      "science": 0,
-    },
-    5,
-  ],
-  [
-    "Machinery",
-    {
-      "building": "StarFort",
-      "kind": "Building",
-    },
-    320,
-    {
-      "food": 0,
-      "gold": 0,
-      "production": 0,
-      "science": 0,
-    },
-    5,
   ],
   [
     "Cannonry",

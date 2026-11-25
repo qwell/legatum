@@ -1,5 +1,5 @@
-import type { BuildingKind, Event, Faction, Hex, PlayerId, PlayerView, Resource, RuinReward, UnitKind } from '../types';
-import { ageName, BUILDING_NAME, BUILDING_STATS, factionGoalVp, RULES, TECH_NAME, isGreatWork, itemName } from '../data';
+import type { BuildingKind, CityView, Event, Faction, Hex, PlayerId, PlayerView, ProductionItem, Resource, RuinReward, UnitKind } from '../types';
+import { ageName, BUILDING_NAME, BUILDING_STATS, factionGoalVp, RULES, TECH_NAME, isGreatWork, itemName, wallLevelLabel } from '../data';
 import { TECH_QUOTE } from '../techQuotes';
 import { claimedTile, growthUnlocks } from '../milestones';
 import { yieldsText } from '../cityProgress';
@@ -127,6 +127,15 @@ const possessive = (name: string) => (name.endsWith('s') ? `${name}'` : `${name}
 const signedVp = (n: number) => `${n < 0 ? '−' : '+'}${Math.abs(n)} VP`;
 
 /** Presentation only. Caller supplies this viewer's fog-filtered events and views. */
+/** A completed item's card title and line; a Walls upgrade names the level reached ("Walls III", "Raised in Agra"). */
+function wallsTitle(item: ProductionItem, city: CityView | undefined, owner: Faction | undefined, place: string): { title: string; effect: string } {
+  const level = city ? city.walls_level ?? Number(city.walls) : 0;
+  if (item.kind === 'Building' && item.building === 'UpgradeWalls' && level > 1) {
+    return { title: `${itemName({ kind: 'Building', building: 'Walls' }, owner)} ${wallLevelLabel(level)}`, effect: `Raised in ${place}` };
+  }
+  return { title: itemName(item, owner), effect: `Completed in ${place}` };
+}
+
 export function momentsForTurn(events: readonly Event[], viewer: PlayerId, before: PlayerView | null, after: PlayerView): Moment[] {
   const team = new Set(after.players.filter((p) => p.team === after.team).map((p) => p.id));
   const cities = new Map([...(before?.cities ?? []), ...after.cities].map((c) => [c.id, c]));
@@ -307,7 +316,7 @@ export function momentsForTurn(events: readonly Event[], viewer: PlayerId, befor
             lore: 'Let those who follow know what these hands have made.', details: [WONDER_ONLY_ONE],
             deltas: vp === undefined ? [] : [{ counter: 'vp', amount: vp }], emblem: 'greatwork' });
         } else if (e.item.kind === 'Building' || e.item.kind === 'Wonder') push(i, e.owner, { tier: isGreatWork(e.item.building) ? 'legendary' : 'minor', at: e.item.kind === 'Wonder' ? e.item.tile : cities.get(e.city)?.pos ?? null,
-          title: itemName(e.item, faction(e.owner)), effect: `Completed in ${cityName(e.city)}`, lore: 'Let those who follow know what these hands have made.', details: [], deltas: [], emblem: 'greatwork' });
+          ...wallsTitle(e.item, cities.get(e.city), faction(e.owner), cityName(e.city)), lore: 'Let those who follow know what these hands have made.', details: [], deltas: [], emblem: 'greatwork' });
         // An aircraft never stands on the map, so its card is where the player learns what it does.
         else if (e.item.kind === 'Unit' && isAircraft(e.item.unit)) {
           const notice = readyNotice(e.item.unit, cityName(e.city));

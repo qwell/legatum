@@ -2572,7 +2572,7 @@ exports[`Yam Relay Station and the Mongols goal: WASM behavior > does not halve 
 
 exports[`Yam Relay Station and the Mongols goal: WASM behavior > does not halve a Mongols Spearman hit on an open city (only Walls do) 3`] = `156`;
 
-exports[`Yam Relay Station and the Mongols goal: WASM behavior > greys out Mongols Walls and Citadels with core-matching reasons 1`] = `
+exports[`Yam Relay Station and the Mongols goal: WASM behavior > greys out Mongols Walls and upgrades with core-matching reasons 1`] = `
 {
   "options": [],
   "unavailable": [
@@ -2589,7 +2589,7 @@ exports[`Yam Relay Station and the Mongols goal: WASM behavior > greys out Mongo
 }
 `;
 
-exports[`Yam Relay Station and the Mongols goal: WASM behavior > greys out Mongols Walls and Citadels with core-matching reasons 2`] = `
+exports[`Yam Relay Station and the Mongols goal: WASM behavior > greys out Mongols Walls and upgrades with core-matching reasons 2`] = `
 [
   {
     "index": 0,
@@ -2598,7 +2598,7 @@ exports[`Yam Relay Station and the Mongols goal: WASM behavior > greys out Mongo
 ]
 `;
 
-exports[`Yam Relay Station and the Mongols goal: WASM behavior > greys out Mongols Walls and Citadels with core-matching reasons 3`] = `
+exports[`Yam Relay Station and the Mongols goal: WASM behavior > greys out Mongols Walls and upgrades with core-matching reasons 3`] = `
 [
   {
     "index": 0,
@@ -2607,14 +2607,14 @@ exports[`Yam Relay Station and the Mongols goal: WASM behavior > greys out Mongo
 ]
 `;
 
-exports[`Yam Relay Station and the Mongols goal: WASM behavior > greys out Mongols Walls and Citadels with core-matching reasons 4`] = `
+exports[`Yam Relay Station and the Mongols goal: WASM behavior > greys out Mongols Walls and upgrades with core-matching reasons 4`] = `
 {
   "options": [],
   "unavailable": [
     {
       "cost": 240,
       "item": {
-        "building": "Castle",
+        "building": "UpgradeWalls",
         "kind": "Building",
       },
       "prerequisite_building": "Walls",
@@ -2625,20 +2625,20 @@ exports[`Yam Relay Station and the Mongols goal: WASM behavior > greys out Mongo
 }
 `;
 
-exports[`Yam Relay Station and the Mongols goal: WASM behavior > greys out Mongols Walls and Citadels with core-matching reasons 5`] = `
+exports[`Yam Relay Station and the Mongols goal: WASM behavior > greys out Mongols Walls and upgrades with core-matching reasons 5`] = `
 [
   {
     "index": 0,
-    "message": "C1 cannot produce Castle: The Mongols never build Walls",
+    "message": "C1 cannot produce Upgrade Walls: The Mongols never build Walls",
   },
 ]
 `;
 
-exports[`Yam Relay Station and the Mongols goal: WASM behavior > greys out Mongols Walls and Citadels with core-matching reasons 6`] = `
+exports[`Yam Relay Station and the Mongols goal: WASM behavior > greys out Mongols Walls and upgrades with core-matching reasons 6`] = `
 [
   {
     "index": 0,
-    "message": "Walls must be built with Production; they can't be bought.",
+    "message": "Upgrade Walls cannot be bought",
   },
 ]
 `;

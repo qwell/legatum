@@ -733,6 +733,9 @@ pub struct CityView {
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub greece_captive_at_risk: bool,
     pub walls: bool,
+    /// Last observed completed Walls level (0 when unwalled).
+    #[serde(default)]
+    pub walls_level: u8,
     #[serde(default)]
     pub citadel: bool,
     #[serde(default)]
@@ -763,9 +766,11 @@ pub struct CityView {
 }
 
 impl CityView {
-    /// The Walls tier above plain Walls: 0 none, 1 Castle, 2 Star Fort.
+    /// Legacy helper: upgrades above plain Walls (the public level is `walls_level`).
     pub fn fort_tier(&self) -> u8 {
-        u8::from(self.citadel) + u8::from(self.star_fort)
+        self.walls_level
+            .saturating_sub(1)
+            .max(u8::from(self.citadel) + u8::from(self.star_fort))
     }
 
     fn observed(
@@ -803,6 +808,7 @@ impl CityView {
             greece_captive_tech: false,
             greece_captive_at_risk: false,
             walls: city.walls,
+            walls_level: city.walls_level,
             citadel: city.citadel,
             star_fort: city.star_fort,
             has_workshop: city.has_workshop,
@@ -2027,7 +2033,7 @@ pub fn player_view_cached(
             observed.walls_building = matches!(
                 c.producing,
                 Some(ProductionItem::Building {
-                    building: BuildingKind::Walls
+                    building: BuildingKind::Walls | BuildingKind::UpgradeWalls
                 })
             );
             if let Some(ProductionItem::Wonder { building, tile }) = c.producing {
@@ -2650,9 +2656,7 @@ fn city_detail(
                     && matches!(
                         item,
                         ProductionItem::Building {
-                            building: BuildingKind::Walls
-                                | BuildingKind::Castle
-                                | BuildingKind::StarFort
+                            building: BuildingKind::Walls | BuildingKind::UpgradeWalls
                         }
                     )))
                 && !matches!(item, ProductionItem::Project { .. })
@@ -2666,6 +2670,14 @@ fn city_detail(
             !matches!(item, ProductionItem::Building { building }
                 if data::has_building(&c.buildings, *building))
         })
+        // Walls at the top level: nothing more to build, so the upgrade leaves the list.
+        .filter(|item| {
+            *item
+                != (ProductionItem::Building {
+                    building: BuildingKind::UpgradeWalls,
+                })
+                || c.wall_tier() < data::MAX_WALL_TIER
+        })
         .filter_map(|item| {
             worded(
                 full,
@@ -2676,6 +2688,9 @@ fn city_detail(
                 item,
                 cost: economy::city_production_cost(state, c, item),
                 prerequisite_building: match item {
+                    ProductionItem::Building {
+                        building: BuildingKind::UpgradeWalls,
+                    } if c.wall_tier() == 0 => Some(BuildingKind::Walls),
                     ProductionItem::Building { building } => {
                         crate::data::building_predecessor(building)
                             .filter(|previous| !crate::data::has_building(&c.buildings, *previous))
@@ -2736,7 +2751,6 @@ fn city_detail(
         idle_production_waste,
         buy_cost: economy::buy_cost(state, c),
         buildings: c.buildings.iter().copied().collect(),
-
         idle_buildings: crate::resources::idle_tiers(state.player(c.owner), c)
             .into_iter()
             .map(|(building, resource)| IdleBuilding { building, resource })
@@ -2842,6 +2856,7 @@ pub(crate) mod tests {
                 wonder_lost: None,
                 last_purchase_turn: None,
                 buildings: BTreeSet::new(),
+                walls_level: 0,
                 hp: CITY_HP,
                 grown_tiles: Vec::new(),
                 tiles_claimed: 0,
@@ -3362,12 +3377,12 @@ pub(crate) mod tests {
     }
 
     #[test]
-    fn unavailable_buildings_expose_only_a_missing_in_city_predecessor() {
+    fn upgrade_walls_is_unavailable_until_walls_are_built() {
         let mut s = test_state(24, 16);
         let id = add_city(&mut s, P0, at(5, 5), 5);
-        s.players[0].techs.insert(TechId::Chivalry);
-        let castle = ProductionItem::Building {
-            building: BuildingKind::Castle,
+        s.player_mut(P0).techs.extend(crate::eras::era_techs(0));
+        let upgrade = ProductionItem::Building {
+            building: BuildingKind::UpgradeWalls,
         };
         let view = player_view(&s, P0);
         let unavailable = city(&view, id)
@@ -3377,7 +3392,7 @@ pub(crate) mod tests {
             .unwrap()
             .unavailable
             .iter()
-            .find(|entry| entry.item == castle)
+            .find(|entry| entry.item == upgrade)
             .unwrap();
         assert_eq!(unavailable.prerequisite_building, Some(BuildingKind::Walls));
 
@@ -3388,22 +3403,14 @@ pub(crate) mod tests {
             .insert(BuildingKind::Walls);
         let view = player_view(&s, P0);
         let detail = city(&view, id).unwrap().detail.as_ref().unwrap();
-        assert!(detail.unavailable.iter().all(|entry| entry.item != castle));
-        assert!(detail.options.iter().any(|entry| entry.item == castle));
+        assert!(detail.unavailable.iter().all(|entry| entry.item != upgrade));
+        assert!(detail.options.iter().any(|entry| entry.item == upgrade));
 
-        let mut unresearched = test_state(24, 16);
-        let id = add_city(&mut unresearched, P0, at(5, 5), 5);
-        let view = player_view(&unresearched, P0);
-        assert!(
-            city(&view, id)
-                .unwrap()
-                .detail
-                .as_ref()
-                .unwrap()
-                .unavailable
-                .iter()
-                .all(|entry| entry.item != castle)
-        );
+        s.cities.get_mut(&id).unwrap().walls_level = data::MAX_WALL_TIER;
+        let view = player_view(&s, P0);
+        let detail = city(&view, id).unwrap().detail.as_ref().unwrap();
+        assert!(detail.unavailable.iter().all(|entry| entry.item != upgrade));
+        assert!(detail.options.iter().all(|entry| entry.item != upgrade));
     }
 
     #[test]

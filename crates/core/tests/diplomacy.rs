@@ -93,6 +93,7 @@ fn city(s: &mut GameState, p: u8, at: Hex) -> CityId {
             wonder_lost: None,
             last_purchase_turn: None,
             buildings: Default::default(),
+            walls_level: 0,
             hp: data::CITY_HP,
             grown_tiles: Vec::new(),
             tiles_claimed: 0,

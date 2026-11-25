@@ -82,7 +82,7 @@ export function UnitImprovements({ unit, view, check, primary, pending, gold, si
         <p>Treasury: <Amounts text={`${gold} Gold → ${gold - (check.cost ?? 0)} Gold`} />.</p>
         {unit.upgrade_breakdown && <BreakdownTable b={upgradeStepBreakdown(unit.upgrade_breakdown, unit.kind as UnitKind, unit.upgrade_steps?.length ? unit.upgrade_steps : [check.to], faction)} title="Upgrade cost" unit="Gold" plain />}
       </>} />}
-    {offer && <ImproveRow label="Siege" effect={`Ignores ${['Walls', 'Walls', 'Walls and Castles', 'Walls, Castles and Star Forts'][siegeTier(view.research.known)]}`}
+    {offer && <ImproveRow label="Siege" effect={`Covers Walls up to level ${['', 'I', 'II', 'III'][siegeTier(view.research.known)]}`}
       icon="ui-siege" cost={offer.price.total} resource={SIEGE_USES_IRON ? 'Iron' : null}
       closed={siegeClosed} primary={primary === 'siege'} active={pending === 'UpgradeSiege'} blocked={!!siegeBlocker} reasonId={siegeClosed ? `${id}-siege-closed` : siegeReasonId} onClick={siegeSelected}
       tip={<><p>{SIEGE_HEADLINE} The unit rests this turn.</p><p>{SIEGE_USES_IRON && 'Uses 1 Iron supply while it exists.'}</p>

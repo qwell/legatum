@@ -478,6 +478,9 @@ pub struct City {
     #[serde(default)]
     pub bought: Option<ProductionPurchase>,
     pub buildings: BTreeSet<BuildingKind>,
+    /// Completed Walls level, 0 when unwalled. A captured city retains it.
+    #[serde(default, skip_serializing_if = "is_zero_u8")]
+    pub walls_level: u8,
     pub hp: i32,
     /// Tiles gained after founding and still held through population growth.
     pub tiles_claimed: i32,
@@ -503,6 +506,9 @@ pub struct City {
 }
 
 impl City {
+    pub fn wall_tier(&self) -> u8 {
+        crate::data::wall_tier(self)
+    }
     /// Whether the active build owns `production_stored`. Projects never hold progress, so
     /// with a project (or nothing) active the stored amount is unassigned.
     pub fn holds_progress(&self) -> bool {
@@ -639,6 +645,8 @@ pub struct CityMemory {
     pub hp: i32,
     pub walls: bool,
     #[serde(default)]
+    pub walls_level: u8,
+    #[serde(default)]
     pub citadel: bool,
     #[serde(default)]
     pub star_fort: bool,
@@ -655,7 +663,9 @@ pub struct CityMemory {
 impl CityMemory {
     /// The Walls tier above plain Walls: 0 none, 1 Castle, 2 Star Fort.
     pub fn fort_tier(&self) -> u8 {
-        u8::from(self.citadel) + u8::from(self.star_fort)
+        self.walls_level
+            .saturating_sub(1)
+            .max(u8::from(self.citadel) + u8::from(self.star_fort))
     }
 }
 
@@ -667,9 +677,10 @@ impl From<&City> for CityMemory {
             name: city.name.clone(),
             population: city.population,
             hp: city.hp,
-            walls: crate::data::has_building(&city.buildings, BuildingKind::Walls),
-            citadel: crate::data::has_building(&city.buildings, BuildingKind::Castle),
-            star_fort: crate::data::has_building(&city.buildings, BuildingKind::StarFort),
+            walls: city.wall_tier() > 0,
+            walls_level: city.wall_tier(),
+            citadel: city.wall_tier() >= 2,
+            star_fort: city.wall_tier() >= 3,
             has_workshop: city
                 .buildings
                 .iter()
@@ -694,6 +705,7 @@ impl CityMemory {
                 population: 1,
                 hp: crate::data::CITY_HP,
                 walls: false,
+                walls_level: 0,
                 citadel: false,
                 star_fort: false,
                 has_workshop: false,

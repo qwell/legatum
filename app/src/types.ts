@@ -85,8 +85,7 @@ export type BuildingKind =
   | 'University'
   | 'Bank'
   | 'Factory'
-  | 'Castle'
-  | 'StarFort'
+  | 'UpgradeWalls'
   | 'GreatLibrary'
   | 'Pyramids'
   | 'HagiaSophia'
@@ -493,9 +492,7 @@ export interface CityView {
   greece_captive_tech?: boolean;
   greece_captive_at_risk?: boolean;
   walls: boolean;
-  /** A Castle or better. */
-  citadel?: boolean;
-  star_fort?: boolean;
+  walls_level?: number;
   /** Whether the last visible observation showed a Workshop or its upgrade. */
   has_workshop?: boolean;
   /** Whether the last visible observation showed an Air Defence: it intercepts air strikes on this city (core `BuildingKind::AirDefence`). */
@@ -1329,7 +1326,7 @@ export interface AirDefenceForecast {
   loss_chance: number;
 }
 
-/** Core `forecast::WallsForecast`: the city's walls tier (1 Walls, 2 a Castle, 3 a Star Fort), the siege tier of the attacker (0 when it has no Siege) and the percent of its damage the attack deals to the city's HP. `built_in`: the attacker is an Industrial or later land unit, whose Siege is built in (core `data::built_in_siege`). */
+/** Core `forecast::WallsForecast`: the city's walls tier (1 through 9 Walls levels), the siege tier of the attacker (0 when it has no Siege) and the percent of its damage the attack deals to the city's HP. `built_in`: the attacker is an Industrial or later land unit, whose Siege is built in (core `data::built_in_siege`). */
 interface WallsForecast {
   tier: number;
   covered: number;

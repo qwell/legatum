@@ -855,6 +855,7 @@ pub(crate) fn found_city_at(
             wonder_lost: None,
             last_purchase_turn: None,
             buildings: BTreeSet::new(),
+            walls_level: 0,
             hp: CITY_HP,
             tiles_claimed: 0,
             grown_tiles: Vec::new(),
@@ -1312,8 +1313,19 @@ fn complete_item(
             }
             crate::improvements::complete(state, tile);
         }
+        ProductionItem::Building {
+            building: BuildingKind::UpgradeWalls,
+        } => {
+            let city = state.cities.get_mut(&id).expect("city exists");
+            city.walls_level = city.wall_tier() + 1;
+            city.buildings.remove(&BuildingKind::Castle);
+            city.buildings.remove(&BuildingKind::StarFort);
+        }
         ProductionItem::Building { building } | ProductionItem::Wonder { building, .. } => {
             economy::install_building(state.cities.get_mut(&id).expect("city exists"), building);
+            if building == BuildingKind::Walls {
+                state.cities.get_mut(&id).expect("city exists").walls_level = 1;
+            }
             if let ProductionItem::Wonder { tile, .. } = item {
                 crate::landmarks::complete(state, id, building, tile);
             }

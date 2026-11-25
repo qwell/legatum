@@ -69,7 +69,7 @@ impl Planner<'_> {
     ) -> i32 {
         let tier = u8::from(city.walls) + city.fort_tier();
         let covered = if data::built_in_siege(e.kind) {
-            data::MAX_WALL_TIER
+            data::unit_era_tier(e.kind)
         } else if e.siege {
             match self.view().era_of(e.owner) {
                 0..=2 => 1,

@@ -76,6 +76,7 @@ export interface MCity {
    *  nothing (or a project) is active. Absent in old saves and when empty. */
   productionBanked?: { item: ProductionItem; progress: number }[];
   buildings: BuildingKind[];
+  wallsLevel?: number;
   hp: number;
   /** The last turn the city took battle damage; it doesn't heal at the end of that turn (core `last_attacked_turn`). */
   lastAttackedTurn?: number;

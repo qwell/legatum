@@ -97,7 +97,7 @@ export const BANNED: CopyRule[] = [
   { pattern: /Σ/, reason: 'a maths symbol', instead: '"added up"' },
   { pattern: /\bmax(imum)? \d|\(max\b|\bmin(imum)? \d|\(min\b/i, reason: 'abbreviation or maths', instead: '"up to 5", "at least 3"' },
   { pattern: /\bresp\.|\bw\/o?\b/i, reason: 'abbreviation', instead: 'the words' },
-  { pattern: /\bhalving\b|\bera.s siege\b/i, reason: 'the Walls and Engineer rule in mechanics-speak (UI review, 2026-10-18)', instead: '"Walls halve this attack", "cancels Walls but not a Castle"', source: true },
+  { pattern: /\bhalving\b|\bera.s siege\b/i, reason: 'the Walls and Siege rule in mechanics-speak (UI review, 2026-10-18)', instead: '"Walls halve this attack", "Siege covers level I, but Walls II still reduce damage"', source: true },
   { pattern: /\bWalls: [^.]{0,60}\bfires?\b/, reason: 'the city\'s shots are "City fire"; Walls only ever means the building (8.9.6 UI review, 2026-10-19)', instead: '"City fire: Athens fires first, about -40 HP"', source: true },
   { pattern: /\bmedian score\b/i, reason: 'a statistics word on a player card (8.9.6 UI review, 2026-10-19: "Hard AI: median score N")', instead: '"a typical score of N", "most tries took N turns"', source: true },
   { pattern: /\bstockpil(e|es|ed|ing)\b|\bstored (Iron|Niter|Coal|Oil|Silicon)\b|\b(Iron|Niter|Coal|Oil|Silicon) (per|a|each) turn\b/i, reason: 'Strategic resources are supplied, not stored: there is no stockpile and no income (strategic supply, 2026-10-19)', instead: '"supplies 2 Iron", "uses 1 Iron", "Iron 5 / 6"', source: true },
@@ -180,7 +180,6 @@ export const MAX_SEMICOLONS = 2;
  * is rare, and lore is the usual one.
  */
 export const EXCEPTIONS: { text: string; rule: string; why: string }[] = [
-  { text: 'Chivalry unlocks Knights, Castles and Sparta’s War Shrine', rule: 'War Shrine', why: 'the parallel text-guide-rules task owns this Guide research paragraph' },
   { text: 'standing regiments', rule: 'regiments', why: 'lore: the tagmata were regiments' },
   { text: 'trip-hammer', rule: 'hammer', why: 'lore: a real machine' },
   { text: 'Spartan citizens', rule: 'citizens', why: 'lore: the Spartiates were citizens; this is history, not a city\'s population' },

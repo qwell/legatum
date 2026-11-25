@@ -79,6 +79,75 @@ fn building(b: BuildingKind) -> ProductionItem {
     ProductionItem::Building { building: b }
 }
 
+#[test]
+fn walls_upgrade_one_level_at_a_time_with_era_caps_and_gold_quotes() {
+    let mut state = two_players();
+    let id = found(&mut state, P0, at(5, 5));
+    let upgrade = building(BuildingKind::UpgradeWalls);
+    assert_eq!(
+        economy::production_blocker(&state, city(&state, id), upgrade, true),
+        Some("Build Walls first.".into())
+    );
+    // Before Walls, the forecast quotes the first upgrade (to level II), not a level-I price.
+    assert_eq!(
+        economy::city_production_cost(&state, city(&state, id), upgrade),
+        240
+    );
+    assert!(complete_item(
+        &mut state,
+        id,
+        building(BuildingKind::Walls),
+        &mut Vec::new()
+    ));
+    assert_eq!(city(&state, id).wall_tier(), 1);
+    state.player_mut(P0).gold = 10_000;
+    for level in 2..=9_u8 {
+        for tech in TechId::ALL {
+            if crate::eras::era_of_tech(tech) < level - 1 {
+                state.player_mut(P0).techs.insert(tech);
+            }
+        }
+        assert_eq!(state.era_of(P0), level - 1);
+        let cost = 80 * (i32::from(level) + 1);
+        assert_eq!(
+            economy::city_production_cost(&state, city(&state, id), upgrade),
+            cost
+        );
+        assert_eq!(
+            economy::buy_quote(&state, city(&state, id), upgrade)
+                .unwrap()
+                .production
+                .total,
+            cost
+        );
+        let gold_cost = economy::buy_cost_for(&state, city(&state, id), upgrade);
+        assert_eq!(gold_cost, Some(cost * 2));
+        assert!(
+            economy::buy_check::<String>(&state, city(&state, id), upgrade, gold_cost).is_none()
+        );
+        assert!(complete_item(&mut state, id, upgrade, &mut Vec::new()));
+        assert_eq!(city(&state, id).wall_tier(), level);
+        assert_eq!(
+            economy::production_blocker(&state, city(&state, id), upgrade, true),
+            Some(if level == data::MAX_WALL_TIER {
+                format!(
+                    "Walls are at level {}, the top level.",
+                    data::wall_level_label(level)
+                )
+            } else {
+                format!(
+                    "Walls are at level {}, the most you can have until you reach the next era.",
+                    data::wall_level_label(level)
+                )
+            })
+        );
+    }
+    assert!(!city(&state, id).buildings.contains(&BuildingKind::Castle));
+    assert!(!city(&state, id).buildings.contains(&BuildingKind::StarFort));
+    crate::rules::battle::capture_city(&mut state, id, P1, &mut Vec::new());
+    assert_eq!(city(&state, id).wall_tier(), 9);
+}
+
 /// An online guest's order: the pick is stored on the city unchecked, and a tile off the map there made
 /// every later save fail `check_state` (security review, 2026-11-22).
 #[test]
@@ -294,8 +363,7 @@ fn mongols_cannot_produce_walls_castles_or_star_forts() {
     ]);
     for item in [
         building(BuildingKind::Walls),
-        building(BuildingKind::Castle),
-        building(BuildingKind::StarFort),
+        building(BuildingKind::UpgradeWalls),
     ] {
         assert!(!data::available_to_faction(Faction::Mongols, item));
         assert!(!data::available_to_player(

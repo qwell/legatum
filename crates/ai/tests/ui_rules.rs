@@ -418,9 +418,9 @@ fn ui_rules_match_core() {
         "wallTiers": [
             [0, 0, 0],
             [
-                data::wall_tier([BuildingKind::Walls].iter()),
-                data::wall_tier([BuildingKind::Walls, BuildingKind::Castle].iter()),
-                data::wall_tier([BuildingKind::Walls, BuildingKind::Castle, BuildingKind::StarFort].iter()),
+                data::legacy_wall_tier([BuildingKind::Walls].iter()),
+                data::legacy_wall_tier([BuildingKind::Walls, BuildingKind::Castle].iter()),
+                data::legacy_wall_tier([BuildingKind::Walls, BuildingKind::Castle, BuildingKind::StarFort].iter()),
             ],
         ],
         "phalanxLabel": legatum_core::combat::PHALANX_LABEL,
