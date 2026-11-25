@@ -22,6 +22,8 @@ export interface SoundManifestEntry {
   attribution: string; modified: string; rationale: string; retrieved?: string; terms?: string;
   /** Music only: when it plays, and for whom (empty: every people). */
   mood?: 'peace' | 'war'; peoples?: string[];
+  /** Music only: the eras it plays in, first and last, 1-based (absent: every era). */
+  eras?: number[];
   /** Battle sounds only: playback gain that evens out their loudness. */
   gain?: number;
 }
@@ -33,21 +35,24 @@ const LAYERED = /^(music|ambience|fx):/;
 export const SOUND_FILES = Object.fromEntries([...byEvent].filter(([ev]) => !LAYERED.test(ev))) as Partial<Record<SoundName, string>>;
 
 export type MusicMood = 'title' | 'peace' | 'war';
-export interface MusicChoice { mood: MusicMood; people: Faction | null }
+export interface MusicChoice { mood: MusicMood; people: Faction | null; /** The listener's era, 1-based (absent: the first). */ era?: number }
 export const TITLE_MUSIC = byEvent.get('music:atlas')!;
 const MUSIC = SOUND_MANIFEST.filter((e) => e.mood);
 
 /**
  * The tracks a choice draws from, the people's own first (its opening track leads). Peace adds the
- * pieces every people shares, so no people is left with one track on repeat.
+ * pieces every people shares, so no people is left with one track on repeat. The era turns the
+ * shelf: the ancient-world music holds the first eras and the age-of-sail pieces take over after,
+ * but a people's opening track stays in rotation all game, so it keeps its own voice.
  */
-export function musicPool({ mood, people }: MusicChoice): string[] {
+export function musicPool({ mood, people, era = 1 }: MusicChoice): string[] {
   if (mood === 'title') return [TITLE_MUSIC];
-  if (mood === 'war') return MUSIC.filter((e) => e.mood === 'war').map((e) => e.file);
+  const now = (e: SoundManifestEntry) => !e.eras || (era >= e.eras[0] && era <= e.eras[1]);
+  if (mood === 'war') return MUSIC.filter((e) => e.mood === 'war' && now(e)).map((e) => e.file);
   const peace = MUSIC.filter((e) => e.mood === 'peace');
   const own = people ? peace.filter((e) => e.peoples?.includes(people)) : [];
   own.sort((a, b) => a.peoples!.indexOf(people!) - b.peoples!.indexOf(people!));
-  return [...own, ...peace.filter((e) => !e.peoples?.length)].map((e) => e.file);
+  return [...own.filter((e, i) => i === 0 || now(e)), ...peace.filter((e) => !e.peoples?.length && now(e))].map((e) => e.file);
 }
 
 /** The next track: any in the pool but the one that just played. */
@@ -67,19 +72,21 @@ export function musicForView(view: Pick<PlayerView, 'team' | 'players' | 'diplom
     ? 'war' : 'peace';
 }
 
-export type Ambience = 'birds' | 'wind' | 'snow';
+export type Ambience = 'birds' | 'wind' | 'snow' | 'sea';
 export const AMBIENCE_FILES = Object.fromEntries([...byEvent].filter(([ev]) => ev.startsWith('ambience:')).map(([ev, f]) => [ev.slice(9), f])) as Record<Ambience, string>;
-/** The land's own sound. The sea and unexplored land are silent (no recording we may ship fits the sea). */
+/** The sound of the land or the sea under the view. Unexplored map is silent. */
 export function ambienceFor(terrain: Terrain | null | undefined): Ambience | null {
   switch (terrain) {
     case 'Grassland': case 'Plains': case 'Forest': return 'birds';
     case 'Desert': case 'Hills': case 'Mountains': return 'wind';
     case 'Tundra': return 'snow';
+    case 'Ocean': case 'Coast': return 'sea';
     default: return null;
   }
 }
 
-export type BattleSound = 'bow' | 'arrowHit' | 'clash' | 'hooves' | 'siegeLaunch' | 'siegeHit' | 'death' | 'collapse';
+export type BattleSound = 'bow' | 'arrowHit' | 'clash' | 'hooves' | 'siegeLaunch' | 'siegeHit' | 'death' | 'collapse'
+  | 'gunshot' | 'cannon' | 'shellFire' | 'explosion' | 'aircraft';
 /** Battle sound -> its takes (file and gain). A cue's seed picks the take, so a volley does not machine-gun one sample. */
 export const BATTLE_FILES = SOUND_MANIFEST.reduce((all, e) => {
   for (const ev of e.events) {
@@ -305,9 +312,10 @@ function ramp(e: Engine, t: Track, to: number): void {
  * current track running. A new people starts on its opening track; war and the return to peace
  * pick any track of the new pool.
  */
-export function setMusicForView(view: Pick<PlayerView, 'team' | 'players' | 'diplomacy'> | null, people: Faction | null = null): void {
-  const next: MusicChoice = { mood: musicForView(view), people: view ? people : null };
-  if (next.mood === choice.mood && next.people === choice.people) return;
+export function setMusicForView(view: Pick<PlayerView, 'team' | 'players' | 'diplomacy'> | null, people: Faction | null = null, era = 1): void {
+  const next: MusicChoice = { mood: musicForView(view), people: view ? people : null, era: view ? era : 1 };
+  // A new era changes what plays next, never what is playing.
+  if (next.mood === choice.mood && next.people === choice.people) { choice = next; return; }
   const samePeople = next.people === choice.people && choice.mood !== 'title' && next.mood !== 'title';
   const pool = musicPool(next);
   choice = next;
@@ -428,6 +436,8 @@ export function playBattleSounds(cues: BattleCue[], elapsedMs = 0): void {
       const gain = e.ctx.createGain(), src = e.ctx.createBufferSource();
       gain.gain.value = take.gain;
       src.buffer = loaded.buffer;
+      // A sound with one take is never the same sample twice in a row: the cue's seed bends its pitch a little.
+      if (takes!.length === 1) src.playbackRate.value = 0.94 + (Math.abs(cue.seed) % 7) * 0.02;
       src.connect(gain);
       gain.connect(e.sfx);
       const voice = { src, gain };

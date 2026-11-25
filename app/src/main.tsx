@@ -28,8 +28,9 @@ installDisplay();
 useGame.subscribe((state) => {
   const view = state.screen === 'game' ? state.views?.[state.seat] ?? null : null;
   // Several people at one screen (hot seat) share the music every people hears; one player hears their own people's.
-  const people = view && state.humans.length === 1 ? view.players.find((p) => p.id === view.me)?.faction ?? null : null;
-  setMusicForView(view, people);
+  const me = view?.players.find((p) => p.id === view.me);
+  const people = view && state.humans.length === 1 ? me?.faction ?? null : null;
+  setMusicForView(view, people, me?.era ?? 1);
 });
 
 // The terrain art (organic S2; `?terrain=current` skips it) must be decoded before the first map chunk is baked.

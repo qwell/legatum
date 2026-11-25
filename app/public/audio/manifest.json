@@ -526,10 +526,14 @@
     "license": "CC-BY-SA-3.0",
     "attribution": "\"Juno Protect You\" from 0 A.D. by Wildfire Games (https://www.wildfiregames.com/), CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0/), edited for Legatum",
     "modified": "leading 1.44 s and trailing 0.62 s below -60 dBFS trimmed; no fade added (source already ends in silence: final 0.3 s at -63.4 dBFS RMS); two-pass ffmpeg loudnorm to -20.0 LUFS (source measured -16.81 LUFS, 0.05 dBTP; normalisation type: linear); resampled to 44.1 kHz where needed; transcoded Ogg Vorbis to AAC-LC 96 kb/s stereo .m4a; metadata stripped",
-    "rationale": "Peace music for Rome.",
+    "rationale": "Peace music for Rome, in the first three eras.",
     "mood": "peace",
     "peoples": [
       "Rome"
+    ],
+    "eras": [
+      1,
+      3
     ]
   },
   {
@@ -543,11 +547,15 @@
     "license": "CC-BY-SA-3.0",
     "attribution": "\"Forging a City-State\" from 0 A.D. by Wildfire Games (https://www.wildfiregames.com/), CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0/), edited for Legatum",
     "modified": "leading 0.02 s and trailing 1.00 s below -60 dBFS trimmed; no fade added (source already ends in silence: final 0.3 s at -69.1 dBFS RMS); two-pass ffmpeg loudnorm to -20.0 LUFS (source measured -13.91 LUFS, 0.43 dBTP; normalisation type: linear); resampled to 44.1 kHz where needed; transcoded Ogg Vorbis to AAC-LC 96 kb/s stereo .m4a; metadata stripped",
-    "rationale": "Peace music for Athens, Sparta.",
+    "rationale": "Peace music for Athens, Sparta, in the first three eras.",
     "mood": "peace",
     "peoples": [
       "Athens",
       "Sparta"
+    ],
+    "eras": [
+      1,
+      3
     ]
   },
   {
@@ -561,11 +569,15 @@
     "license": "CC-BY-SA-3.0",
     "attribution": "\"Harvest Festival\" from 0 A.D. by Wildfire Games (https://www.wildfiregames.com/), CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0/), edited for Legatum",
     "modified": "leading 0.05 s and trailing 0.71 s below -60 dBFS trimmed; no fade added (source already ends in silence: final 0.3 s at -68.3 dBFS RMS); two-pass ffmpeg loudnorm to -20.0 LUFS (source measured -17.01 LUFS, -0.16 dBTP; normalisation type: linear); resampled to 44.1 kHz where needed; transcoded Ogg Vorbis to AAC-LC 96 kb/s stereo .m4a; metadata stripped",
-    "rationale": "Peace music for Athens, Celts.",
+    "rationale": "Peace music for Athens, Celts, in the first three eras.",
     "mood": "peace",
     "peoples": [
       "Athens",
       "Celts"
+    ],
+    "eras": [
+      1,
+      3
     ]
   },
   {
@@ -579,10 +591,14 @@
     "license": "CC-BY-SA-3.0",
     "attribution": "\"Only 300 Stood\" from 0 A.D. by Wildfire Games (https://www.wildfiregames.com/), CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0/), edited for Legatum",
     "modified": "leading 0.57 s and trailing 1.69 s below -60 dBFS trimmed; no fade added (source already ends in silence: final 0.3 s at -65.5 dBFS RMS); two-pass ffmpeg loudnorm to -21.84 LUFS (target lowered from -20 so that a plain gain change keeps the true peak under the ceiling, instead of compressing the track) (source measured -19.02 LUFS, 0.67 dBTP; normalisation type: linear); resampled to 44.1 kHz where needed; transcoded Ogg Vorbis to AAC-LC 96 kb/s stereo .m4a; metadata stripped",
-    "rationale": "Peace music for Sparta.",
+    "rationale": "Peace music for Sparta, in the first three eras.",
     "mood": "peace",
     "peoples": [
       "Sparta"
+    ],
+    "eras": [
+      1,
+      3
     ]
   },
   {
@@ -596,12 +612,16 @@
     "license": "CC-BY-SA-3.0",
     "attribution": "\"The Hellespont\" from 0 A.D. by Wildfire Games (https://www.wildfiregames.com/), CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0/), edited for Legatum",
     "modified": "leading 0.08 s and trailing 1.37 s below -60 dBFS trimmed; no fade added (source already ends in silence: final 0.3 s at -62.6 dBFS RMS); two-pass ffmpeg loudnorm to -20.0 LUFS (source measured -17.17 LUFS, 0.15 dBTP; normalisation type: linear); resampled to 44.1 kHz where needed; transcoded Ogg Vorbis to AAC-LC 96 kb/s stereo .m4a; metadata stripped",
-    "rationale": "Peace music for Athens, Sparta, Byzantium.",
+    "rationale": "Peace music for Athens, Sparta, Byzantium, in the first three eras.",
     "mood": "peace",
     "peoples": [
       "Athens",
       "Sparta",
       "Byzantium"
+    ],
+    "eras": [
+      1,
+      3
     ]
   },
   {
@@ -615,10 +635,14 @@
     "license": "CC-BY-SA-3.0",
     "attribution": "\"Cradle of Civilization\" from 0 A.D. by Wildfire Games (https://www.wildfiregames.com/), CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0/), edited for Legatum",
     "modified": "leading 0.11 s and trailing 0.75 s below -60 dBFS trimmed; no fade added (source already ends in silence: final 0.3 s at -66.6 dBFS RMS); two-pass ffmpeg loudnorm to -20.0 LUFS (source measured -21.82 LUFS, -5.41 dBTP; normalisation type: linear); resampled to 44.1 kHz where needed; transcoded Ogg Vorbis to AAC-LC 96 kb/s stereo .m4a; metadata stripped",
-    "rationale": "Peace music for Byzantium.",
+    "rationale": "Peace music for Byzantium, in the first three eras.",
     "mood": "peace",
     "peoples": [
       "Byzantium"
+    ],
+    "eras": [
+      1,
+      3
     ]
   },
   {
@@ -632,10 +656,14 @@
     "license": "CC-BY-SA-3.0",
     "attribution": "\"Valley of the Nile\" from 0 A.D. by Wildfire Games (https://www.wildfiregames.com/), CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0/), edited for Legatum",
     "modified": "leading 0.25 s and trailing 0.90 s below -60 dBFS trimmed; no fade added (source already ends in silence: final 0.3 s at -62.1 dBFS RMS); two-pass ffmpeg loudnorm to -20.0 LUFS (source measured -14.76 LUFS, 0.07 dBTP; normalisation type: linear); resampled to 44.1 kHz where needed; transcoded Ogg Vorbis to AAC-LC 96 kb/s stereo .m4a; metadata stripped",
-    "rationale": "Peace music for Egypt.",
+    "rationale": "Peace music for Egypt, in the first three eras.",
     "mood": "peace",
     "peoples": [
       "Egypt"
+    ],
+    "eras": [
+      1,
+      3
     ]
   },
   {
@@ -649,10 +677,14 @@
     "license": "CC-BY-SA-3.0",
     "attribution": "\"Karmic Confluence\" from 0 A.D. by Wildfire Games (https://www.wildfiregames.com/), CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0/), edited for Legatum",
     "modified": "leading 0.02 s and trailing 1.80 s below -60 dBFS trimmed; no fade added (source already ends in silence: final 0.3 s at -64.3 dBFS RMS); two-pass ffmpeg loudnorm to -20.0 LUFS (source measured -15.44 LUFS, 0.56 dBTP; normalisation type: linear); resampled to 44.1 kHz where needed; transcoded Ogg Vorbis to AAC-LC 96 kb/s stereo .m4a; metadata stripped",
-    "rationale": "Peace music for India.",
+    "rationale": "Peace music for India, in the first three eras.",
     "mood": "peace",
     "peoples": [
       "India"
+    ],
+    "eras": [
+      1,
+      3
     ]
   },
   {
@@ -666,11 +698,15 @@
     "license": "CC-BY-SA-3.0",
     "attribution": "\"Eastern Dreams\" from 0 A.D. by Wildfire Games (https://www.wildfiregames.com/), CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0/), edited for Legatum",
     "modified": "leading 0.05 s and trailing 0.71 s below -60 dBFS trimmed; no fade added (source already ends in silence: final 0.3 s at -59.0 dBFS RMS); two-pass ffmpeg loudnorm to -20.0 LUFS (source measured -13.32 LUFS, 0.95 dBTP; normalisation type: linear); resampled to 44.1 kHz where needed; transcoded Ogg Vorbis to AAC-LC 96 kb/s stereo .m4a; metadata stripped",
-    "rationale": "Peace music for India, Mongols.",
+    "rationale": "Peace music for India, Mongols, in the first three eras.",
     "mood": "peace",
     "peoples": [
       "India",
       "Mongols"
+    ],
+    "eras": [
+      1,
+      3
     ]
   },
   {
@@ -684,10 +720,14 @@
     "license": "CC-BY-SA-3.0",
     "attribution": "\"Red Dawn\" from 0 A.D. by Wildfire Games (https://www.wildfiregames.com/), CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0/), edited for Legatum",
     "modified": "leading 0.90 s and trailing 2.39 s below -60 dBFS trimmed; no fade added (source already ends in silence: final 0.3 s at -68.7 dBFS RMS); two-pass ffmpeg loudnorm to -20.0 LUFS (source measured -17.58 LUFS, -0.30 dBTP; normalisation type: linear); resampled to 44.1 kHz where needed; transcoded Ogg Vorbis to AAC-LC 96 kb/s stereo .m4a; metadata stripped",
-    "rationale": "Peace music for Mongols.",
+    "rationale": "Peace music for Mongols, in the first three eras.",
     "mood": "peace",
     "peoples": [
       "Mongols"
+    ],
+    "eras": [
+      1,
+      3
     ]
   },
   {
@@ -701,10 +741,14 @@
     "license": "CC-BY-SA-3.0",
     "attribution": "\"Celtic Pride\" from 0 A.D. by Wildfire Games (https://www.wildfiregames.com/), CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0/), edited for Legatum",
     "modified": "leading 0.26 s and trailing 2.84 s below -60 dBFS trimmed; no fade added (source already ends in silence: final 0.3 s at -69.8 dBFS RMS); two-pass ffmpeg loudnorm to -20.0 LUFS (source measured -12.55 LUFS, -0.23 dBTP; normalisation type: linear); resampled to 44.1 kHz where needed; transcoded Ogg Vorbis to AAC-LC 96 kb/s stereo .m4a; metadata stripped",
-    "rationale": "Peace music for Celts.",
+    "rationale": "Peace music for Celts, in the first three eras.",
     "mood": "peace",
     "peoples": [
       "Celts"
+    ],
+    "eras": [
+      1,
+      3
     ]
   },
   {
@@ -718,11 +762,15 @@
     "license": "CC-BY-SA-3.0",
     "attribution": "\"Northern Frontier\" from 0 A.D. by Wildfire Games (https://www.wildfiregames.com/), CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0/), edited for Legatum",
     "modified": "leading 0.81 s and trailing 0.83 s below -60 dBFS trimmed; no fade added (source already ends in silence: final 0.3 s at -63.1 dBFS RMS); two-pass ffmpeg loudnorm to -20.28 LUFS (target lowered from -20 so that a plain gain change keeps the true peak under the ceiling, instead of compressing the track) (source measured -18.55 LUFS, -0.42 dBTP; normalisation type: linear); resampled to 44.1 kHz where needed; transcoded Ogg Vorbis to AAC-LC 96 kb/s stereo .m4a; metadata stripped",
-    "rationale": "Peace music for Germany, Switzerland.",
+    "rationale": "Peace music for Germany, Switzerland, in the first three eras.",
     "mood": "peace",
     "peoples": [
       "Germany",
       "Switzerland"
+    ],
+    "eras": [
+      1,
+      3
     ]
   },
   {
@@ -736,11 +784,15 @@
     "license": "CC-BY-SA-3.0",
     "attribution": "\"Midwinter\" from 0 A.D. by Wildfire Games (https://www.wildfiregames.com/), CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0/), edited for Legatum",
     "modified": "leading 0.10 s and trailing 0.94 s below -60 dBFS trimmed; no fade added (source already ends in silence: final 0.3 s at -67.0 dBFS RMS); two-pass ffmpeg loudnorm to -20.0 LUFS (source measured -14.66 LUFS, -1.33 dBTP; normalisation type: linear); resampled to 44.1 kHz where needed; transcoded Ogg Vorbis to AAC-LC 96 kb/s stereo .m4a; metadata stripped",
-    "rationale": "Peace music for Germany, Switzerland.",
+    "rationale": "Peace music for Germany, Switzerland, in the first three eras.",
     "mood": "peace",
     "peoples": [
       "Germany",
       "Switzerland"
+    ],
+    "eras": [
+      1,
+      3
     ]
   },
   {
@@ -754,9 +806,13 @@
     "license": "CC-BY-SA-3.0",
     "attribution": "\"Tale of Warriors\" from 0 A.D. by Wildfire Games (https://www.wildfiregames.com/), CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0/), edited for Legatum",
     "modified": "leading 0.65 s and trailing 2.93 s below -60 dBFS trimmed; no fade added (source already ends in silence: final 0.3 s at -62.2 dBFS RMS); two-pass ffmpeg loudnorm to -20.0 LUFS (source measured -16.23 LUFS, -0.06 dBTP; normalisation type: linear); resampled to 44.1 kHz where needed; transcoded Ogg Vorbis to AAC-LC 96 kb/s stereo .m4a; metadata stripped",
-    "rationale": "Peace music every people hears.",
+    "rationale": "Peace music every people hears, in the first three eras.",
     "mood": "peace",
-    "peoples": []
+    "peoples": [],
+    "eras": [
+      1,
+      3
+    ]
   },
   {
     "file": "music/taiko-1.m4a",
@@ -769,9 +825,13 @@
     "license": "CC-BY-SA-3.0",
     "attribution": "\"Taiko 1\" from 0 A.D. by Wildfire Games (https://www.wildfiregames.com/), CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0/), edited for Legatum",
     "modified": "leading 0.12 s and trailing 0.45 s below -60 dBFS trimmed; no fade added (source already ends in silence: final 0.3 s at -64.6 dBFS RMS); two-pass ffmpeg loudnorm to -20.0 LUFS (source measured -11.45 LUFS, 1.36 dBTP; normalisation type: linear); resampled to 44.1 kHz where needed; transcoded Ogg Vorbis to AAC-LC 96 kb/s stereo .m4a; metadata stripped",
-    "rationale": "Plays during an empire war.",
+    "rationale": "Plays during an empire war, in the first three eras.",
     "mood": "war",
-    "peoples": []
+    "peoples": [],
+    "eras": [
+      1,
+      3
+    ]
   },
   {
     "file": "music/taiko-2.m4a",
@@ -784,9 +844,13 @@
     "license": "CC-BY-SA-3.0",
     "attribution": "\"Taiko 2\" from 0 A.D. by Wildfire Games (https://www.wildfiregames.com/), CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0/), edited for Legatum",
     "modified": "leading 0.20 s and trailing 0.13 s below -60 dBFS trimmed; no fade added (source already ends in silence: final 0.3 s at -56.2 dBFS RMS); two-pass ffmpeg loudnorm to -20.0 LUFS (source measured -11.65 LUFS, 1.28 dBTP; normalisation type: linear); resampled to 44.1 kHz where needed; transcoded Ogg Vorbis to AAC-LC 96 kb/s stereo .m4a; metadata stripped",
-    "rationale": "Plays during an empire war.",
+    "rationale": "Plays during an empire war, in the first three eras.",
     "mood": "war",
-    "peoples": []
+    "peoples": [],
+    "eras": [
+      1,
+      3
+    ]
   },
   {
     "file": "ambience/grassland-birds-day.m4a",
@@ -1134,5 +1198,350 @@
     "modified": "leading 0.000 s and trailing 0.696 s below -55 dBFS trimmed; cut to 4.0 s with a 0.5 s fade-out (trimmed source was longer); 3 ms fade-in and 10 ms fade-out to avoid clicks; static gain -0.4 dB toward -20 LUFS (source -21.0 LUFS, -1.6 dBTP); gain was held back by the -1.5 dBTP peak ceiling, so the file is quieter than -20 LUFS; mixed to mono and resampled to 44.1 kHz where needed; transcoded Ogg Vorbis to AAC-LC 64 kb/s mono .m4a; metadata stripped",
     "rationale": "A city is razed.",
     "gain": 0.75
+  },
+  {
+    "file": "music/sunrise.m4a",
+    "events": [
+      "music:sunrise"
+    ],
+    "title": "Sunrise",
+    "author": "Alexander Zhelanov and Stian Grenborgen",
+    "source": "https://archive.ubuntu.com/ubuntu/pool/universe/f/freecol/freecol_1.1.0-1_all.deb (usr/share/games/freecol/default/resources/music/default/sunrise.ogg)",
+    "license": "CC-BY-4.0",
+    "attribution": "\"Sunrise\" by Alexander Zhelanov and Stian Grenborgen, from FreeCol (https://www.freecol.org/), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), edited for Legatum",
+    "modified": "leading 0.00 s and trailing 0.00 s below -60 dBFS trimmed; static gain -8.1 dB toward -20 LUFS with the true peak under -2 dBTP (now -20.1 LUFS, -7.1 dBTP); transcoded Ogg Vorbis to AAC-LC 96 kb/s stereo .m4a; metadata stripped",
+    "rationale": "Peace music every people hears, from the Renaissance on.",
+    "mood": "peace",
+    "peoples": [],
+    "eras": [
+      4,
+      9
+    ]
+  },
+  {
+    "file": "music/founders.m4a",
+    "events": [
+      "music:founders"
+    ],
+    "title": "Founders",
+    "author": "Alexander Zhelanov and Stian Grenborgen",
+    "source": "https://archive.ubuntu.com/ubuntu/pool/universe/f/freecol/freecol_1.1.0-1_all.deb (usr/share/games/freecol/default/resources/music/default/founders.ogg)",
+    "license": "CC-BY-4.0",
+    "attribution": "\"Founders\" by Alexander Zhelanov and Stian Grenborgen, from FreeCol (https://www.freecol.org/), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), edited for Legatum",
+    "modified": "leading 0.00 s and trailing 0.72 s below -60 dBFS trimmed; static gain -5.2 dB toward -20 LUFS with the true peak under -2 dBTP (now -20.0 LUFS, -5.0 dBTP); transcoded Ogg Vorbis to AAC-LC 96 kb/s stereo .m4a; metadata stripped",
+    "rationale": "Peace music every people hears, from the Renaissance on.",
+    "mood": "peace",
+    "peoples": [],
+    "eras": [
+      4,
+      9
+    ]
+  },
+  {
+    "file": "music/tailwind.m4a",
+    "events": [
+      "music:tailwind"
+    ],
+    "title": "Tailwind",
+    "author": "Alexander Zhelanov and Stian Grenborgen",
+    "source": "https://archive.ubuntu.com/ubuntu/pool/universe/f/freecol/freecol_1.1.0-1_all.deb (usr/share/games/freecol/default/resources/music/default/tailwind.ogg)",
+    "license": "CC-BY-4.0",
+    "attribution": "\"Tailwind\" by Alexander Zhelanov and Stian Grenborgen, from FreeCol (https://www.freecol.org/), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), edited for Legatum",
+    "modified": "leading 0.00 s and trailing 0.00 s below -60 dBFS trimmed; static gain -6.6 dB toward -20 LUFS with the true peak under -2 dBTP (now -20.1 LUFS, -5.5 dBTP); transcoded Ogg Vorbis to AAC-LC 96 kb/s stereo .m4a; metadata stripped",
+    "rationale": "Peace music every people hears, from the Renaissance on.",
+    "mood": "peace",
+    "peoples": [],
+    "eras": [
+      4,
+      9
+    ]
+  },
+  {
+    "file": "music/settlers-routine.m4a",
+    "events": [
+      "music:settlers-routine"
+    ],
+    "title": "Settlers Routine",
+    "author": "Alexander Zhelanov and Stian Grenborgen",
+    "source": "https://archive.ubuntu.com/ubuntu/pool/universe/f/freecol/freecol_1.1.0-1_all.deb (usr/share/games/freecol/default/resources/music/default/settlers-routine.ogg)",
+    "license": "CC-BY-4.0",
+    "attribution": "\"Settlers Routine\" by Alexander Zhelanov and Stian Grenborgen, from FreeCol (https://www.freecol.org/), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), edited for Legatum",
+    "modified": "leading 0.02 s and trailing 0.00 s below -60 dBFS trimmed; static gain -6.9 dB toward -20 LUFS with the true peak under -2 dBTP (now -20.1 LUFS, -6.4 dBTP); transcoded Ogg Vorbis to AAC-LC 96 kb/s stereo .m4a; metadata stripped",
+    "rationale": "Peace music every people hears, from the Renaissance on.",
+    "mood": "peace",
+    "peoples": [],
+    "eras": [
+      4,
+      9
+    ]
+  },
+  {
+    "file": "music/fearless-sailors.m4a",
+    "events": [
+      "music:fearless-sailors"
+    ],
+    "title": "Fearless Sailors",
+    "author": "Alexander Zhelanov and Stian Grenborgen",
+    "source": "https://archive.ubuntu.com/ubuntu/pool/universe/f/freecol/freecol_1.1.0-1_all.deb (usr/share/games/freecol/default/resources/music/default/fearless-sailors.ogg)",
+    "license": "CC-BY-4.0",
+    "attribution": "\"Fearless Sailors\" by Alexander Zhelanov and Stian Grenborgen, from FreeCol (https://www.freecol.org/), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), edited for Legatum",
+    "modified": "leading 0.00 s and trailing 0.00 s below -60 dBFS trimmed; static gain -8.2 dB toward -20 LUFS with the true peak under -2 dBTP (now -20.0 LUFS, -6.7 dBTP); transcoded Ogg Vorbis to AAC-LC 96 kb/s stereo .m4a; metadata stripped",
+    "rationale": "Peace music every people hears, from the Renaissance on.",
+    "mood": "peace",
+    "peoples": [],
+    "eras": [
+      4,
+      9
+    ]
+  },
+  {
+    "file": "music/free-colonist.m4a",
+    "events": [
+      "music:free-colonist"
+    ],
+    "title": "Free Colonist",
+    "author": "Alexander Zhelanov and Stian Grenborgen",
+    "source": "https://archive.ubuntu.com/ubuntu/pool/universe/f/freecol/freecol_1.1.0-1_all.deb (usr/share/games/freecol/default/resources/music/default/free-colonist.ogg)",
+    "license": "CC-BY-4.0",
+    "attribution": "\"Free Colonist\" by Alexander Zhelanov and Stian Grenborgen, from FreeCol (https://www.freecol.org/), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), edited for Legatum",
+    "modified": "leading 0.17 s and trailing 0.80 s below -60 dBFS trimmed; static gain -7.1 dB toward -20 LUFS with the true peak under -2 dBTP (now -20.0 LUFS, -6.4 dBTP); transcoded Ogg Vorbis to AAC-LC 96 kb/s stereo .m4a; metadata stripped",
+    "rationale": "Peace music every people hears, from the Renaissance on.",
+    "mood": "peace",
+    "peoples": [],
+    "eras": [
+      4,
+      9
+    ]
+  },
+  {
+    "file": "music/el-dorado.m4a",
+    "events": [
+      "music:el-dorado"
+    ],
+    "title": "El Dorado",
+    "author": "Alexander Zhelanov and Stian Grenborgen",
+    "source": "https://archive.ubuntu.com/ubuntu/pool/universe/f/freecol/freecol_1.1.0-1_all.deb (usr/share/games/freecol/default/resources/music/default/el-dorado.ogg)",
+    "license": "CC-BY-4.0",
+    "attribution": "\"El Dorado\" by Alexander Zhelanov and Stian Grenborgen, from FreeCol (https://www.freecol.org/), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), edited for Legatum",
+    "modified": "leading 0.19 s and trailing 1.04 s below -60 dBFS trimmed; static gain -6.6 dB toward -20 LUFS with the true peak under -2 dBTP (now -20.1 LUFS, -4.8 dBTP); transcoded Ogg Vorbis to AAC-LC 96 kb/s stereo .m4a; metadata stripped",
+    "rationale": "Peace music for Aztecs.",
+    "mood": "peace",
+    "peoples": [
+      "Aztecs"
+    ]
+  },
+  {
+    "file": "music/lost-city.m4a",
+    "events": [
+      "music:lost-city"
+    ],
+    "title": "Lost City",
+    "author": "Alexander Zhelanov and Stian Grenborgen",
+    "source": "https://archive.ubuntu.com/ubuntu/pool/universe/f/freecol/freecol_1.1.0-1_all.deb (usr/share/games/freecol/default/resources/music/default/lost-city.ogg)",
+    "license": "CC-BY-4.0",
+    "attribution": "\"Lost City\" by Alexander Zhelanov and Stian Grenborgen, from FreeCol (https://www.freecol.org/), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), edited for Legatum",
+    "modified": "leading 0.00 s and trailing 0.00 s below -60 dBFS trimmed; static gain -5.5 dB toward -20 LUFS with the true peak under -2 dBTP (now -20.0 LUFS, -9.5 dBTP); transcoded Ogg Vorbis to AAC-LC 96 kb/s stereo .m4a; metadata stripped",
+    "rationale": "Peace music for Aztecs.",
+    "mood": "peace",
+    "peoples": [
+      "Aztecs"
+    ]
+  },
+  {
+    "file": "music/unknown-horizons-theme.m4a",
+    "events": [
+      "music:unknown-horizons-theme"
+    ],
+    "title": "Unknown Horizons Main Theme",
+    "author": "Tobias Escher",
+    "source": "https://archive.ubuntu.com/ubuntu/pool/universe/u/unknown-horizons/unknown-horizons_2019.1-7_all.deb (usr/share/unknown-horizons/content/audio/music/menu/main_theme.ogg)",
+    "license": "CC-BY-SA-3.0",
+    "attribution": "\"Unknown Horizons Main Theme\" by Tobias Escher, from Unknown Horizons (https://unknown-horizons.org/), CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0/), edited for Legatum",
+    "modified": "leading 0.25 s and trailing 0.04 s below -60 dBFS trimmed; static gain -11.7 dB toward -20 LUFS with the true peak under -2 dBTP (now -20.1 LUFS, -10.4 dBTP); transcoded Ogg Vorbis to AAC-LC 96 kb/s stereo .m4a; metadata stripped",
+    "rationale": "Peace music every people hears, from the Renaissance on.",
+    "mood": "peace",
+    "peoples": [],
+    "eras": [
+      4,
+      9
+    ]
+  },
+  {
+    "file": "music/gameplay-3.m4a",
+    "events": [
+      "music:gameplay-3"
+    ],
+    "title": "Gameplay 3",
+    "author": "Tobias Escher",
+    "source": "https://archive.ubuntu.com/ubuntu/pool/universe/u/unknown-horizons/unknown-horizons_2019.1-7_all.deb (usr/share/unknown-horizons/content/audio/music/uh_gameplay3.ogg)",
+    "license": "CC-BY-SA-3.0",
+    "attribution": "\"Gameplay 3\" by Tobias Escher, from Unknown Horizons (https://unknown-horizons.org/), CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0/), edited for Legatum",
+    "modified": "leading 0.02 s and trailing 0.00 s below -60 dBFS trimmed; static gain -9.4 dB toward -20 LUFS with the true peak under -2 dBTP (now -20.1 LUFS, -9.0 dBTP); transcoded Ogg Vorbis to AAC-LC 96 kb/s stereo .m4a; metadata stripped",
+    "rationale": "Peace music every people hears, from the Renaissance on.",
+    "mood": "peace",
+    "peoples": [],
+    "eras": [
+      4,
+      9
+    ]
+  },
+  {
+    "file": "music/gameplay-4.m4a",
+    "events": [
+      "music:gameplay-4"
+    ],
+    "title": "Gameplay 4",
+    "author": "Tobias Escher",
+    "source": "https://archive.ubuntu.com/ubuntu/pool/universe/u/unknown-horizons/unknown-horizons_2019.1-7_all.deb (usr/share/unknown-horizons/content/audio/music/uh_gameplay4.ogg)",
+    "license": "CC-BY-SA-3.0",
+    "attribution": "\"Gameplay 4\" by Tobias Escher, from Unknown Horizons (https://unknown-horizons.org/), CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0/), edited for Legatum",
+    "modified": "leading 0.58 s and trailing 1.08 s below -60 dBFS trimmed; static gain -9.5 dB toward -20 LUFS with the true peak under -2 dBTP (now -20.1 LUFS, -8.8 dBTP); transcoded Ogg Vorbis to AAC-LC 96 kb/s stereo .m4a; metadata stripped",
+    "rationale": "Peace music every people hears, from the Renaissance on.",
+    "mood": "peace",
+    "peoples": [],
+    "eras": [
+      4,
+      9
+    ]
+  },
+  {
+    "file": "music/beware-the-ships-kobold.m4a",
+    "events": [
+      "music:beware-the-ships-kobold"
+    ],
+    "title": "Beware the Ship's Kobold!",
+    "author": "Tobias Escher",
+    "source": "https://archive.ubuntu.com/ubuntu/pool/universe/u/unknown-horizons/unknown-horizons_2019.1-7_all.deb (usr/share/unknown-horizons/content/audio/music/beware_the_ships_kobold.ogg)",
+    "license": "CC-BY-SA-3.0",
+    "attribution": "\"Beware the Ship's Kobold!\" by Tobias Escher, from Unknown Horizons (https://unknown-horizons.org/), CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0/), edited for Legatum",
+    "modified": "leading 1.15 s and trailing 0.02 s below -60 dBFS trimmed; static gain -7.8 dB toward -20 LUFS with the true peak under -2 dBTP (now -20.0 LUFS, -7.8 dBTP); transcoded Ogg Vorbis to AAC-LC 96 kb/s stereo .m4a; metadata stripped",
+    "rationale": "Peace music every people hears, from the Renaissance on.",
+    "mood": "peace",
+    "peoples": [],
+    "eras": [
+      4,
+      9
+    ]
+  },
+  {
+    "file": "music/battle.m4a",
+    "events": [
+      "music:battle"
+    ],
+    "title": "Battle",
+    "author": "the Unknown Horizons team",
+    "source": "https://archive.ubuntu.com/ubuntu/pool/universe/u/unknown-horizons/unknown-horizons_2019.1-7_all.deb (usr/share/unknown-horizons/content/audio/music/battle.ogg)",
+    "license": "CC-BY-SA-3.0",
+    "attribution": "\"Battle\" by the Unknown Horizons team, from Unknown Horizons (https://unknown-horizons.org/), CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0/), edited for Legatum",
+    "modified": "leading 0.00 s and trailing 3.08 s below -60 dBFS trimmed; static gain -0.7 dB toward -20 LUFS with the true peak under -2 dBTP (now -20.1 LUFS, -6.1 dBTP); transcoded Ogg Vorbis to AAC-LC 96 kb/s stereo .m4a; metadata stripped",
+    "rationale": "Plays during an empire war, from the Renaissance on.",
+    "mood": "war",
+    "peoples": [],
+    "eras": [
+      4,
+      9
+    ]
+  },
+  {
+    "file": "music/sea-fight.m4a",
+    "events": [
+      "music:sea-fight"
+    ],
+    "title": "Sea Fight",
+    "author": "the Unknown Horizons team",
+    "source": "https://archive.ubuntu.com/ubuntu/pool/universe/u/unknown-horizons/unknown-horizons_2019.1-7_all.deb (usr/share/unknown-horizons/content/audio/music/seafight.ogg)",
+    "license": "CC-BY-SA-3.0",
+    "attribution": "\"Sea Fight\" by the Unknown Horizons team, from Unknown Horizons (https://unknown-horizons.org/), CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0/), edited for Legatum",
+    "modified": "leading 0.00 s and trailing 1.07 s below -60 dBFS trimmed; static gain -9.7 dB toward -20 LUFS with the true peak under -2 dBTP (now -20.0 LUFS, -8.8 dBTP); transcoded Ogg Vorbis to AAC-LC 96 kb/s stereo .m4a; metadata stripped",
+    "rationale": "Plays during an empire war, from the Renaissance on.",
+    "mood": "war",
+    "peoples": [],
+    "eras": [
+      4,
+      9
+    ]
+  },
+  {
+    "file": "fx/gunshot.m4a",
+    "events": [
+      "fx:gunshot:1"
+    ],
+    "title": "uzzi_full_single",
+    "author": "Deganoth",
+    "source": "https://raw.githubusercontent.com/yairm210/Unciv/master/android/assets/sounds/shot.mp3 (a copy of https://freesound.org/people/Deganoth/sounds/348685/)",
+    "attribution": "\"uzzi_full_single\" by Deganoth (freesound.org), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), edited for Legatum",
+    "license": "CC-BY-4.0",
+    "rationale": "Rifles fire as the lines close, from the Industrial era.",
+    "modified": "taken from the copy in Unciv (24 kHz MP3); silence trimmed, cut to at most 1.0 s, 3 ms fade-in and 10 ms fade-out; static gain -6.7 dB (now -20.5 LUFS, -0.4 dBTP); mixed to mono, resampled to 44.1 kHz, encoded as AAC-LC 64 kb/s .m4a; metadata stripped",
+    "gain": 0.67
+  },
+  {
+    "file": "fx/cannon.m4a",
+    "events": [
+      "fx:cannon:1"
+    ],
+    "title": "ceremonial cannon fire",
+    "author": "DylanSmithSound",
+    "source": "https://raw.githubusercontent.com/yairm210/Unciv/master/android/assets/sounds/cannon.mp3 (a copy of https://freesound.org/people/DylanSmithSound/sounds/274826/)",
+    "attribution": "\"ceremonial cannon fire\" by DylanSmithSound (freesound.org), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), edited for Legatum",
+    "license": "CC-BY-4.0",
+    "rationale": "A cannon fires.",
+    "modified": "taken from the copy in Unciv (24 kHz MP3); silence trimmed, cut to at most 2.5 s, 3 ms fade-in and 10 ms fade-out; static gain -6.4 dB (now -20.0 LUFS, -2.4 dBTP); mixed to mono, resampled to 44.1 kHz, encoded as AAC-LC 64 kb/s .m4a; metadata stripped",
+    "gain": 0.63
+  },
+  {
+    "file": "fx/shell-fire.m4a",
+    "events": [
+      "fx:shellFire:1"
+    ],
+    "title": "Tanks Shooting (excerpt)",
+    "author": "qubodup",
+    "source": "https://raw.githubusercontent.com/yairm210/Unciv/master/android/assets/sounds/tankshot.mp3 (a copy of https://freesound.org/people/qubodup/sounds/189344/)",
+    "attribution": "\"Tanks Shooting (excerpt)\" by qubodup (freesound.org), CC0, edited by the Unciv team and for Legatum",
+    "license": "CC0-1.0",
+    "rationale": "Artillery and tank guns fire.",
+    "modified": "taken from the copy in Unciv (24 kHz MP3); silence trimmed, cut to at most 2.5 s, 3 ms fade-in and 10 ms fade-out; static gain -9.7 dB (now -20.1 LUFS, -7.0 dBTP); mixed to mono, resampled to 44.1 kHz, encoded as AAC-LC 64 kb/s .m4a; metadata stripped",
+    "gain": 0.64
+  },
+  {
+    "file": "fx/explosion.m4a",
+    "events": [
+      "fx:explosion:1"
+    ],
+    "title": "Incoming Artillery Strike Cinematic Explosion",
+    "author": "EvanBoyerman",
+    "source": "https://raw.githubusercontent.com/yairm210/Unciv/master/android/assets/sounds/artillery.mp3 (a copy of https://freesound.org/people/EvanBoyerman/sounds/530886/)",
+    "attribution": "\"Incoming Artillery Strike Cinematic Explosion\" by EvanBoyerman (freesound.org), CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/), edited by the Unciv team and for Legatum",
+    "license": "CC-BY-3.0",
+    "rationale": "A shell or a bomb lands.",
+    "modified": "taken from the copy in Unciv (24 kHz MP3); silence trimmed, cut to at most 2.5 s, 3 ms fade-in and 10 ms fade-out; static gain -7.1 dB (now -21.3 LUFS, -4.0 dBTP); mixed to mono, resampled to 44.1 kHz, encoded as AAC-LC 64 kb/s .m4a; metadata stripped",
+    "gain": 0.73
+  },
+  {
+    "file": "fx/aircraft.m4a",
+    "events": [
+      "fx:aircraft:1"
+    ],
+    "title": "VHCL_S_Airplane_Prop_001.wav",
+    "author": "conleec",
+    "source": "https://raw.githubusercontent.com/karolpiczak/ESC-50/master/audio/3-193767-A-47.wav (a clip of https://freesound.org/people/conleec/sounds/193767/)",
+    "attribution": "\"VHCL_S_Airplane_Prop_001.wav\" by conleec (freesound.org), CC0, edited for Legatum",
+    "license": "CC0-1.0",
+    "rationale": "A biplane or propeller bomber passes on its bombing run.",
+    "modified": "a 5 s clip of the recording from the ESC-50 dataset; silence trimmed, cut to at most 4.0 s, 3 ms fade-in and 10 ms fade-out; static gain +0.2 dB (now -20.0 LUFS, -6.4 dBTP); mixed to mono, resampled to 44.1 kHz, encoded as AAC-LC 64 kb/s .m4a; metadata stripped",
+    "gain": 0.63
+  },
+  {
+    "file": "ambience/sea.m4a",
+    "events": [
+      "ambience:sea"
+    ],
+    "title": "sea waves atmo.wav",
+    "author": "monotraum",
+    "source": "https://raw.githubusercontent.com/karolpiczak/ESC-50/master/audio/5-208810-A-11.wav and https://raw.githubusercontent.com/karolpiczak/ESC-50/master/audio/5-208810-B-11.wav (clips of https://freesound.org/people/monotraum/sounds/208810/)",
+    "attribution": "\"sea waves atmo.wav\" by monotraum (freesound.org), CC0, edited for Legatum",
+    "license": "CC0-1.0",
+    "modified": "two 5 s clips of the one recording joined with a 0.5 s equal-power crossfade and closed into a 8.99 s loop the same way; 40 Hz high-pass; static gain -12.0 dB to -29.9 LUFS; encoded as AAC-LC 64 kb/s stereo .m4a",
+    "rationale": "Waves when the view is over the sea."
   }
 ]

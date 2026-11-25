@@ -10,6 +10,7 @@ import { pointerIntent, previewDestination } from '../map/intent';
 import { previewRoute } from '../path';
 import { UNIT_ACTIONS, orderUnit } from '../orders';
 import { registerMapCamera, notifyMapCamera, takeMapHandoff } from '../map/camera';
+import { useLandSound } from '../map/useLandSound';
 import { setMapProjector } from '../map/screenPos';
 import { gameplayFocusAllowed, gameplayKeyAllowed } from '../gameplayKeys';
 import { mapPlayerColor } from '../map/style';
@@ -40,6 +41,8 @@ export default function Map3DView() {
   const firstView = useRef(true);
 
   // Scene lifetime.
+  // The same land and sea sound as the 2D map (it reads the camera this view registers below).
+  useLandSound();
   useEffect(() => {
     firstView.current = true; // a new scene (StrictMode remounts too) is placed again by the view effect
     handoff.current = takeMapHandoff(useGame.getState().focus?.seq ?? 0);

@@ -381,6 +381,11 @@ function Credits() {
   const zeroAd = (e: (typeof SOUND_MANIFEST)[number]) => e.license === 'CC-BY-SA-3.0' && e.author === 'Wildfire Games';
   const title = SOUND_MANIFEST.find((e) => e.file === 'music/atlas.m4a')!;
   const peopleMusic = SOUND_MANIFEST.filter((e) => e.file.startsWith('music/') && zeroAd(e));
+  const by = (author: RegExp, license: string) => SOUND_MANIFEST.filter((e) => e.file.startsWith('music/') && e.license === license && author.test(e.author));
+  const freecol = by(/Zhelanov/, 'CC-BY-4.0'), horizons = by(/Escher|Unknown Horizons/, 'CC-BY-SA-3.0');
+  // CC BY asks for the author's name and a link to the licence.
+  const credited = SOUND_MANIFEST.filter((e) => !e.file.startsWith('music/') && /^CC-BY-\d/.test(e.license));
+  const ccBy = (license: string) => `https://creativecommons.org/licenses/by/${license.slice(-3)}/`;
   const packs = [...new Set(SOUND_MANIFEST.filter((e) => e.author === 'Kenney').map((e) => e.title.split(':')[0]))];
   // One line per credited sound: two stings cut from the same recording share one attribution.
   const others = SOUND_MANIFEST.filter((e) => !e.file.startsWith('music/') && e.license === 'CC0-1.0' && e.author !== 'Kenney')
@@ -394,13 +399,18 @@ function Credits() {
     <p>{title.attribution}. The full piece plays on the title screen and during peaceful play; an intense excerpt plays during an empire war. <a href={title.source} target="_blank" rel="noreferrer">Source</a></p>
     <p>The peoples’ music and the war drums are from {wildfire}, edited for Legatum.</p>
     <ul className="guide-credit-tracks">{peopleMusic.map((e) => <li key={e.file}>{e.title}</li>)}</ul>
+    <p>From the Renaissance on, and for the Aztecs, much of the music is by Alexander Zhelanov and Stian Grenborgen, from <a href="https://www.freecol.org/" target="_blank" rel="noreferrer">FreeCol</a>, <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">CC BY 4.0</a>, edited for Legatum.</p>
+    <ul className="guide-credit-tracks">{freecol.map((e) => <li key={e.file}>{e.title}</li>)}</ul>
+    <p>More of the later music is by Tobias Escher and the <a href="https://unknown-horizons.org/" target="_blank" rel="noreferrer">Unknown Horizons</a> team, <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noreferrer">CC BY-SA 3.0</a>, edited for Legatum.</p>
+    <ul className="guide-credit-tracks">{horizons.map((e) => <li key={e.file}>{e.title}</li>)}</ul>
     <h3>Sound effects</h3>
     <ul>
       <li>Kenney (kenney.nl), CC0: {packs.join(', ')}.</li>
       {others.map((e) => <li key={e.file}>{e.attribution}.</li>)}
+      {credited.map((e) => <li key={e.file}>“{e.title}” by {e.author} (freesound.org), <a href={ccBy(e.license)} target="_blank" rel="noreferrer">CC BY {e.license.slice(-3)}</a>, edited for Legatum. <a href={e.source.match(/https:\/\/freesound[^)]*/)?.[0]} target="_blank" rel="noreferrer">Source</a></li>)}
       <li>Battle sounds and the sounds of birds, wind and snow are from {wildfire}, edited for Legatum.</li>
     </ul>
-    <p>Sounds were trimmed, loudness-matched and re-encoded. The edited 0 A.D. files stay under CC BY-SA 3.0.</p>
+    <p>Sounds were trimmed, loudness-matched and re-encoded. The edited 0 A.D. and Unknown Horizons files stay under CC BY-SA 3.0.</p>
     <details><summary>Full sound credits</summary><ul>{SOUND_MANIFEST.map((e) => <li key={e.file}>
       {e.title} — {e.attribution} ({e.license}). <a href={e.source} target="_blank" rel="noreferrer">Source</a>
     </li>)}</ul></details>

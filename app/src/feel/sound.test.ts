@@ -111,8 +111,33 @@ describe('event -> sound mapping', () => {
     expect(sound.musicPool({ mood: 'peace', people: null })).toEqual(['music/atlas.m4a', 'music/tale-of-warriors.m4a']);
     expect(sound.musicPool({ mood: 'war', people: 'Rome' })).toEqual(['music/war.m4a', 'music/taiko-1.m4a', 'music/taiko-2.m4a']);
     expect(sound.musicPool({ mood: 'title', people: null })).toEqual(['music/atlas.m4a']);
+    // The Aztecs have music of their own, in every era.
+    expect(sound.musicPool({ mood: 'peace', people: 'Aztecs' }).slice(0, 2)).toEqual(['music/el-dorado.m4a', 'music/lost-city.m4a']);
+    expect(sound.musicPool({ mood: 'peace', people: 'Aztecs', era: 7 }).slice(0, 2)).toEqual(['music/el-dorado.m4a', 'music/lost-city.m4a']);
     // A peace track never plays in war, and the reverse.
     expect(sound.musicPool({ mood: 'peace', people: 'Rome' }).filter((f) => sound.musicPool({ mood: 'war', people: 'Rome' }).includes(f))).toEqual([]);
+  });
+
+  it('turns the shelf with the era: the ancient pieces give way, a people keeps its opening track', () => {
+    for (const era of [1, 3]) expect(sound.musicPool({ mood: 'peace', people: 'Rome', era })).toEqual(sound.musicPool({ mood: 'peace', people: 'Rome' }));
+    for (const era of [4, 9]) {
+      const sparta = sound.musicPool({ mood: 'peace', people: 'Sparta', era });
+      expect(sparta[0]).toBe('music/only-300-stood.m4a');
+      expect(sparta).not.toContain('music/forging-a-city-state.m4a');
+      expect(sparta).not.toContain('music/tale-of-warriors.m4a');
+      expect(sparta).toContain('music/atlas.m4a');
+      expect(sparta).toContain('music/fearless-sailors.m4a');
+      expect(sparta.length).toBeGreaterThanOrEqual(8);
+      expect(sound.musicPool({ mood: 'war', people: 'Sparta', era })).toEqual(['music/war.m4a', 'music/battle.m4a', 'music/sea-fight.m4a']);
+    }
+    // Every music file is reachable in some era, and every era has peace and war music.
+    const heard = new Set<string>();
+    for (let era = 1; era <= 9; era++) for (const mood of ['peace', 'war'] as const) for (const people of ['Rome', 'Aztecs', null] as const) {
+      const pool = sound.musicPool({ mood, people, era });
+      expect(pool.length, `${mood} ${era}`).toBeGreaterThanOrEqual(2);
+      pool.forEach((f) => heard.add(f));
+    }
+    for (const e of sound.SOUND_MANIFEST) if (e.mood && !e.peoples?.length) expect(heard, e.file).toContain(e.file);
   });
 
   it('never repeats the track that just played while the pool has another', () => {
@@ -126,18 +151,22 @@ describe('event -> sound mapping', () => {
     for (const name of ['bow', 'arrowHit', 'clash', 'hooves', 'siegeLaunch', 'siegeHit', 'death', 'collapse'] as const) {
       const takes = sound.BATTLE_FILES[name]!;
       expect(takes.length, name).toBeGreaterThanOrEqual(2);
-      for (const t of takes) {
+    }
+    for (const name of Object.keys(sound.BATTLE_FILES) as (keyof typeof sound.BATTLE_FILES)[]) {
+      for (const t of sound.BATTLE_FILES[name]!) {
         expect(fs.existsSync(path.join(AUDIO, t.file)), t.file).toBe(true);
         expect(t.gain, t.file).toBeGreaterThan(0.2);
         expect(t.gain, t.file).toBeLessThanOrEqual(1.6);
       }
     }
+    for (const name of ['gunshot', 'cannon', 'shellFire', 'explosion', 'aircraft'] as const) expect(sound.BATTLE_FILES[name]?.length, name).toBeGreaterThanOrEqual(1);
     for (const file of Object.values(sound.AMBIENCE_FILES)) expect(fs.existsSync(path.join(AUDIO, file)), file).toBe(true);
-    expect(Object.keys(sound.AMBIENCE_FILES).sort()).toEqual(['birds', 'snow', 'wind']);
+    expect(Object.keys(sound.AMBIENCE_FILES).sort()).toEqual(['birds', 'sea', 'snow', 'wind']);
     expect(sound.ambienceFor('Forest')).toBe('birds');
     expect(sound.ambienceFor('Desert')).toBe('wind');
     expect(sound.ambienceFor('Tundra')).toBe('snow');
-    expect(sound.ambienceFor('Ocean')).toBeNull();
+    expect(sound.ambienceFor('Ocean')).toBe('sea');
+    expect(sound.ambienceFor('Coast')).toBe('sea');
     expect(sound.ambienceFor(null)).toBeNull();
   });
 });

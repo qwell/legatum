@@ -72,13 +72,15 @@ Contributor Covenant 2.1 (CC BY 4.0), as it says.
 
 ## Audio
 
-The shipped music and sound effects (`app/public/audio/`, 80 files) are third-party works under two licences.
+The shipped music and sound effects (`app/public/audio/`, 100 files) are third-party works under four licences.
 The per-file source, author and processing are in `app/public/audio/CREDITS.md` and
 `app/public/audio/manifest.json`, and the same credits appear in the game under How to Play → Credits.
 
-- **CC0 1.0** (39 files; no attribution required, courtesy credit is given): Kenney (kenney.nl: Music Jingles,
+- **CC0 1.0** (42 files; no attribution required, courtesy credit is given): Kenney (kenney.nl: Music Jingles,
   RPG Audio, Impact Sounds; 34 files), Breviceps ("Short Choir", freesound.org; 2 files), Bastianhallo ("Level up", freesound.org; 1 file) and vitalezzz
-  ("Eclipse Legion", opengameart.org; the title piece and the war excerpt are edits of that one work). The licence
+  ("Eclipse Legion", opengameart.org; the title piece and the war excerpt are edits of that one work), and three Freesound recordings: qubodup ("Tanks Shooting", copied
+  from Unciv), conleec ("VHCL_S_Airplane_Prop_001.wav") and monotraum ("sea waves atmo.wav"), the last two as clips the ESC-50
+  dataset marks CC0 in its LICENSE file. The licence
   text is in `app/public/audio/licenses/CC0-1.0.txt`.
 - **CC BY-SA 3.0** (41 files: 16 music tracks, 3 land sounds, 22 battle sounds): from 0 A.D., Copyright Wildfire
   Games (https://www.wildfiregames.com/), licensed under Creative Commons Attribution-ShareAlike 3.0
@@ -86,6 +88,18 @@ The per-file source, author and processing are in `app/public/audio/CREDITS.md` 
   (`tools/audio/build_0ad.py`), and the edited files stay under CC BY-SA 3.0. The licence text is in
   `app/public/audio/licenses/CC-BY-SA-3.0.txt`. This licence covers these audio files only; it does not extend to
   Legatum's code or art.
+- **CC BY-SA 3.0** (6 more music tracks): from Unknown Horizons (https://unknown-horizons.org/), four by Tobias
+  Escher and two by the Unknown Horizons team, licensed under Creative Commons Attribution-ShareAlike 3.0
+  (https://creativecommons.org/licenses/by-sa/3.0/; Debian's copyright file for the game: `content/*`). Trimmed,
+  loudness-matched and re-encoded (`tools/audio/build_later.py`); the edited files stay under CC BY-SA 3.0.
+- **CC BY 4.0** (10 files): 8 music tracks by Alexander Zhelanov and Stian Grenborgen from FreeCol
+  (https://www.freecol.org/; Debian's copyright file for the game: `data/default/resources/music/default/*`), and
+  two Freesound recordings copied from Unciv: "uzzi_full_single" by Deganoth and "ceremonial cannon fire" by
+  DylanSmithSound. Licensed under Creative Commons Attribution 4.0 (https://creativecommons.org/licenses/by/4.0/);
+  trimmed, loudness-matched and re-encoded. The licence text is in `app/public/audio/licenses/CC-BY-4.0.txt`.
+- **CC BY 3.0** (1 file): "Incoming Artillery Strike Cinematic Explosion" by EvanBoyerman (freesound.org), edited
+  by the Unciv team and for Legatum, licensed under Creative Commons Attribution 3.0
+  (https://creativecommons.org/licenses/by/3.0/). The licence text is in `app/public/audio/licenses/CC-BY-3.0.txt`.
 
 ## Art
 

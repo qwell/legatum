@@ -66,6 +66,8 @@ export interface FxClash {
   mounted: boolean;
   /** Gunpowder era or later: muskets and rifles fire as the lines close. */
   guns: boolean;
+  /** Cartridge rifles (the Industrial era or later), which the gunshot recording fits; a musket has none. */
+  rifles?: boolean;
   atCity: boolean;
   hit: boolean;
   seed: number;
@@ -244,7 +246,7 @@ export function buildCombatPlan(events: Event[], before: PlayerView | null, afte
     const kind = (a?.kind ?? null) as UnitKind | null;
     clashes.push({
       attacker: id, defender: e.defender.kind === 'Unit' ? e.defender.unit : null, from, to, t,
-      lunge: !steppedIn, mounted: !!kind && unitClass(kind) === 'Mounted', guns: !!kind && unitEraTier(kind) >= 3,
+      lunge: !steppedIn, mounted: !!kind && unitClass(kind) === 'Mounted', guns: !!kind && unitEraTier(kind) >= 3, rifles: !!kind && unitEraTier(kind) >= 4,
       atCity: e.defender.kind === 'City', hit: e.damage_to_defender > 0 || e.damage_to_attacker > 0, seed: 7 + i * 13,
     });
     impact.set(i, t);

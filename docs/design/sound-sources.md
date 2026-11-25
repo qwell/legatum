@@ -51,7 +51,7 @@ Direct URLs:
 
 **Status (2026-09-27): downloaded and shipped.** Licenses re-verified on each source page; raw files are in `~/LegatumData/audio-src/` (not in git). The game ships AAC `.m4a` (not Ogg: WebKit/iOS can't decode Vorbis or Opus in every version we target), built by `tools/audio/build_audio.py`; measurements in `docs/sound-qa.md`, event mapping and rationale in `app/public/audio/manifest.json`.
 
-**Status (2026-11-25): 0 A.D. music, land sounds and battle sounds shipped** (the designer approved credit-required licences). 16 music tracks (a pool per people, plus war drums), 3 land loops and 22 battle one-shots, all CC-BY-SA-3.0 from the 0 A.D. GitHub mirror, built by `tools/audio/build_0ad.py` and added to the manifest by `tools/audio/import_0ad.py`. Run `import_0ad.py` again after any run of `build_audio.py`, which rewrites the manifest. Not covered, because 0 A.D. stops before gunpowder and has no sea: guns, cannon, shells, aircraft, the sea, and later-era or Aztec music. Those need a second source.
+**Status (2026-11-25): 0 A.D. music, land sounds and battle sounds shipped** (the designer approved credit-required licences). 16 music tracks (a pool per people, plus war drums), 3 land loops and 22 battle one-shots, all CC-BY-SA-3.0 from the 0 A.D. GitHub mirror, built by `tools/audio/build_0ad.py` and added to the manifest by `tools/audio/import_0ad.py`. Run `import_0ad.py` again after any run of `build_audio.py`, which rewrites the manifest. 0 A.D. stops before gunpowder and has no sea; the later status below covers guns, cannon, shells, aircraft, the sea, and later-era and Aztec music.
 
 **Total download: about 35.5 MB.** We ship only the files we choose. Transcoding the music to ~96 kbps Opus or Ogg should bring the shipped total to about 8 MB; CC-BY allows this. File names inside the Kenney packs were not verified (nothing was downloaded), so pick them by listening. Skip the 8-bit jingles because they clash with the Art Deco tone.
 
@@ -114,3 +114,14 @@ node app/scripts/audio-credits.mjs
 This runs the same silence trim, -20 LUFS normalization, post-encode true-peak check
 and AAC bitrates. Measurements: [celebration sound QA](../celebration-sound-qa.md).
 Existing sounds and music stay byte-identical. Listening and device review are pending.
+
+**Status (2026-11-25, later): later-era music, the Aztecs' music, the sea and gunpowder-age battle sounds shipped.** Built by `tools/audio/build_later.py` from sources a cloud session can reach:
+
+| Source | What we ship | Licence, and where it is stated |
+| --- | --- | --- |
+| FreeCol (Ubuntu package `freecol` 1.1.0-1) | 8 music tracks by Alexander Zhelanov and Stian Grenborgen: 6 for every people from the Renaissance on, and *El Dorado* and *Lost City* as the Aztecs' own | CC BY 4.0: `debian/copyright`, `data/default/resources/music/default/*` |
+| Unknown Horizons (Ubuntu package `unknown-horizons` 2019.1-7) | 4 peace tracks by Tobias Escher and 2 war tracks (*Battle*, *Sea Fight*), from the Renaissance on | CC BY-SA 3.0: `debian/copyright`, `content/*` |
+| Unciv's copies of Freesound recordings | gunshot (Deganoth, CC BY 4.0), cannon (DylanSmithSound, CC BY 4.0), shell fire (qubodup, CC0), explosion (EvanBoyerman, CC BY 3.0, edited by the Unciv team) | Per file in Unciv's `docs/Credits.md`. 24 kHz MP3 copies, not the originals |
+| ESC-50 dataset clips | a propeller aircraft (conleec) and the sea loop (monotraum) | CC0 per clip in the dataset's `LICENSE`. The dataset as a whole is CC BY-NC, so only clips it marks CC0 are used |
+
+Not used: FreeCol's and Wesnoth's sound effects and most of Wesnoth's music (GPL; the designer approved credit-required CC licences only), and Unciv's `bombing`, `jetgun` and `torpedo` (the Unciv team's mixes of several recordings, with no licence stated for the mix). Still missing: music written for the Machine Age and later (the later eras share the age-of-sail pieces), Mesoamerican music for the Aztecs (their two tracks are New World pieces from a colonisation game), a musket, a jet, a drone and the fall of a gunpowder-age unit. The gunshot is a modern firearm's single shot, so it plays for rifle-armed units only; the aircraft is a propeller plane, so it plays for the Biplane and the Bomber only. Nobody has listened to any of it: it was chosen by title, source and measurement.
