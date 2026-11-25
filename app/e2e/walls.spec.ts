@@ -96,7 +96,8 @@ for (const [width, height] of [[1440, 900], [1000, 600]] as const) {
     const card = page.locator('.forecast');
     await hoverForecast(page, setup.walled, page.getByTestId('forecast-city-fire'));
     // "100 → 20 HP" with "−37 city fire, −43 attack" under it: the headline is the sum.
-    const hp = (await page.getByTestId('forecast-attacker-hp').innerText()).match(/(\d+)\s*→\s*(\d+)/)!.map(Number);
+    const attackerHp = page.getByTestId('forecast-attacker-hp');
+    const hp = [0, Number((await attackerHp.innerText()).match(/(\d+)\s*→/)![1]), Number(await attackerHp.getAttribute('data-after'))];
     const split = (await card.locator('.fside-split').innerText()).match(/−(\d+) city fire, −(\d+) attack/)!.map(Number);
     expect(split[1]).toBeGreaterThan(0);
     expect(hp[2]).toBe(hp[1] - split[1] - split[2]);

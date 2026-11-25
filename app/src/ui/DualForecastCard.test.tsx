@@ -57,7 +57,7 @@ describe('the shoot-or-charge forecast', () => {
     const shot = byTestId('forecast-shot'), charge = byTestId('forecast-charge');
     expect(shot.textContent).toContain('Shoot');
     expect(shot.textContent).toContain('R, then click');
-    expect(shot.textContent).toContain('you lose none');
+    expect(shot.textContent).toContain('you none');
     expect(charge.textContent).toContain('Charge');
     expect(charge.textContent).toContain('Right-click');
     expect(byTestId('forecast-dual').textContent).toContain('One order a turn');

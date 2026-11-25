@@ -19,6 +19,10 @@
 .map-touch-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .map-touch-card p { margin: 8px 0; font-size: 13px; }
 .map-touch-card .confirm-order { width: 100%; }
+/* Confirm stays in view while the forecast scrolls under it (UI review, PR 157: at 1000x600 it fell below the card's fold). */
+.map-touch-card .confirm-order { position: sticky; bottom: 0; z-index: 1; box-shadow: 0 6px 0 var(--tip-bg), 0 -6px 12px var(--tip-bg); }
+/* The summary above Confirm already gives the head: the full card below starts at the sides. */
+.map-touch-card .forecast:not(.forecast-dual) .forecast-head { display: none; }
 .map-touch-card .forecast, .map-touch-card .tilecard {
   position: static;
   width: 100%;

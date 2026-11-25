@@ -73,16 +73,16 @@ export function forecastHeadline(p: {
   const target = p.cityName && /capture|0 HP/.test(p.winLabel) ? p.cityName : `the ${p.defName}`;
   const tradeTone: ForecastHeadline['tone'] = p.youLose > p.theyLose ? 'bad' : p.theyLose > p.youLose ? 'good' : 'even';
   const detail = p.youLose <= 0
-    ? `${target[0].toUpperCase()}${target.slice(1)} loses about ${p.theyLose} HP; you lose none.`
+    ? `You deal more damage: ${target} loses about ${p.theyLose} health, you none.`
     : p.youLose > p.theyLose
-      ? `You take more damage: about ${p.youLose} HP to you, ${p.theyLose} to ${target}.`
+      ? `You take more damage: you lose about ${p.youLose} health, ${target} about ${p.theyLose}.`
       : p.theyLose > p.youLose
-        ? `You deal more damage: about ${p.theyLose} HP to ${target}, ${p.youLose} to you.`
-        : `An even trade: about ${p.youLose} HP each.`;
+        ? `You deal more damage: ${target} loses about ${p.theyLose} health, you about ${p.youLose}.`
+        : `An even trade: you each lose about ${p.youLose} health.`;
   // Outcome words follow fixed thresholds, the same for a win and a loss: 100% "will", 60%+ "will likely".
   if (p.loss >= 40 && p.loss >= p.win) {
     // An average HP left would read as surviving beside a likely loss: the loss line gives only what the target takes.
-    const lossDetail = p.youLose > p.theyLose ? `You take far more damage: only about ${p.theyLose} HP to ${target}.` : detail;
+    const lossDetail = p.youLose > p.theyLose ? `${target[0].toUpperCase()}${target.slice(1)} loses only about ${p.theyLose} health.` : detail;
     const title = p.loss >= 100 ? `Your ${p.unitLabel} will be destroyed` : p.loss >= 60 ? `Your ${p.unitLabel} will likely be destroyed` : `Your ${p.unitLabel} could be destroyed`;
     return { kind: 'loss', tone: 'bad', tradeTone, detail: lossDetail, title };
   }
@@ -327,6 +327,7 @@ export function ForecastCard({
           after={m.hpAfter}
           fire={fire?.fire}
           attack={fire ? fire.attack : undefined}
+          lost={m.headline.kind === 'loss'}
         />
         <div className="forecast-vs">vs</div>
         <Side
@@ -397,8 +398,8 @@ export function ForecastSummary({ forecast: f, ranged, view, unit, target, assau
     <div className="forecast-summary" data-testid="forecast-summary" data-verdict={m.verdict}>
       <div className="forecast-summary-line">
         <b className={`forecast-summary-verdict ${m.tone}`}>{m.headline.title}</b>
-        <span>You <RankMark level={unit.level ?? 0} faction={view.players.find((p) => p.id === unit.owner)?.faction} compact /> <b>{f.attacker_hp} → {m.hpAfter}</b> HP</span>
-        <span>{m.defName} <RankMark level={m.defUnit?.level ?? 0} faction={view.players.find((p) => p.id === m.defOwner)?.faction} compact /> <b>{f.defender_hp} → {m.defAfter}</b></span>
+        <span>You <RankMark level={unit.level ?? 0} faction={view.players.find((p) => p.id === unit.owner)?.faction} compact /> health <b>{f.attacker_hp} → {m.headline.kind === 'loss' ? 'lost' : m.hpAfter}</b></span>
+        <span>{m.defName} <RankMark level={m.defUnit?.level ?? 0} faction={view.players.find((p) => p.id === m.defOwner)?.faction} compact /> health <b>{f.defender_hp} → {m.defAfter}</b></span>
       </div>
       <div className={`forecast-summary-line forecast-outcome ${m.headline.tradeTone}`}>{tradeMark(m.headline.tradeTone)}{m.headline.detail}</div>
       {(m.win > 0 || m.loss > 0) && <div className="forecast-summary-line muted">
@@ -432,6 +433,7 @@ function Side({
   fire,
   attack,
   right,
+  lost,
   era,
 }: {
   name: string;
@@ -447,6 +449,8 @@ function Side({
   fire?: number;
   attack?: number;
   right?: boolean;
+  /** A likely loss: the side says "lost", never an average HP that reads as surviving (UI review, PR 157). */
+  lost?: boolean;
   /** The unit's era (0-6): the same tab its miniature wears on the map. */
   era?: number;
 }) {
@@ -459,13 +463,15 @@ function Side({
       <div className="fside-owner">{owner}{era !== undefined && <> <EraTab era={era} /></>}</div>
       <div className="fside-str">{right ? <><span className="fside-str-label">Strength</span>{strength}</> : <>{strength}<span className="fside-str-label">Strength</span></>}</div>
       <div className="hpbar">
-        <div className="hp-after" style={{ width: `${(after / max) * 100}%` }} />
-        <div className="hp-lost" style={{ width: `${((hp - after - shot) / max) * 100}%` }} />
+        <div className="hp-after" style={{ width: `${(lost ? 0 : after / max) * 100}%` }} />
+        <div className="hp-lost" style={{ width: `${((lost ? hp - shot : hp - after - shot) / max) * 100}%` }} />
         {shot > 0 && <div className="hp-lost hp-fire" style={{ width: `${(shot / max) * 100}%` }} />}
       </div>
-      <div className="fside-hp" data-testid={right ? undefined : 'forecast-attacker-hp'}>
-        {hp} → <b>{after}</b> HP
+      {/* Health in words, not colour alone (user, 2026-11-25: a new player read neither the bar colours nor "HP"). */}
+      <div className="fside-hp" data-testid={right ? undefined : 'forecast-attacker-hp'} data-after={after}>
+        <span className="fside-hp-word">Health</span> {hp} → {lost ? <b className="fside-lost">lost</b> : <b>{after}</b>}
       </div>
+      {!lost && hp > after && <div className="fside-lost fside-delta">−{hp - after} health</div>}
       {fire !== undefined && <div className="fside-split">−{fire} city fire{attack ? `, −${attack} attack` : ''}</div>}
     </div>
   );
