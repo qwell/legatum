@@ -2,7 +2,7 @@
   <img src="docs/media/banner.jpg" alt="Legatum. Empires rise and fall. Some are remembered. A painted river valley at dawn." width="100%">
 </p>
 
-<h3 align="center">A historical 4X on a hex map, built for people who love Civilization.</h3>
+<h3 align="center">A historical 4X on a hex map, built for people who love Civilization, paid for with U.S. taxpayer dollars.</h3>
 
 <p align="center">
   Real peoples, from Switzerland to the Aztecs. Play solo against one to seven AI empires, or with a friend on one team against six.<br>
