@@ -39,6 +39,32 @@ const ownUnits = (v: PlayerView) => v.units.filter((u) => u.owner === v.me);
 const factionOf = (v: PlayerView) => v.players.find((p) => p.id === v.me)?.faction ?? 'Switzerland';
 const otherSide = (v: PlayerView, owner: number) => owner !== v.me && v.players.find((p) => p.id === owner)?.team !== v.team;
 const nearestCity = (v: PlayerView, at: Hex) => ownCities(v).sort((a, b) => distance(a.pos, at) - distance(b.pos, at))[0];
+/**
+ * Routine steps (moving a unit, Fortify, Skip, Auto-explore, End turn, Close Research) are taught only until the
+ * player has done each on PRACTICE_TURNS different turns; after that the advisor stays quiet about them (user, 2026-11-25:
+ * "it doesn't need to show me where to move my unit every time"). Builds, research, Settlers, Found City and attacks
+ * are advice rather than controls, so they always show.
+ */
+export const PRACTICE_TURNS = 3;
+export type PracticeKind = 'move' | 'fortify' | 'skip' | 'explore' | 'endTurn' | 'closeResearch';
+export type Practice = Readonly<Partial<Record<PracticeKind, number>>>;
+/** The routine a unit order practises, or null when the order is advice worth showing every time. */
+export function practiceKind(order: Order | undefined, view: PlayerView): PracticeKind | null {
+  if (!order) return 'move';
+  switch (order.type) {
+    case 'MoveUnit': case 'MoveUnitPath': {
+      const unit = view.units.find((u) => u.id === order.unit);
+      if (!unit || unit.kind === 'Settler') return null;
+      const attack = view.units.some((u) => hexEq(u.pos, order.to) && otherSide(view, u.owner)) || view.cities.some((c) => hexEq(c.pos, order.to) && otherSide(view, c.owner));
+      return attack ? null : 'move';
+    }
+    case 'SleepUnit': return 'fortify';
+    case 'SkipUnit': return 'skip';
+    case 'SetAutomation': return order.automation === 'Explore' ? 'explore' : null;
+    default: return null;
+  }
+}
+const learned = (practice: Practice, kind: PracticeKind | null) => kind !== null && (practice[kind] ?? 0) >= PRACTICE_TURNS;
 const validOrders = (ctx: AdvisorContext) => ctx.orders.filter((_, i) => !ctx.errors?.some((e) => e.index === i));
 
 /** One honest reason drawn from visible facts. Forecast odds appear only when the client supplies them. */
@@ -148,7 +174,7 @@ function unitSuggestion(ctx: AdvisorContext, unit: UnitView, order?: Order): Sug
   return action ? { ...base, title: action.title, steps: [first, { instruction: action.instruction, key: ctx.touch ? undefined : action.key, target: action.target }] } : null;
 }
 
-export function advisorSuggestion(ctx: AdvisorContext, seen: readonly string[], skipped: readonly string[]): Suggestion | null {
+export function advisorSuggestion(ctx: AdvisorContext, seen: readonly string[], skipped: readonly string[], practice: Practice = {}): Suggestion | null {
   const v = ctx.view;
   if (v.finished || v.players.find((p) => p.id === v.me)?.alive === false) return null;
   if (v.turn === 1 && !seen.includes('welcome')) return { id: 'welcome', title: 'Your advisor will guide you', why: "I'll suggest what to do each turn and show you where to click.", steps: [], current: 0, acknowledge: true };
@@ -160,7 +186,7 @@ export function advisorSuggestion(ctx: AdvisorContext, seen: readonly string[], 
   // Research is chosen but its panel is still open: closing it is the next step, since the rest of the turn is behind it.
   // Only after a choice made this turn, so opening Research later to browse isn't nagged; "Not now" dismisses it.
   const chosen = pendingResearchQueue(orders);
-  if (ctx.techOpen && chosen?.length && !skipped.includes('closeResearch')) {
+  if (ctx.techOpen && chosen?.length && !skipped.includes('closeResearch') && !learned(practice, 'closeResearch')) {
     const tech = TECH_NAME[chosen[0]];
     return { id: 'closeResearch', title: 'Close Research', why: tech ? `${tech} is chosen. Your other decisions are on the map.` : 'Your research is chosen. Your other decisions are on the map.',
       steps: [{ instruction: `${ctx.touch ? 'Tap' : 'Click'} Close.`, key: ctx.touch ? undefined : 'Esc', target: control('closeResearch') }], current: 0 };
@@ -193,40 +219,67 @@ export function advisorSuggestion(ctx: AdvisorContext, seen: readonly string[], 
       const unit = ownUnits(v).find((u) => u.id === d.id);
       if (!unit) continue;
       const choice = plan?.find((o) => 'unit' in o && o.unit === unit.id);
+      if (learned(practice, choice ? practiceKind(choice, v) : unit.kind === 'Settler' ? null : 'move')) continue;
       const suggestion = unitSuggestion(ctx, unit, choice) ?? unitSuggestion(ctx, unit);
       if (suggestion) return suggestion;
     }
   }
-  if (decisions.length) return null;
+  if (decisions.length || learned(practice, 'endTurn')) return null;
   const solo = ctx.humans <= 1 && !ctx.remote; // Matches the turn button's label (SeatBar).
   return { id: 'endTurn', title: solo ? 'End the turn' : 'Ready for the turn', why: 'Your orders are set. Every empire’s orders happen together.',
     steps: [{ instruction: `${ctx.touch ? 'Tap' : 'Click'} ${solo ? 'End turn' : 'Ready'}.`, key: ctx.touch ? undefined : 'Return', target: control('turn', 'end') }], current: 0 };
 }
 
-interface AdvisorPreferences { enabled: boolean; seen: string[] }
+interface AdvisorPreferences { enabled: boolean; seen: string[]; practice: Practice }
 export function readAdvisorPreferences(): AdvisorPreferences {
   try {
     const raw: unknown = JSON.parse(globalThis.localStorage?.getItem(ADVISOR_KEY) ?? 'null');
     if (raw && typeof raw === 'object') {
-      const p = raw as { enabled?: unknown; seen?: unknown; tutorial?: unknown };
-      return { enabled: p.enabled !== false, seen: Array.isArray(p.seen) ? p.seen.filter((x): x is string => typeof x === 'string') : Array.isArray(p.tutorial) ? p.tutorial.filter((x): x is string => typeof x === 'string') : [] };
+      const p = raw as { enabled?: unknown; seen?: unknown; tutorial?: unknown; practice?: unknown };
+      return { enabled: p.enabled !== false, practice: readPractice(p.practice), seen: Array.isArray(p.seen) ? p.seen.filter((x): x is string => typeof x === 'string') : Array.isArray(p.tutorial) ? p.tutorial.filter((x): x is string => typeof x === 'string') : [] };
     }
   } catch { /* Storage may be unavailable. */ }
-  return { enabled: true, seen: [] };
+  return { enabled: true, seen: [], practice: {} };
 }
-function savePreferences(p: AdvisorPreferences) {
-  try { globalThis.localStorage?.setItem(ADVISOR_KEY, JSON.stringify(p)); } catch { /* Session state still works. */ }
+const PRACTICE_KINDS: readonly PracticeKind[] = ['move', 'fortify', 'skip', 'explore', 'endTurn', 'closeResearch'];
+function readPractice(raw: unknown): Practice {
+  if (!raw || typeof raw !== 'object') return {};
+  const out: Partial<Record<PracticeKind, number>> = {};
+  for (const kind of PRACTICE_KINDS) {
+    const n = (raw as Record<string, unknown>)[kind];
+    if (typeof n === 'number' && Number.isFinite(n) && n > 0) out[kind] = Math.min(Math.floor(n), PRACTICE_TURNS);
+  }
+  return out;
+}
+function savePreferences({ enabled, seen, practice }: AdvisorPreferences) {
+  try { globalThis.localStorage?.setItem(ADVISOR_KEY, JSON.stringify({ enabled, seen, practice })); } catch { /* Session state still works. */ }
 }
 interface AdvisorState extends AdvisorPreferences {
   skippedTurn: number;
   skipped: string[];
   markSeen(id: string): void;
+  /** Turn-scoped, so a routine done twice in one turn counts once. */
+  practisedTurn: number;
+  practised: PracticeKind[];
+  practise(kinds: readonly PracticeKind[], turn: number): void;
+  resetPractice(): void;
   skip(id: string, turn: number): void;
   setEnabled(enabled: boolean): void;
 }
 export const useAdvisor = create<AdvisorState>((set) => ({
-  ...readAdvisorPreferences(), skippedTurn: -1, skipped: [],
+  ...readAdvisorPreferences(), skippedTurn: -1, skipped: [], practisedTurn: -1, practised: [],
+  practise: (kinds, turn) => set((s) => {
+    const done = s.practisedTurn === turn ? s.practised : [];
+    const fresh = [...new Set(kinds)].filter((k) => !done.includes(k));
+    if (!fresh.length) return s;
+    const practice = { ...s.practice };
+    for (const k of fresh) practice[k] = Math.min((practice[k] ?? 0) + 1, PRACTICE_TURNS);
+    const next = { ...s, practice, practisedTurn: turn, practised: [...done, ...fresh] };
+    savePreferences(next);
+    return next;
+  }),
   markSeen: (id) => set((s) => { if (s.seen.includes(id)) return s; const next = { ...s, seen: [...s.seen, id] }; savePreferences(next); return next; }),
   skip: (id, turn) => set((s) => ({ skippedTurn: turn, skipped: [...(s.skippedTurn === turn ? s.skipped : []), id] })),
+  resetPractice: () => set((s) => { const next = { ...s, practice: {}, practised: [] }; savePreferences(next); return next; }),
   setEnabled: (enabled) => set((s) => { const next = { ...s, enabled }; savePreferences(next); return next; }),
 }));

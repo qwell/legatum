@@ -8,7 +8,8 @@ import { loadWasmModule, loadedWasmModule } from '../wasmClient';
 import { FactionMark } from './bits';
 import { Kbd } from './index';
 import { useGuide } from './guideState';
-import { advisorSuggestion, useAdvisor, type AdvisorTarget } from './advisorModel';
+import { pendingResearchQueue } from '../orders';
+import { advisorSuggestion, practiceKind, useAdvisor, type AdvisorTarget, type PracticeKind } from './advisorModel';
 import { useCoarsePointer } from './useCoarsePointer';
 import './Advisor.css';
 
@@ -81,6 +82,33 @@ function AdvisorRing({ target, still }: { target: AdvisorTarget; still: boolean 
     </div>;
 }
 
+/** Count the routine steps this player does themselves, so the advisor stops pointing at them once they are known. */
+function usePractice() {
+  const view = useGame((s) => s.views?.[s.seat]);
+  const orders = useGame((s) => s.orders[s.seat]);
+  const errors = useGame((s) => s.errors[s.seat]);
+  const ready = useGame((s) => !!s.ready[s.seat]);
+  const techOpen = useGame((s) => s.techOpen);
+  const practise = useAdvisor((s) => s.practise);
+  const turn = view?.turn;
+  useEffect(() => {
+    if (!view || !orders?.length) return;
+    const kinds = orders.filter((_, i) => !errors?.some((e) => e.index === i)).map((o) => practiceKind(o, view)).filter((k): k is PracticeKind => k !== null);
+    if (kinds.length) practise(kinds, view.turn);
+  }, [orders, errors, view, practise]);
+  const lastTurn = useRef<number | undefined>(undefined);
+  useEffect(() => {
+    if (turn === undefined) return;
+    if (ready || (lastTurn.current !== undefined && turn > lastTurn.current)) practise(['endTurn'], ready ? turn : lastTurn.current!);
+    lastTurn.current = turn;
+  }, [turn, ready, practise]);
+  const researchWasOpen = useRef(false);
+  useEffect(() => {
+    if (researchWasOpen.current && !techOpen && turn !== undefined && pendingResearchQueue(orders ?? [])?.length) practise(['closeResearch'], turn);
+    researchWasOpen.current = techOpen;
+  }, [techOpen]);
+}
+
 export function Advisor() {
   const card = useRef<HTMLElement>(null);
   const touch = useCoarsePointer();
@@ -107,7 +135,8 @@ export function Advisor() {
   }, []);
   const guideOpen = useGuide((s) => s.open);
   const { active: celebration, holding } = useCelebration();
-  const { enabled, seen, skipped, skippedTurn, markSeen, skip, setEnabled } = useAdvisor();
+  const { enabled, seen, skipped, skippedTurn, practice, markSeen, skip, setEnabled } = useAdvisor();
+  usePractice();
   const [, refreshPlan] = useState(0);
   useEffect(() => {
     if (!view || !enabled || loadedWasmModule()) return;
@@ -121,7 +150,7 @@ export function Advisor() {
   const suggestion = view && enabled ? advisorSuggestion({ view, orders: orders[seat] ?? [], errors: errors[seat], selection,
     humans: humans.length, remote: client?.kind === 'remote', touch, techOpen, mode, turnLabel, local: useGame.getState(),
     forecast: client ? (unit, at, mode) => client.forecast(view.me, unit, at, mode) : undefined }, seen,
-    skippedTurn === view.turn ? skipped : []) : null;
+    skippedTurn === view.turn ? skipped : [], practice) : null;
   const [modal, setModal] = useState<HTMLDialogElement | null>(null);
   useEffect(() => { setModal(techOpen ? document.querySelector<HTMLDialogElement>('dialog.tech-modal[open]') : null); }, [techOpen]);
   // The card's top edge in pixels when the usual slot would cover the step's target or the selected tile; null keeps the CSS slot.
@@ -215,9 +244,14 @@ export function Advisor() {
 }
 
 export function AdvisorSettings() {
-  const { enabled, setEnabled } = useAdvisor();
+  const { enabled, setEnabled, practice, resetPractice } = useAdvisor();
+  const practised = Object.values(practice).some((n) => (n ?? 0) > 0);
+  const [reset, setReset] = useState(false);
+  useEffect(() => { if (!reset) return; const t = window.setTimeout(() => setReset(false), 2500); return () => window.clearTimeout(t); }, [reset]);
   return <div className="hint-settings" onKeyDown={(e) => { if (e.key !== 'Escape') e.stopPropagation(); }}>
     <label><input type="checkbox" checked={enabled} onChange={(e) => setEnabled(e.target.checked)} />Show the advisor</label>
-    <div className="hint-settings-foot"><span>On by default. Turn it off any time.</span></div>
+    <div className="hint-settings-foot"><span>On by default. Steps you already know, like moving a unit, stop showing after a few turns.</span>
+      {practised ? <button onClick={() => { resetPractice(); setReset(true); }}>Show every step again</button>
+        : reset && <span role="status">Every step will show again.</span>}</div>
   </div>;
 }

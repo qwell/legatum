@@ -1,9 +1,9 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { FixtureClient } from '../test/fixtureEngine';
 import { advisor_orders } from '../wasm-pkg/legatum.js';
 import { neighbors } from '../hex';
 import type { Order } from '../types';
-import { advisorSuggestion, advisorWhy, type AdvisorContext } from './advisorModel';
+import { advisorSuggestion, advisorWhy, practiceKind, PRACTICE_TURNS, readAdvisorPreferences, useAdvisor, type AdvisorContext } from './advisorModel';
 
 async function opening() {
   const client = new FixtureClient();
@@ -150,4 +150,71 @@ describe('one decision at a time', () => {
     const plan = JSON.parse(advisor_orders(JSON.stringify(client.view(0)))) as Order[];
     expect(plan.some((o) => o.type === 'MoveUnit' || o.type === 'MoveUnitPath')).toBe(true);
   });
+});
+
+describe('only new things once the basics are known', () => {
+  it('stops pointing at a routine unit move after a few turns of practice, but keeps builds, research and settlers', async () => {
+    const { city, unit, plan, ctx, view } = await opening();
+    const cityDone = [plan[0]];
+    expect(practiceKind(plan[1], view)).toBe(unit.kind === 'Settler' ? null : 'move');
+    if (unit.kind === 'Settler') return;
+    expect(advisorSuggestion(ctx(cityDone), ['welcome'], [], { move: PRACTICE_TURNS - 1 })?.id).toBe(`unit:${unit.id}`);
+    expect(advisorSuggestion(ctx(cityDone), ['welcome'], [], { move: PRACTICE_TURNS })?.id).not.toBe(`unit:${unit.id}`);
+    const known = { move: PRACTICE_TURNS, fortify: PRACTICE_TURNS, skip: PRACTICE_TURNS, explore: PRACTICE_TURNS, endTurn: PRACTICE_TURNS };
+    expect(advisorSuggestion(ctx(), ['welcome'], [], known)?.id).toBe(`city:${city.id}`);
+    expect(advisorSuggestion({ ...ctx(cityDone), techOpen: true }, ['welcome'], [], known)?.id).toBe('research');
+  });
+
+  it('keeps attacks, settler moves and Found City as advice', async () => {
+    const { view } = await opening();
+    const own = view.units.find((u) => u.owner === view.me)!;
+    const settler = { ...own, id: 9001, kind: 'Settler' as const, military: false };
+    const rival = view.players.find((p) => p.id !== view.me && p.team !== view.team)!;
+    const enemy = { ...own, id: 9002, owner: rival.id, pos: neighbors(own.pos)[1] };
+    view.units.push(enemy);
+    view.units.push(settler);
+    expect(practiceKind({ type: 'MoveUnit', unit: settler.id, to: neighbors(settler.pos)[0] }, view)).toBeNull();
+    expect(practiceKind({ type: 'FoundCity', unit: settler.id }, view)).toBeNull();
+    expect(practiceKind({ type: 'RangedAttack', unit: own.id, target: enemy.pos }, view)).toBeNull();
+    expect(practiceKind({ type: 'MoveUnit', unit: own.id, to: enemy.pos }, view)).toBeNull();
+    expect(practiceKind({ type: 'SleepUnit', unit: own.id }, view)).toBe('fortify');
+    expect(practiceKind({ type: 'SkipUnit', unit: own.id }, view)).toBe('skip');
+  });
+
+  it('stays quiet about End turn and Close Research once practised', async () => {
+    const { view, plan, ctx } = await opening();
+    const orders: Order[] = [plan[0], plan[2], ...view.units.filter((u) => u.owner === view.me).map((u) => ({ type: 'SkipUnit' as const, unit: u.id }))];
+    expect(advisorSuggestion(ctx(orders), ['welcome'], [], { endTurn: PRACTICE_TURNS - 1 })?.id).toBe('endTurn');
+    expect(advisorSuggestion(ctx(orders), ['welcome'], [], { endTurn: PRACTICE_TURNS })).toBeNull();
+    const research: Order[] = [{ type: 'SetResearch', tech: view.research.available[0].tech }];
+    expect(advisorSuggestion({ ...ctx(research), techOpen: true }, ['welcome'], [], { closeResearch: PRACTICE_TURNS })?.id).not.toBe('closeResearch');
+  });
+});
+
+describe('practice counting', () => {
+  it('counts each routine once per turn, persists it, and can be reset', () => {
+    const store = new Map<string, string>();
+    vi.stubGlobal('localStorage', { getItem: (k: string) => store.get(k) ?? null, setItem: (k: string, v: string) => void store.set(k, v) });
+    useAdvisor.setState({ practice: {}, practised: [], practisedTurn: -1 });
+    const { practise } = useAdvisor.getState();
+    practise(['move', 'move'], 3);
+    practise(['move', 'skip'], 3);
+    practise(['move'], 4);
+    expect(useAdvisor.getState().practice).toEqual({ move: 2, skip: 1 });
+    expect(readAdvisorPreferences().practice).toEqual({ move: 2, skip: 1 });
+    practise(['move'], 5); practise(['move'], 6);
+    expect(useAdvisor.getState().practice.move).toBe(PRACTICE_TURNS);
+    useAdvisor.getState().resetPractice();
+    expect(readAdvisorPreferences().practice).toEqual({});
+    vi.unstubAllGlobals();
+  });
+});
+
+it('a Settler with no planned order still gets a card when moving is learned', async () => {
+  const { view, plan, ctx } = await opening();
+  const own = view.units.find((u) => u.owner === view.me)!;
+  const settler = { ...own, id: 9101, kind: 'Settler' as const, military: false };
+  view.units = [...view.units.filter((u) => u.owner !== view.me), settler];
+  const s = advisorSuggestion({ ...ctx([plan[0], plan[2]]), plan: [] }, ['welcome'], [], { move: PRACTICE_TURNS });
+  expect(s?.id).toBe(`unit:${settler.id}`);
 });
