@@ -41,6 +41,55 @@ export function forecastTargetName(view: PlayerView, target: Hex): string | null
   return d.unit || d.city ? d.name : null;
 }
 
+export type ForecastHeadline = {
+  /** What happens, in a few words: "Both units survive", "You will likely destroy the Spearman". */
+  title: string;
+  /** Who takes more damage, with both numbers: "You take more damage: you lose 37 HP, they lose 23." */
+  detail: string;
+  /** good: you come out ahead; bad: you come out behind or may lose the unit; even: a level trade. */
+  tone: 'good' | 'bad' | 'even';
+  kind: 'win' | 'loss' | 'survive';
+};
+
+/** The forecast's win label as an action on this target: "destroy the Spearman", "capture Rome". */
+export function winAction(winLabel: string, defName: string, cityName: string | null): string {
+  if (/capture/.test(winLabel)) return `capture ${cityName ?? defName}`;
+  if (winLabel === 'drop it to 0 HP') return `drop ${cityName ?? defName} to 0 HP`;
+  if (winLabel === 'destroy it') return `destroy the ${defName}`;
+  return winLabel;
+}
+
+/**
+ * The plain-words outcome that leads the card (user, 2026-11-25). The odds and the strength tables stay below it as the detail;
+ * this only says them in words: whether anything is destroyed, and who takes more damage.
+ */
+export function forecastHeadline(p: {
+  win: number; loss: number; winLabel: string; unitLabel: string; defName: string; cityName: string | null;
+  youLose: number; theyLose: number; ranged: boolean;
+}): ForecastHeadline {
+  const action = winAction(p.winLabel, p.defName, p.cityName);
+  const target = p.cityName && /capture|0 HP/.test(p.winLabel) ? p.cityName : `the ${p.defName}`;
+  const detail = p.youLose <= 0
+    ? `You deal ${p.theyLose} damage and take none.`
+    : p.youLose > p.theyLose
+      ? `You take more damage: you lose ${p.youLose} HP, ${target} loses ${p.theyLose}.`
+      : p.theyLose > p.youLose
+        ? `You deal more damage: ${target} loses ${p.theyLose} HP, you lose ${p.youLose}.`
+        : `An even trade: you each lose ${p.youLose} HP.`;
+  const trade: ForecastHeadline['tone'] = p.youLose > p.theyLose ? 'bad' : p.theyLose > p.youLose ? 'good' : 'even';
+  if (p.loss >= 40 && p.loss >= p.win) {
+    return { kind: 'loss', tone: 'bad', detail, title: p.loss >= 80 ? `Your ${p.unitLabel} will likely be destroyed` : `Your ${p.unitLabel} could be destroyed` };
+  }
+  if (p.win >= 100) return { kind: 'win', tone: 'good', detail, title: `You will ${action}` };
+  if (p.win >= 80) return { kind: 'win', tone: 'good', detail, title: `You will likely ${action}` };
+  if (p.win >= 40) return { kind: 'win', tone: 'good', detail, title: `Good chance to ${action}` };
+  if (p.win > 0) return { kind: 'win', tone: trade, detail, title: `Small chance to ${action}` };
+  const title = p.cityName && /capture|0 HP/.test(p.winLabel)
+    ? `${p.cityName} holds this turn`
+    : p.loss > 0 ? 'Both units will likely survive' : 'Both units survive';
+  return { kind: 'survive', tone: trade, detail, title };
+}
+
 /**
  * Everything the forecast says, with a walled city's shot folded into the headline numbers
  * (playtest-6 H1, pillar 5): the attacker's HP result, the odds and the verdict all count it.
@@ -71,14 +120,20 @@ export function forecastModel(f: BattleForecast, ranged: boolean, view: PlayerVi
   const taken = (fire?.fire ?? 0) + sharedCounter;
   const dealt = fire?.dealt ?? f.expected_damage_to_defender;
   const verdict = win >= 80 ? 'Decisive' : win >= 40 ? 'Favorable' : loss >= 40 ? 'Costly' : dealt > taken ? 'Advantage' : 'Risky';
-  const tone = verdict === 'Decisive' || verdict === 'Favorable' || verdict === 'Advantage' ? 'good' : 'bad';
   const risk = fire
-    ? fire.canDie ? `Risky: your ${unitLabel} may be destroyed (${fire.loss > 0 ? `${fire.loss}%` : 'under 1%'} chance, city fire included).` : null
+    ? fire.canDie ? `Your ${unitLabel} could be destroyed (${fire.loss > 0 ? `${fire.loss}%` : 'under 1%'} chance, city fire included).` : null
     : attackers > 1
-      ? loss > 0 ? `Risky: your ${unitLabel} may be destroyed (${loss}% chance, counterattack split ${attackers} ways).` : null
+      ? loss > 0 ? `Your ${unitLabel} could be destroyed (${loss}% chance, counterattack split ${attackers} ways).` : null
       : attackerRisk(f, unitLabel);
   const strike = city ? cityStrikeWarning(f, city.name, unitLabel, fire?.fire) : null;
   const hpAfter = fire && attackers === 1 ? fire.hpAfter : Math.max(0, f.attacker_hp - taken);
+  const defMax = city && !(defUnit && defUnit.military) ? city.max_hp : 100;
+  const defAfter = assault && city && !defUnit?.military ? assault.city_hp_after : Math.max(0, f.defender_hp - dealt);
+  // The card opens with what happens, in words (user, 2026-11-25: a new player read "Risky, 0% / 0%" and had no idea what it meant).
+  const headline = forecastHeadline({
+    win, loss, winLabel, unitLabel, defName, cityName: city?.name ?? null,
+    youLose: f.attacker_hp - hpAfter, theyLose: f.defender_hp - defAfter, ranged,
+  });
   // Sparta kills heal (see `killHeals`); a melee winner advances onto the defender's tile, so what
   // waits there next turn is part of the headline (p881 horseman).
   const heals = faction === 'Sparta' && !!defUnit?.military && !(city && city.hp > 0);
@@ -93,12 +148,14 @@ export function forecastModel(f: BattleForecast, ranged: boolean, view: PlayerVi
   const lockWarning = city && assault?.can_capture && assault.capture_chance > 0 ? occupationLockWarning(view, unit, city) : null;
   const elsewhereName = elsewhere ? itemName({ kind: 'Unit', unit: elsewhere.kind }, view.players.find((p) => p.id === elsewhere.owner)?.faction) : null;
   return {
-    city, defUnit, defOwner, defName, unitLabel, fire, win, winLabel, loss, taken, dealt, verdict, tone, risk, strike,
+    city, defUnit, defOwner, defName, unitLabel, fire, win, winLabel, loss, taken, dealt, verdict, tone: headline.tone, strike,
     // The whole-fight block earns its room when a garrison stands under the city or other attacks are pooled; a lone attack on an empty city is already the card above.
     assault: city && assault && (assault.garrison || assault.attacks > 1) ? assault : null,
     counterText: otherMelee.length > 0 ? `${otherMelee.length} other${otherMelee.length === 1 ? '' : 's'} also attacking: you take about −${sharedCounter} instead of −${fullCounter}.` : null,
     ownerName: ownerNameOf(view, defOwner),
-    defMax: city && !(defUnit && defUnit.military) ? city.max_hp : 100,
+    defMax, defAfter, headline,
+    // The headline already names the loss: the red risk row would only repeat it.
+    risk: headline.kind === 'loss' ? null : risk,
     hpAfter, aftermath, lockWarning,
     fortify: fortified > 0 && unfortified !== null && defUnit
       ? { bonus: fortified, win: unfortified, shoots: defUnit.ranged > 0 }
@@ -159,10 +216,10 @@ export function FortifyLine({ m }: { m: ReturnType<typeof forecastModel> }) {
   const pointer = m.win === 0 && !!m.aftermath;
   return (
     <div className="forecast-shield forecast-fortify" data-testid="forecast-fortify">
-      Assumes the {m.defName} stays fortified (+{fortify.bonus} Defense).
+      Counts the {m.defName}’s +{fortify.bonus} for staying fortified.
       {fires && (pointer
         ? ` Firing loses it: chance above.`
-        : ` ${/^[AEIOU]/.test(m.defName) ? 'An' : 'A'} ${m.defName} that fires first loses the +${fortify.bonus}: ${fortify.win}% to destroy it.`)}
+        : ` If it fires first, it loses the +${fortify.bonus}: ${fortify.win}% chance to destroy it.`)}
     </div>
   );
 }
@@ -171,6 +228,21 @@ export function FortifyLine({ m }: { m: ReturnType<typeof forecastModel> }) {
 function killHeals(view: PlayerView, unit: UnitView, m: ReturnType<typeof forecastModel>): boolean {
   return view.players.find((p) => p.id === unit.owner)?.faction === 'Sparta'
     && !!m.defUnit?.military && !(m.city && m.city.hp > 0);
+}
+
+/** The two chances, in words. When neither side can be destroyed the headline already says so, and a row of 0% only confuses. */
+function OddsRow({ m }: { m: ReturnType<typeof forecastModel> }) {
+  if (m.win === 0 && m.loss === 0) return null;
+  return (
+    <div className="forecast-odds">
+      <div>
+        <b className="good">{m.win}%</b> chance to {winAction(m.winLabel, m.defName, m.city?.name ?? null)}
+      </div>
+      <div>
+        <b className={m.loss > 0 ? 'bad' : ''}>{m.loss}%</b> chance to lose your {m.unitLabel}
+      </div>
+    </div>
+  );
 }
 
 /** Civ-style combat preview shown when hovering an enemy with a military unit selected. */
@@ -212,7 +284,8 @@ export function ForecastCard({
     <div className="forecast" ref={placed.ref} style={placed.style} data-verdict={m.verdict}>
       <div className={`forecast-head ${m.tone}`}>
         <span className="forecast-kind">{ranged ? 'Ranged strike' : 'Attack'}</span>
-        <span className="forecast-verdict">{m.verdict}</span>
+        <div className="forecast-verdict" data-testid="forecast-headline">{m.headline.title}</div>
+        <div className="forecast-outcome" data-testid="forecast-outcome">{m.headline.detail}</div>
       </div>
       {city && capturePointFor(view, city, unit.owner) && !ranged &&
         // The point a capture scores leads the card, in gilt under the header: it can decide the attack (8.9.23 review: it sat in the grey footnotes).
@@ -254,7 +327,7 @@ export function ForecastCard({
           strength={f.defender_strength.total}
           hp={f.defender_hp}
           max={m.defMax}
-          after={m.assault && m.city && !m.defUnit?.military ? m.assault.city_hp_after : Math.max(0, f.defender_hp - m.dealt)}
+          after={m.defAfter}
           right
         />
       </div>
@@ -272,23 +345,13 @@ export function ForecastCard({
       {routeWarning && <div className={isCalmRouteNote(routeWarning) ? 'forecast-shield route-note' : 'forecast-risk bad'} role={isCalmRouteNote(routeWarning) ? undefined : 'alert'} data-testid="route-warning">{routeWarning}</div>}
       {bowNote && <div className="forecast-shield forecast-bow-note" data-testid="forecast-shot-why">{bowNote}</div>}
       {m.risk && <div className="forecast-risk bad" role="alert">{m.risk}</div>}
-      <div className="forecast-odds">
-        <div>
-          <b className="good">{m.win}%</b> {m.winLabel}
-        </div>
-        <div>
-          <b className={m.loss > 0 ? 'bad' : ''}>{m.loss}%</b> lose your unit
-        </div>
-      </div>
+      <OddsRow m={m} />
       <FortifyLine m={m} />
       <div className="forecast-bd">
         <BreakdownTable b={f.attacker_strength} title="Your strength" />
         <BreakdownTable b={f.defender_strength} title="Their strength" />
       </div>
-      <div className="forecast-foot forecast-dealt">
-        Expected damage: you deal <b>{m.dealt}</b>, take <b>{m.taken}</b>
-        {fire ? <> ({fire.fire} from city fire{ranged ? '' : `, ${fire.attack} in the attack`})</> : ranged ? ' (no retaliation)' : ''}. Rolls 80–120%.
-      </div>
+      <div className="forecast-foot forecast-dealt">Damage is the average: each hit can be a fifth more or less.</div>
       {city && f.sack_gold !== undefined && <div className="forecast-foot" data-testid="forecast-sack">Sack: +{f.sack_gold} Gold ({RULES.celtsSackGoldPerPopulation} per population)</div>}
       {fire && strike && <details className="forecast-foot forecast-strike"><summary>How city fire works</summary><span className="forecast-strike-math">It fires at the weakest unit in range. {strike.details}{ranged ? '' : ' Your attack then fights at the reduced HP.'}</span></details>}
       {strike && !fire && <div className="forecast-foot forecast-strike" data-testid="forecast-city-fire-elsewhere">
@@ -321,16 +384,17 @@ export function ForecastSummary({ forecast: f, ranged, view, unit, target, assau
   return (
     <div className="forecast-summary" data-testid="forecast-summary" data-verdict={m.verdict}>
       <div className="forecast-summary-line">
-        <b className={`forecast-summary-verdict ${m.tone}`}>{m.verdict}</b>
+        <b className={`forecast-summary-verdict ${m.tone}`}>{m.headline.title}</b>
         <span>You <RankMark level={unit.level ?? 0} faction={view.players.find((p) => p.id === unit.owner)?.faction} compact /> <b>{f.attacker_hp} → {m.hpAfter}</b> HP</span>
-        <span>{m.defName} <RankMark level={m.defUnit?.level ?? 0} faction={view.players.find((p) => p.id === m.defOwner)?.faction} compact /> <b>{f.defender_hp} → {Math.max(0, f.defender_hp - m.dealt)}</b></span>
+        <span>{m.defName} <RankMark level={m.defUnit?.level ?? 0} faction={view.players.find((p) => p.id === m.defOwner)?.faction} compact /> <b>{f.defender_hp} → {m.defAfter}</b></span>
       </div>
-      <div className="forecast-summary-line muted">
-        <span><b className="good">{m.win}%</b> {m.winLabel}</span>
-        <span><b className={m.loss > 0 ? 'bad' : ''}>{m.loss}%</b> lose your unit</span>
-      </div>
+      <div className="forecast-summary-line muted">{m.headline.detail}</div>
+      {(m.win > 0 || m.loss > 0) && <div className="forecast-summary-line muted">
+        <span><b className="good">{m.win}%</b> chance to {winAction(m.winLabel, m.defName, m.city?.name ?? null)}</span>
+        <span><b className={m.loss > 0 ? 'bad' : ''}>{m.loss}%</b> chance to lose your {m.unitLabel}</span>
+      </div>}
       {m.aftermath && <div className={`forecast-summary-shield forecast-aftermath${m.aftermath.severe ? ' severe' : ''}`} data-testid="forecast-aftermath" data-risk={m.aftermath.risk}>{m.aftermath.line}</div>}
-      {m.fortify && <div className="forecast-summary-shield forecast-fortify" data-testid="forecast-fortify">Assumes the {m.defName} stays fortified (+{m.fortify.bonus} Defense).</div>}
+      {m.fortify && <div className="forecast-summary-shield forecast-fortify" data-testid="forecast-fortify">Counts the {m.defName}’s +{m.fortify.bonus} for staying fortified.</div>}
       {m.city && m.assault && <div className={`forecast-summary-shield forecast-assault-capture ${assaultText(m, view)!.captureTone}`} data-testid="forecast-assault">{assaultText(m, view)!.capture}</div>}
       {m.lockWarning && <div className="forecast-summary-shield" data-testid="forecast-occupation-lock">{m.lockWarning}</div>}
       {m.city && !m.assault && f.garrison && <div className="forecast-summary-shield">{garrisonHeadline(f, view, m.city.name, ranged)}</div>}
@@ -381,7 +445,7 @@ function Side({
         <RankMark level={level ?? 0} faction={faction} compact />{name}
       </div>
       <div className="fside-owner">{owner}{era !== undefined && <> <EraTab era={era} /></>}</div>
-      <div className="fside-str">{strength}</div>
+      <div className="fside-str">{right ? <><span className="fside-str-label">Strength</span>{strength}</> : <>{strength}<span className="fside-str-label">Strength</span></>}</div>
       <div className="hpbar">
         <div className="hp-after" style={{ width: `${(after / max) * 100}%` }} />
         <div className="hp-lost" style={{ width: `${((hp - after - shot) / max) * 100}%` }} />

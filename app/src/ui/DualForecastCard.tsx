@@ -9,7 +9,7 @@ import { itemName } from '../data';
 import { useGame } from '../store';
 import { formatBreakdown } from '../format';
 import { forecastEraHeadline, outclasses } from '../map/unitEra';
-import { AftermathLine, FortifyLine, forecastModel } from './ForecastCard';
+import { AftermathLine, FortifyLine, forecastModel, winAction } from './ForecastCard';
 import { cityEntryWarning, forecastWinLabel, garrisonHeadline } from './forecastWarnings';
 import { usePlacedCard, type CardAnchor } from './usePlacedCard';
 import { Icon } from './bits';
@@ -35,18 +35,18 @@ function Option({ kind, f, m, view, unit }: { kind: 'shot' | 'charge'; f: Battle
   const defHpAfter = Math.max(0, f.defender_hp - m.dealt);
   return (
     <section className={`dual-option ${shot ? 'shot' : 'charge'}`} data-testid={`forecast-${kind}`} data-verdict={m.verdict} aria-label={shot ? 'Shoot' : 'Charge'}>
-      <header className={`dual-head ${m.tone}`}>
+      <header className="dual-head">
         <span className="dual-what"><Icon name={shot ? 'unit-archer' : 'unit-horseman'} size={15} /> {shot ? 'Shoot' : 'Charge'}</span>
         <span className="dual-key">{shot ? 'R, then click' : 'Right-click'}</span>
-        <span className="dual-verdict">{m.verdict}</span>
       </header>
+      <p className={`dual-outcome ${m.tone}`} data-testid={`forecast-${kind}-headline`}><b>{m.headline.title}.</b> {m.headline.detail}</p>
       {!shot && m.aftermath?.severe && <AftermathLine m={m} />}
       <p className="dual-line" data-testid={`forecast-${kind}-numbers`}>
         You <RankMark level={unit.level ?? 0} faction={view.players.find((p) => p.id === unit.owner)?.faction} compact /> <b>{f.attacker_strength.total}</b> vs {m.defName} <RankMark level={m.defUnit?.level ?? 0} faction={view.players.find((p) => p.id === m.defOwner)?.faction} compact /> <b>{f.defender_strength.total}</b> strength · you <b>{f.attacker_hp} → {m.hpAfter}</b> HP · {m.defName} <b>{f.defender_hp} → {defHpAfter}</b>
       </p>
       <p className="dual-odds">
-        <b className="good">{m.win}%</b> {forecastWinLabel(f, !!m.city, shot, false)}
-        {shot && m.loss === 0 ? <span className="dual-quiet"> · no return fire</span> : <> · <b className={m.loss > 0 ? 'bad' : ''}>{m.loss}%</b> lose your unit</>}
+        <b className="good">{m.win}%</b> chance to {winAction(forecastWinLabel(f, !!m.city, shot, false), m.defName, m.city?.name ?? null)}
+        {shot && m.loss === 0 ? <span className="dual-quiet"> · no return fire</span> : <> · <b className={m.loss > 0 ? 'bad' : ''}>{m.loss}%</b> chance to lose your {m.unitLabel}</>}
       </p>
       <p className="dual-class" data-testid={`forecast-${kind}-class`}>
         {classes.length ? classes.join('; ') : 'No class bonus for either side.'}
@@ -57,7 +57,7 @@ function Option({ kind, f, m, view, unit }: { kind: 'shot' | 'charge'; f: Battle
       {m.city && <p className={shot ? 'dual-line' : 'dual-line forecast-note'}>{cityEntryWarning(unit, shot)}</p>}
       {!shot && m.aftermath && !m.aftermath.severe && <AftermathLine m={m} />}
       {!shot && m.fortify && <FortifyLine m={m} />}
-      <p className="dual-parts forecast-note">You {formatBreakdown(f.attacker_strength)}; them {formatBreakdown(f.defender_strength)}. Rolls 80–120%.</p>
+      <p className="dual-parts forecast-note">You {formatBreakdown(f.attacker_strength)}; them {formatBreakdown(f.defender_strength)}. Each hit can be a fifth more or less.</p>
     </section>
   );
 }

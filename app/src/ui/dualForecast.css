@@ -6,9 +6,10 @@
 .dual-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; }
 .dual-what { display: inline-flex; align-items: center; gap: 5px; font: var(--display-weight) 18px/1 var(--display); }
 .dual-key { font: 600 11px/1 var(--sans); letter-spacing: 0.04em; padding: 2px 6px; border: 1px solid var(--frame); border-radius: 3px; color: var(--ink-2); background: var(--panel-3); align-self: center; flex: 0 0 auto; }
-.dual-verdict { margin-left: auto; font: var(--display-weight) 18px/1 var(--display); }
-.dual-head.good .dual-verdict { color: var(--good); }
-.dual-head.bad .dual-verdict { color: var(--bad); }
+.dual-outcome { color: var(--ink); }
+.dual-outcome b { font: var(--display-weight) 16px/1.2 var(--display); }
+.dual-outcome.good b { color: var(--good); }
+.dual-outcome.bad b { color: var(--bad); }
 .dual-option p { margin: 0 0 3px; font-size: 13px; line-height: 1.3; color: var(--ink); }
 .dual-line b, .dual-odds b { font-family: var(--num-font); font-weight: 600; }
 .dual-odds { color: var(--ink-2); }
@@ -22,3 +23,4 @@
   .dual-option { padding: 6px 16px 4px; }
   .dual-option p { margin-bottom: 2px; line-height: 1.2; }
 }
+.forecast-dual .forecast-head { display: flex; justify-content: space-between; align-items: baseline; }

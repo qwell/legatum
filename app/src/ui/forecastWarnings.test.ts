@@ -172,9 +172,9 @@ describe('G18 combat warnings', () => {
 
   it('warns on the forecast card when the attacker could be destroyed, including chances that round to 0%', () => {
     expect(attackerRisk(forecast({}), 'Spearman')).toBeNull();
-    expect(attackerRisk(forecast({ loss_chance: 35, attacker_hp: 36 }), 'Spearman')).toBe('Risky: your Spearman may be destroyed (35% chance).');
+    expect(attackerRisk(forecast({ loss_chance: 35, attacker_hp: 36 }), 'Spearman')).toBe('Your Spearman could be destroyed (35% chance).');
     // Worst roll (120%) of 20 vs 20 deals 36: a 36 HP attacker can die even when the chance rounds down to 0%.
-    expect(attackerRisk(forecast({ attacker_hp: 36 }), 'Spearman')).toBe('Risky: your Spearman may be destroyed (under 1% chance).');
+    expect(attackerRisk(forecast({ attacker_hp: 36 }), 'Spearman')).toBe('Your Spearman could be destroyed (under 1% chance).');
     expect(attackerRisk(forecast({ ranged: true, loss_chance: 0, attacker_hp: 1 }), 'Archer')).toBeNull();
   });
 

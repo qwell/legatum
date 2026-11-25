@@ -83,7 +83,7 @@ export function attackerRisk(f: BattleForecast, unitName: string): string | null
   if (f.ranged) return null;
   const worst = damage(f.defender_strength.total, f.attacker_strength.total, 120);
   if (f.loss_chance <= 0 && worst < f.attacker_hp) return null;
-  return `Risky: your ${unitName} may be destroyed (${f.loss_chance > 0 ? `${f.loss_chance}%` : 'under 1%'} chance).`;
+  return `Your ${unitName} could be destroyed (${f.loss_chance > 0 ? `${f.loss_chance}%` : 'under 1%'} chance).`;
 }
 
 /**

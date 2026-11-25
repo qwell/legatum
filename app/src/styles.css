@@ -2989,12 +2989,11 @@ dialog.settings-modal {
 .forecast {
   width: 320px;
 }
+/* The head says what happens, in words: the kind, then the outcome in the display face, then who takes more damage (user, 2026-11-25). */
 .forecast-head {
-  display: flex;
-  gap: 10px;
-  justify-content: space-between;
-  align-items: baseline;
-  padding: 12px 16px 8px;
+  display: grid;
+  gap: 4px;
+  padding: 12px 16px 10px;
   border-bottom: 1px solid var(--frame);
 }
 .forecast-kind {
@@ -3004,7 +3003,12 @@ dialog.settings-modal {
   color: var(--label-color);
 }
 .forecast-verdict {
-  font: var(--display-weight) 22px/1 var(--display);
+  font: var(--display-weight) 22px/1.1 var(--display);
+  color: var(--ink);
+}
+.forecast-outcome {
+  font: 500 13px/1.3 var(--sans);
+  color: var(--ink-2);
 }
 .forecast-head.good .forecast-verdict {
   color: var(--good);
@@ -3051,6 +3055,15 @@ dialog.settings-modal {
 .fside-str {
   margin: 4px 0;
   font: 600 22px/1 var(--num-font);
+}
+/* Civ shows combat strength as a number with a label: the label says what the big number is. */
+.fside-str-label {
+  margin: 0 6px;
+  font: 600 10px/1 var(--sans);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--label-color);
+  vertical-align: 3px;
 }
 .hpbar {
   display: flex;
@@ -3212,7 +3225,7 @@ dialog.settings-modal {
   /* The lock card also gives up the city-fire sentence's tail (the HP line under the bar already says the fire is included) and some padding. */
   .forecast:has([data-testid='forecast-occupation-lock']) .forecast-included { display: none; }
   .forecast:has([data-testid='forecast-occupation-lock']) .forecast-risk { margin-bottom: 3px; }
-  .forecast:has([data-testid='forecast-occupation-lock']) .forecast-head { padding: 6px 16px 4px; }
+  .forecast:has([data-testid='forecast-occupation-lock']) .forecast-head { padding: 6px 16px 4px; gap: 2px; }
   .forecast:has([data-testid='forecast-occupation-lock']) .fside-str { margin: 2px 0; }
   .forecast:has([data-testid='forecast-occupation-lock']) .fside-hp { margin-top: 2px; }
   .forecast:has([data-testid='forecast-occupation-lock']) .forecast-assault { margin-bottom: 2px; }
